@@ -1,0 +1,813 @@
+<title>Number Bites</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: one phone-width column on squared exercise-book paper; chunky press buttons; feedback sheet slides up from the bottom */
+:root{
+  --paper:#F3F6FB; --grid:#DDE5F2; --card:#FFFFFF; --ink:#1B2440; --soft:#5B6584;
+  --line:#CBD5E6; --blue:#2F5BEA; --blue-d:#1E3FB0; --gold:#FFB627; --gold-d:#C98500;
+  --good:#1C8F5A; --good-bg:#DDF5E8; --bad:#C93A2E; --bad-bg:#FBE3E0; --sel:#E5ECFF;
+  --display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", Verdana, system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0F1529; --grid:#1A2340; --card:#18213F; --ink:#E9EDF8; --soft:#A2ACC8;
+  --line:#2E3A60; --blue:#7C9BFF; --blue-d:#4C6AD6; --gold:#FFC757; --gold-d:#B8860B;
+  --good:#45D394; --good-bg:#123A2A; --bad:#FF7A6E; --bad-bg:#43201E; --sel:#24305A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0F1529; --grid:#1A2340; --card:#18213F; --ink:#E9EDF8; --soft:#A2ACC8;
+  --line:#2E3A60; --blue:#7C9BFF; --blue-d:#4C6AD6; --gold:#FFC757; --gold-d:#B8860B;
+  --good:#45D394; --good-bg:#123A2A; --bad:#FF7A6E; --bad-bg:#43201E; --sel:#24305A; color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px;}
+.app{max-width:520px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 140px;}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* buttons */
+.btn{display:block;width:100%;border:0;border-radius:16px;padding:16px;font-family:var(--display);font-weight:800;font-size:19px;
+  background:var(--blue);color:#fff;box-shadow:0 5px 0 var(--blue-d);transition:transform .06s, box-shadow .06s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--blue-d)}
+.btn[disabled]{background:var(--line);box-shadow:0 5px 0 var(--line);color:var(--soft);cursor:default}
+.btn.gold{background:var(--gold);color:#2A1D00;box-shadow:0 5px 0 var(--gold-d)}
+.btn.good{background:var(--good);box-shadow:0 5px 0 #0E5E39;color:#fff}
+.btn.bad{background:var(--bad);box-shadow:0 5px 0 #8A2219;color:#fff}
+.btn.ghost{background:var(--card);color:var(--ink);box-shadow:0 5px 0 var(--line);border:2px solid var(--line)}
+
+/* home */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}
+.brand{font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:-.5px}
+.brand span{color:var(--blue)}
+.chips{display:flex;gap:8px}
+.chip{display:flex;align-items:center;gap:5px;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:4px 12px;font-weight:700;font-variant-numeric:tabular-nums}
+.chip svg{width:18px;height:18px}
+.goal{display:flex;align-items:center;gap:16px;background:var(--card);border:2px solid var(--line);border-radius:20px;padding:16px;margin-bottom:20px}
+.goal svg{flex:none}
+.goal b{font-family:var(--display);font-size:20px}
+.goal p{margin:2px 0 0;color:var(--soft);font-size:15px}
+.hero{margin-bottom:22px}
+.hero .btn{font-size:24px;padding:22px}
+.hero small{display:block;text-align:center;color:var(--soft);margin-top:12px;font-size:15px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.mode{text-align:left;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 4px 0 var(--line);display:flex;flex-direction:column;gap:6px}
+.mode:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.mode svg{width:30px;height:30px}
+.mode b{font-family:var(--display);font-size:17px}
+.mode span{color:var(--soft);font-size:14px;line-height:1.35}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:12px 14px;margin-bottom:20px}
+.toggle b{display:block}
+.toggle span{color:var(--soft);font-size:14px}
+.switch{flex:none;width:58px;height:34px;border-radius:999px;border:0;background:var(--line);position:relative;padding:0}
+.switch::after{content:"";position:absolute;top:4px;left:4px;width:26px;height:26px;border-radius:50%;background:#fff;transition:left .15s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch[aria-checked="true"]{background:var(--good)}
+.switch[aria-checked="true"]::after{left:28px}
+.label{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--soft);font-weight:700;margin:0 0 8px}
+.topics{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.topics span{font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:3px 9px}
+.note{font-size:14px;color:var(--soft);border-top:2px dashed var(--line);padding-top:12px}
+
+/* play */
+.bar{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.x{border:0;background:none;padding:6px;color:var(--soft);font-size:26px;line-height:1}
+.track{flex:1;height:16px;background:var(--line);border-radius:999px;overflow:hidden}
+.fill{height:100%;background:var(--good);border-radius:999px;width:0;transition:width .3s}
+.tag{font-size:12px;font-weight:700;border-radius:8px;padding:3px 8px;background:var(--card);border:2px solid var(--line);white-space:nowrap}
+.eyebrow{font-size:13px;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--blue);margin-bottom:8px}
+.q{font-family:var(--display);font-weight:600;font-size:23px;line-height:1.3;margin-bottom:22px}
+.q .big{display:block;font-size:32px;font-weight:800;margin:10px 0;letter-spacing:.5px;font-variant-numeric:tabular-nums}
+.q .hint{display:table;margin-top:10px;font-family:var(--body);font-size:15px;font-weight:700;background:var(--gold);color:#2A1D00;border-radius:8px;padding:2px 10px}
+.q .packs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.q .packs span{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px;font-size:17px;font-family:var(--body)}
+.q .packs b{display:block;font-family:var(--display)}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1;font-weight:800;margin:0 2px}
+.fr sup,.fr sub{font-size:.8em;vertical-align:baseline}
+.fr sup{border-bottom:2px solid currentColor;padding:0 3px 2px}
+.fr sub{padding-top:2px}
+.fr i{display:none}
+.opts{display:grid;gap:12px}
+.opt{text-align:left;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:15px 16px;font-size:20px;font-weight:700;box-shadow:0 4px 0 var(--line);font-variant-numeric:tabular-nums}
+.opt[aria-pressed="true"]{border-color:var(--blue);background:var(--sel);box-shadow:0 4px 0 var(--blue)}
+.opt.right{border-color:var(--good);background:var(--good-bg);box-shadow:0 4px 0 var(--good)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg);box-shadow:0 4px 0 var(--bad)}
+.steps{display:grid;gap:10px}
+.step{display:flex;gap:12px;align-items:baseline;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 14px;font-size:19px;box-shadow:0 3px 0 var(--line)}
+.step em{font-style:normal;font-family:var(--display);font-weight:800;color:var(--soft);font-size:15px;flex:none}
+.step[aria-pressed="true"]{border-color:var(--blue);background:var(--sel);box-shadow:0 3px 0 var(--blue)}
+.step{flex-wrap:wrap}
+.step[data-note]::after{content:attr(data-note);flex-basis:100%;font-size:14px;font-weight:700;margin-left:27px}
+.step.right{border-color:var(--good);background:var(--good-bg)}
+.step.right::after{color:var(--good)}
+.step.here{border-color:var(--gold);box-shadow:0 3px 0 var(--gold-d)}
+.step.here::after{color:var(--gold)}
+.step.fine{border-color:var(--soft);border-style:dashed;box-shadow:none}
+.step.fine::after{color:var(--soft)}
+.flash{perspective:900px;margin-bottom:8px}
+.face{background:var(--card);border:2px solid var(--line);border-radius:22px;box-shadow:0 6px 0 var(--line);min-height:220px;padding:24px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:12px}
+.face h2{font-size:28px}
+.face .ans{font-family:var(--display);font-weight:800;font-size:30px;color:var(--blue)}
+.face .ex{color:var(--soft);font-size:16px}
+.face.turn{animation:turn .35s ease}
+@keyframes turn{from{transform:rotateY(90deg)}to{transform:rotateY(0)}}
+
+.dock{position:fixed;left:0;right:0;bottom:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-top:16px;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--paper);border-top:2px solid var(--line);transition:background .2s}
+.dock.good{background:var(--good-bg);border-color:var(--good)}
+.dock.bad{background:var(--bad-bg);border-color:var(--bad)}
+.dock-in{max-width:520px;margin:0 auto;display:grid;gap:12px}
+.fb{display:none}
+.dock.good .fb,.dock.bad .fb{display:block}
+.fb h3{font-size:22px}
+.dock.good .fb h3{color:var(--good)}
+.dock.bad .fb h3{color:var(--bad)}
+.fb p{margin:4px 0 0;font-size:16px}
+.fb .again{font-size:14px;color:var(--soft);margin-top:4px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* done */
+.done{text-align:center;padding-top:30px;display:grid;gap:18px}
+.done h1{font-size:38px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px 6px}
+.stat b{display:block;font-family:var(--display);font-size:28px;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--soft)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+.cbtn{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:4px 10px;font-size:18px;line-height:1.2;cursor:pointer}
+.cbtn[aria-expanded="true"]{border-color:var(--blue);box-shadow:0 3px 0 var(--blue-d)}
+.cpad{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--card);border-top:2px solid var(--line);box-shadow:0 -8px 24px rgba(0,0,0,.18);padding:8px max(10px,env(safe-area-inset-right,0px)) 8px max(10px,env(safe-area-inset-left,0px))}
+.cpad-in{max-width:420px;margin:0 auto;display:grid;gap:6px}
+.ctop{display:flex;gap:8px;align-items:stretch}
+.cdisp{flex:1;min-width:0;font-family:var(--body);font-size:21px;font-weight:700;text-align:right;background:var(--paper);border:2px solid var(--line);border-radius:10px;padding:2px 10px;overflow-x:auto;white-space:nowrap}
+.cdisp small{display:block;font-size:11px;color:var(--soft);font-weight:400;min-height:1.3em}
+.cuse{border:0;border-radius:10px;background:var(--good);color:#fff;font-weight:700;font-size:13px;line-height:1.2;padding:4px 10px}
+.cgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.cgrid button{border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:9px;padding:7px 0;font-size:17px;font-weight:700;font-family:var(--body)}
+.cgrid button:active{transform:translateY(2px)}
+.cgrid .op{color:var(--blue)}
+.cgrid .eq{background:var(--blue);color:#fff;border-color:var(--blue-d)}
+.ans{display:flex;align-items:center;gap:8px;background:var(--card);border:2px solid var(--blue);border-radius:16px;padding:0 16px;font-size:22px;font-weight:700;box-shadow:0 4px 0 var(--blue-d)}
+.ans span{color:var(--soft);font-size:19px;flex:none}
+.ans input{flex:1;min-width:0;border:0;background:none;color:var(--ink);font:inherit;padding:14px 0;outline:none}
+.ans input::placeholder{color:var(--soft);font-weight:400;font-size:17px}
+.ans:focus-within{outline:3px solid var(--gold);outline-offset:2px}
+.ans.right{border-color:var(--good);background:var(--good-bg);box-shadow:0 4px 0 var(--good)}
+.ans.wrong{border-color:var(--bad);background:var(--bad-bg);box-shadow:0 4px 0 var(--bad)}
+.fixq{font-family:var(--display);font-weight:600;font-size:19px;margin:20px 0 10px}
+.rule{display:flex;gap:10px;align-items:center;margin-top:10px;background:var(--card);border:2px dashed var(--gold-d);border-radius:12px;padding:8px 12px;font-size:15px}
+.rule>span{font-size:22px}
+.rule i{display:block;font-style:normal;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold-d)}
+.rule b{font-family:var(--display);font-size:17px;color:var(--ink)}
+.face.mini{min-height:0;padding:20px;margin-bottom:18px}
+.rule-opt{font-size:17px}
+.rule-opt small{display:block;font-weight:400;color:var(--soft);font-size:13px}
+.fb small{color:var(--soft)}
+</style>
+
+<div class="app">
+
+<section id="home">
+  <div class="top">
+    <div class="brand">Number<span>Bites</span></div>
+    <div class="chips">
+      <div class="chip" title="Day streak"><svg viewBox="0 0 24 24"><path fill="var(--gold)" d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3-1-3 0-7 1-9.5z"/></svg><span id="streak">0</span></div>
+      <div class="chip" title="Total XP"><svg viewBox="0 0 24 24"><path fill="var(--blue)" d="M12 2l3 6.5 7 .8-5.2 4.8 1.5 7L12 17.6 5.7 21l1.5-7L2 9.3l7-.8z"/></svg><span id="total">0</span></div>
+    </div>
+  </div>
+
+  <div class="goal">
+    <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="26" fill="none" stroke="var(--line)" stroke-width="8"/>
+      <circle id="ring" cx="32" cy="32" r="26" fill="none" stroke="var(--good)" stroke-width="8" stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="163.4" transform="rotate(-90 32 32)"/>
+    </svg>
+    <div><b id="goalText">0 / 50 XP today</b><p id="goalSub">One round gets you most of the way.</p></div>
+  </div>
+
+  <div class="hero">
+    <button class="btn gold" id="goQuick">Give me 5</button>
+    <small>About 3 minutes · mixed questions, one mistake to spot and fix, one formula</small>
+  </div>
+
+  <div class="modes">
+    <button class="mode" id="goMistake">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--bad)" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21M8 8l5 5M13 8l-5 5"/></svg>
+      <b>Spot the mistake</b><span>Find the wrong line in someone's working</span>
+    </button>
+    <button class="mode" id="goCards">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.4" stroke-linejoin="round"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/></svg>
+      <b>Formula cards</b><span>Pick the right rule from 5</span>
+    </button>
+  </div>
+
+  <div class="toggle">
+    <div><b>Calculator</b><span id="calcSub">Off: no-calculator paper practice</span></div>
+    <button class="switch" id="calc" role="switch" aria-checked="false" aria-label="Calculator allowed"></button>
+  </div>
+
+  <p class="label">In the mix so far</p>
+  <div class="topics" id="topics"></div>
+  <p class="note">Mock version for Functional Skills Maths Level 2. New topics get added as you cover them in class.</p>
+</section>
+
+<section id="play" hidden>
+  <div class="bar">
+    <button class="x" id="quit" aria-label="Stop and go home">×</button>
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <span class="tag" id="calcTag">No calculator</span>
+    <button class="cbtn" id="calcBtn" aria-label="Open calculator" aria-expanded="false" hidden>🧮</button>
+  </div>
+  <div class="cpad" id="cpad" hidden><div class="cpad-in">
+    <div class="ctop"><div class="cdisp"><small id="cprev"></small><span id="cout">0</span></div><button type="button" class="cuse" id="cuse" hidden>Put in<br>answer ↑</button></div>
+    <div class="cgrid" id="cgrid"></div>
+  </div></div>
+  <div id="stage"></div>
+</section>
+
+<section id="done" hidden>
+  <div class="done">
+    <h1 id="doneTitle">Round done!</h1>
+    <div class="stats">
+      <div class="stat"><b id="dXp">0</b><span>XP earned</span></div>
+      <div class="stat"><b id="dAcc">0%</b><span>first-try right</span></div>
+      <div class="stat"><b id="dStreak">1</b><span>day streak</span></div>
+    </div>
+    <p id="doneMsg" style="margin:0;color:var(--soft)"></p>
+    <button class="btn gold" id="again">Another 5</button>
+    <button class="btn ghost" id="home2">Home</button>
+  </div>
+</section>
+
+</div>
+
+<div class="dock" id="dock" hidden>
+  <div class="dock-in">
+    <div class="fb" id="fb"></div>
+    <div id="dockBtns"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const P=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const r2=n=>Math.round(n*100)/100;
+const money=n=>{n=r2(n);return '£'+(Number.isInteger(n)?n:n.toFixed(2))};
+const num=n=>String(+n.toFixed(3));
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+const fr=(n,d)=>`<span class="fr"><sup>${n}</sup><i>/</i><sub>${d}</sub></span>`;
+const frS=(n,d)=>{const g=gcd(n,d);return fr(n/g,d/g)};
+const $=id=>document.getElementById(id);
+
+function opts(correct,ds,fmt){
+  const seen=new Set(),out=[];
+  const add=v=>{if(v==null||!isFinite(v)||(v<0&&correct>=0)||(v<=0&&correct>0&&fmt.zeroBad))return;const s=fmt(v);if(seen.has(s))return;seen.add(s);out.push(s)};
+  add(correct);ds.forEach(add);
+  const step=Math.max(1,Math.round(Math.abs(correct)*0.1));let k=1;
+  while(out.length<4&&k<30){add(correct+step*k);if(out.length<4)add(correct-step*k);k++}
+  return {answer:out[0],options:shuffle(out.slice(0,4))};
+}
+function optsS(correct,ds,filler){
+  const out=[correct];ds.forEach(s=>{if(s&&!out.includes(s))out.push(s)});
+  let n=0;while(out.length<4&&n<40){const s=filler();if(!out.includes(s))out.push(s);n++}
+  return {answer:correct,options:shuffle(out.slice(0,4))};
+}
+
+/* ---------- question makers (c = calculator on) ---------- */
+function gPercent(c){
+  const p=P(c?[45,64,85,120,180,250]:[40,60,80,120,200,300]);
+  const r=P(c?[15,35,12,8]:[10,20,25,50,5]);
+  const item=P(['coat','pair of trainers','TV','bike','phone']);
+  const save=p*r/100;
+  if(Math.random()<.5) return {topic:'Percentages',q:`A ${money(p)} ${item} is ${r}% off in the sale. How much do you save?`,
+    ...opts(save,[p-save,p*r/10,save*2],money),why:`${r}% of ${money(p)} = ${money(p)} ÷ 100 × ${r} = ${money(save)}`};
+  const np=p-save;
+  return {topic:'Percentages',q:`A ${money(p)} ${item} is ${r}% off. What's the sale price?`,
+    ...opts(np,[save,p+save,p-r],money),why:`Saving = ${r}% of ${money(p)} = ${money(save)}. Sale price = ${money(p)} − ${money(save)} = ${money(np)}`};
+}
+function gFraction(c){
+  const d=P([3,4,5,8,10]);let n=R(1,d-1);while(gcd(n,d)!==1)n=R(1,d-1);
+  const amt=d*R(c?6:3,c?25:12);const ans=amt/d*n;
+  const ctx=P([['people at a gig','are standing'],['seats on a bus','are taken'],['tickets for a match','have sold']]);
+  return {topic:'Fractions',q:`${fr(n,d)} of the ${amt} ${ctx[0]} ${ctx[1]}. How many is that?`,
+    ...opts(ans,[amt/d,amt-ans,Number.isInteger(amt/n)?amt/n:null],num),
+    why:`Divide by the bottom, times by the top: ${amt} ÷ ${d} = ${amt/d}, then × ${n} = ${ans}`};
+}
+function gRatio(c){
+  const [a,b]=P([[1,2],[2,3],[3,2],[1,3],[3,5],[2,5],[4,1]]);
+  const n=a+b,unit=P(c?[7,12,15,25,30]:[4,5,6,10,20]),t=n*unit;
+  return {topic:'Ratio',q:`You and a mate share ${money(t)} in the ratio ${a} : ${b}. You get ${a} part${a>1?'s':''}. How much do you get?`,
+    ...opts(a*unit,[b*unit,unit,t/2],money),why:`${a} + ${b} = ${n} parts. ${money(t)} ÷ ${n} = ${money(unit)} per part. You get ${a} × ${money(unit)} = ${money(a*unit)}`};
+}
+function gBidmas(){
+  const t=R(0,2);
+  if(t===0){const a=R(2,9),b=R(2,9),d=R(2,9);return {topic:'Order of operations',q:`Work out:<span class="big">${a} + ${b} × ${d}</span>`,
+    ...opts(a+b*d,[(a+b)*d,a*b+d],num),why:`Multiply before you add: ${b} × ${d} = ${b*d}, then ${a} + ${b*d} = ${a+b*d}`};}
+  if(t===1){const a=R(2,9),b=R(2,9),d=R(2,9);return {topic:'Order of operations',q:`Work out:<span class="big">(${a} + ${b}) × ${d}</span>`,
+    ...opts((a+b)*d,[a+b*d,a+b+d],num),why:`Brackets first: ${a} + ${b} = ${a+b}, then × ${d} = ${(a+b)*d}`};}
+  const a=R(3,9),b=R(1,8);
+  return {topic:'Order of operations',q:`Work out:<span class="big">${a}² − ${b}</span>`,
+    ...opts(a*a-b,[2*a-b,a*a+b],num),why:`${a}² means ${a} × ${a} = ${a*a}. Then − ${b} = ${a*a-b}`};
+}
+function gArea(c){
+  const t=R(0,c?2:1);
+  if(t===0){const l=c?P([3.5,4,4.5,5,6]):R(3,6),w=R(2,5),x=P(c?[12,15,18,22]:[5,10,20]),A=l*w;
+    return {topic:'Area',q:`A room is ${l} m by ${w} m. Carpet costs ${money(x)} per m². How much for the whole floor?`,
+      ...opts(A*x,[2*(l+w)*x,A,(l+w)*x],money),why:`Area = ${l} × ${w} = ${num(A)} m². Cost = ${num(A)} × ${money(x)} = ${money(A*x)}`};}
+  if(t===1){const b=2*R(2,8),h=R(3,10);
+    return {topic:'Area',q:`A triangle has a base of ${b} cm and a height of ${h} cm. What is its area?`,
+      ...opts(b*h/2,[b*h,b+h,b*h*2],v=>num(v)+' cm²'),why:`Triangle = ½ × base × height = ½ × ${b} × ${h} = ${b*h/2} cm²`};}
+  const r=R(2,9),A=Math.round(3.14*r*r);
+  return {topic:'Circles',q:`A round pond has a radius of ${r} m. What's its area, to the nearest m²?<span class="hint">Use π = 3.14</span>`,
+    ...opts(A,[Math.round(3.14*2*r),Math.round(3.14*r),Math.round(3.14*4*r*r)],v=>v+' m²'),why:`Area = π × r² = 3.14 × ${r} × ${r} = ${num(3.14*r*r)} ≈ ${A} m²`};
+}
+function gPerim(){
+  const l=R(4,15),w=R(2,10);
+  return {topic:'Perimeter',q:`A garden is ${l} m long and ${w} m wide. How much fence goes all the way round?`,
+    ...opts(2*(l+w),[l*w,l+w,2*l+w],v=>v+' m'),why:`Perimeter = all 4 sides: ${l} + ${w} + ${l} + ${w} = ${2*(l+w)} m`};
+}
+function gVolume(){
+  const l=R(3,8),w=R(2,4),h=R(2,3);
+  return {topic:'Volume',q:`A skip is ${l} m long, ${w} m wide and ${h} m tall. What is its volume?`,
+    ...opts(l*w*h,[l+w+h,l*w,2*(l*w+l*h+w*h)],v=>v+' m³'),why:`Volume = length × width × height = ${l} × ${w} × ${h} = ${l*w*h} m³`};
+}
+function gAverage(c){
+  const n=5,nums=Array.from({length:n},()=>R(2,c?40:15));
+  let s=nums.reduce((a,b)=>a+b,0);const fix=(n-s%n)%n;nums[n-1]+=fix;s+=fix;
+  const so=[...nums].sort((a,b)=>a-b),mean=s/n,med=so[2],range=so[4]-so[0];
+  const ctx=P(['Hours you worked each day:','Goals scored in 5 matches:','Texts you got each day:']);
+  const q=w=>`${ctx}<span class="big">${nums.join(', ')}</span>What is the <b>${w}</b>?`;
+  const t=R(0,2);
+  if(t===0)return {topic:'Averages',q:q('mean'),...opts(mean,[med,s,range,Math.round(s/4)],num),why:`Add them up: ${s}. There are ${n} numbers, so ${s} ÷ ${n} = ${mean}`};
+  if(t===1)return {topic:'Averages',q:q('median'),...opts(med,[mean,nums[2],range],num),why:`Put them in order: ${so.join(', ')}. The middle one is ${med}`};
+  return {topic:'Averages',q:q('range'),...opts(range,[so[4],so[4]+so[0],med],num),why:`Biggest − smallest = ${so[4]} − ${so[0]} = ${range}`};
+}
+const hrs=h=>{const H=Math.floor(h),M=Math.round((h-H)*60);return (H?H+(H===1?' hour':' hours'):'')+(M?(H?' ':'')+M+' mins':'')};
+function gSpeed(c){
+  const s=P([30,40,50,60,70]),t=c?P([1.5,2,2.5,3,4]):R(2,5),d=s*t;
+  if(Math.random()<.5){const f=v=>hrs(v);f.zeroBad=true;
+    return {topic:'Speed, distance, time',q:`You drive ${d} miles at an average of ${s} mph. How long does it take?`,
+      ...opts(t,[t+1,t>1?t-1:null,t+.5],f),why:`Time = distance ÷ speed = ${d} ÷ ${s} = ${hrs(t)}`};}
+  return {topic:'Speed, distance, time',q:`You drive at ${s} mph for ${hrs(t)}. How far do you go?`,
+    ...opts(d,[s*(t+1),d/2,s+t],v=>num(v)+' miles'),why:`Distance = speed × time = ${s} × ${t} = ${d} miles`};
+}
+function gConvert(c){
+  const t=R(0,2);
+  if(t===0){const k=R(2,c?15:10),km=8*k,mi=5*k;
+    return {topic:'Converting units',q:`A road trip is ${km} km. Roughly how many miles is that?<span class="hint">5 miles ≈ 8 km</span>`,
+      ...opts(mi,[km*8/5,km/5,km-5],v=>num(v)+' miles'),why:`${km} ÷ 8 = ${k}. Every 8 km is 5 miles, so ${k} × 5 = ${mi} miles`};}
+  if(t===1){const cm=R(105,395);
+    return {topic:'Converting units',q:`A shelf is ${cm} cm long. How long is that in metres?`,
+      ...opts(cm/100,[cm/10,D2(cm/1000),cm*10].filter(v=>v!=null),v=>num(v)+' m'),why:`100 cm = 1 m, so divide by 100: ${cm} ÷ 100 = ${num(cm/100)} m`};}
+  const g=R(12,48)*50;
+  return {topic:'Converting units',q:`A bag of flour weighs ${g} g. How many kg is that?`,
+    ...opts(g/1000,[g/100,g/10,g/10000],v=>num(v)+' kg'),why:`1000 g = 1 kg, so divide by 1000: ${g} ÷ 1000 = ${num(g/1000)} kg`};
+}
+function gNegative(){
+  if(Math.random()<.5){const s=-R(2,9),up=R(3,12),e=s+up;
+    return {topic:'Negative numbers',q:`At 6am it's ${s}°C. By midday it's ${up} degrees warmer. What's the temperature now?`,
+      ...opts(e,[up-s,s-up,-e],v=>v+'°C'),why:`Start at ${s} and count up ${up}: ${s} + ${up} = ${e}°C`};}
+  const hi=R(1,8),lo=-R(1,8);
+  return {topic:'Negative numbers',q:`It's ${hi}°C in the day and ${lo}°C at night. How many degrees colder is the night?`,
+    ...opts(hi-lo,[Math.abs(hi+lo),hi,-lo],v=>v+' degrees'),why:`From ${hi} down to 0 is ${hi}, then down to ${lo} is ${-lo} more. ${hi} + ${-lo} = ${hi-lo}`};
+}
+function gBestBuy(){
+  const item=P(['cans of pop','toilet rolls','eggs','yoghurts']);
+  const n1=P([2,3,4,5]),n2=P([6,8,10,12]),u1=R(25,60),u2=u1+P([-6,-4,-3,3,4,6]);
+  const p1=n1*u1/100,p2=n2*u2/100,ans=u1<u2?'Pack A':'Pack B';
+  return {topic:'Best buy',q:`Which is better value?<span class="packs"><span><b>Pack A</b>${n1} ${item} for ${money(p1)}</span><span><b>Pack B</b>${n2} ${item} for ${money(p2)}</span></span>`,
+    answer:ans,options:['Pack A','Pack B','Same value'],why:`Price of one: A = ${money(p1)} ÷ ${n1} = ${u1}p. B = ${money(p2)} ÷ ${n2} = ${u2}p. ${ans} is cheaper each.`};
+}
+function gProb(){
+  let r,b,g;do{r=R(1,6);b=R(1,6);g=R(0,4)}while(r+b+g<6);const tot=r+b+g,c1=frS(r,tot);
+  return {topic:'Probability',q:`A bag has ${r} red, ${b} blue${g?` and ${g} green`:''} sweets. You pick one without looking. What's the chance it's red?`,
+    ...(()=>{const seen=new Set([r/tot]),ds=[];const add=(n,d)=>{if(n<1||n>=d||seen.has(n/d))return;seen.add(n/d);ds.push(frS(n,d))};
+      add(b,tot);add(1,tot);add(r,b+g);for(let k=0;ds.length<3&&k<60;k++)add(R(1,tot-1),tot);return optsS(c1,ds,()=>c1)})(),
+    why:`${r} red out of ${tot} sweets altogether: ${fr(r,tot)}${gcd(r,tot)>1?` which simplifies to ${c1}`:''}`};
+}
+function gTime(){
+  const h=R(7,20),m=P([0,15,20,30,40,45,50]),dur=P([35,45,50,55,70,85,95,110]);
+  const st=h*60+m,en=st+dur;
+  const f=t=>{t=((t%1440)+1440)%1440;return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')};
+  const dS=dur>=60?hrs(dur/60):dur+' mins';
+  return {topic:'Time',q:`Your bus leaves at ${f(st)}. The journey takes ${dS}. What time do you get there?`,
+    ...optsS(f(en),[f(en+40),f(en-10),f(en+10)],()=>f(en+P([-20,20,30,-30]))),
+    why:`${f(st)} + ${dS} = ${f(en)}. Watch out: an hour is 60 minutes, not 100.`};
+}
+function gScale(){
+  const s=P([10000,25000,50000]),cm=R(2,8),km=cm*s/100000;
+  return {topic:'Scale',q:`A map has a scale of 1 : ${s.toLocaleString('en-GB')}. Two villages are ${cm} cm apart on the map. How far apart are they really?`,
+    ...opts(km,[km*10,D2(km/10),km*100].filter(v=>v!=null),v=>num(v)+' km'),why:`${cm} × ${s.toLocaleString('en-GB')} = ${(cm*s).toLocaleString('en-GB')} cm. 100,000 cm = 1 km, so that's ${num(km)} km`};
+}
+const I=v=>Number.isInteger(v)?v:null;
+const D2=v=>Math.abs(Math.round(v*100)-v*100)<1e-6?v:null;
+const degF=v=>v+'°';degF.zeroBad=true;
+function gMedian(c){
+  let nums,so,n;
+  do{n=P([5,6,7]);nums=Array.from({length:n},()=>R(2,c?40:20));so=[...nums].sort((a,b)=>a-b)}
+  while((n%2===0&&(so[n/2-1]+so[n/2])%2)||nums.join()===so.join());
+  const h=n>>1,ev=n%2===0,med=ev?(so[h-1]+so[h])/2:so[h],mean=nums.reduce((a,b)=>a+b,0)/n;
+  const ctx=P(['Minutes late each day:','Points scored in each game:','Cups of tea you drank each day:']);
+  return {topic:'Averages',_in:{nums},q:`${ctx}<span class="big">${nums.join(', ')}</span>What is the <b>median</b>?`,
+    ...opts(med,[I(mean),nums[h],so[n-1]-so[0],ev?so[h]:null,ev?so[h-1]+so[h]:null],num),
+    why:`Put them in order: ${so.join(', ')}. ${ev?`The middle two are ${so[h-1]} and ${so[h]}, so the median is halfway between: ${med}`:`The middle one is ${med}`}`};
+}
+function gModeRange(c){
+  const m=R(2,c?30:12),cnt=P([2,3]),set=new Set([m]),k=P([3,4]);
+  while(set.size<k+1)set.add(R(2,c?40:15));
+  const nums=shuffle([...Array(cnt).fill(m),...[...set].filter(x=>x!==m)]);
+  const so=[...nums].sort((a,b)=>a-b),mx=so[so.length-1],mn=so[0],med=so[so.length>>1];
+  const ctx=P(['Shoe sizes in a class:','Goals scored in each match:','Marks in a quiz:']);
+  const q=w=>`${ctx}<span class="big">${nums.join(', ')}</span>What is the <b>${w}</b>?`;
+  if(Math.random()<.5)return {topic:'Averages',_in:{nums,t:'mode'},q:q('mode'),...opts(m,[mx,med,mx-mn,cnt],num),why:`The mode is the number that comes up most. ${m} appears ${cnt} times, more than any other`};
+  return {topic:'Averages',_in:{nums,t:'range'},q:q('range'),...opts(mx-mn,[mx,mx+mn,m,med],num),why:`Biggest − smallest = ${mx} − ${mn} = ${mx-mn}`};
+}
+function gChart(c){
+  const D=[['Cups of tea sold','cups',['Mon','Tue','Wed','Thu'],'How many more cups were sold on',' than on','How many cups were sold altogether?'],
+    ['Books borrowed','books',['Mon','Tue','Wed','Thu'],'How many more books were borrowed on',' than on','How many books were borrowed altogether?'],
+    ['Favourite pet','votes',['Dog','Cat','Rabbit','Fish'],'How many more votes did',' get than','How many votes were there altogether?',l=>`What fraction of the votes were for <b>${l}</b>?`],
+    ['Lunch choices','people',['Pizza','Soup','Salad','Pasta'],'How many more people chose',' than','How many people were asked altogether?',l=>`What fraction of the people chose <b>${l}</b>?`]];
+  const d=P(D),step=P(c?[2,5,10]:[1,2,5]),L=d[2];let vals,sum;
+  do{vals=shuffle(Array.from({length:12},(_,i)=>i+2)).slice(0,4).map(v=>v*step);sum=vals.reduce((a,b)=>a+b,0)}while(sum%(d[6]?10:5));
+  const mx=Math.max(...vals),mn=Math.min(...vals);
+  const cell='border:2px solid var(--line);padding:4px 12px;text-align:center';
+  const chart=Math.random()<.5
+    ?`<span style="display:block;margin:10px 0;font-family:var(--body);font-size:16px;font-weight:700">${L.map((l,i)=>`<span style="display:grid;grid-template-columns:3.8em 1fr 2.2em;gap:6px;align-items:center;margin:4px 0"><span>${l}</span><i style="display:block;height:20px;border-radius:5px;width:${Math.round(vals[i]/mx*100)}%;background:var(--blue)"></i><b>${vals[i]}</b></span>`).join('')}</span>`
+    :`<table style="border-collapse:collapse;margin:10px 0;font-family:var(--body);font-size:16px"><tr>${L.map(l=>`<th style="${cell}">${l}</th>`).join('')}</tr><tr>${vals.map(v=>`<td style="${cell}">${v}</td>`).join('')}</tr></table>`;
+  const head=`<b>${d[0]}</b>${chart}`,t=R(0,d[6]?2:1);
+  if(t===0){let i=R(0,3),j=R(0,3);while(i===j)j=R(0,3);if(vals[i]<vals[j])[i,j]=[j,i];const df=vals[i]-vals[j];
+    return {topic:'Charts and tables',_in:{vals,t:'diff',i,j},q:`${head}${d[3]} <b>${L[i]}</b>${d[4]} <b>${L[j]}</b>?`,
+      ...opts(df,[vals[i]+vals[j],vals[i],vals[j]],num),why:`${L[i]} = ${vals[i]} and ${L[j]} = ${vals[j]}. Take away: ${vals[i]} − ${vals[j]} = ${df}`};}
+  if(t===1)return {topic:'Charts and tables',_in:{vals,t:'total'},q:`${head}${d[5]}`,
+    ...opts(sum,[sum-mn,sum-mx,mx*4],num),why:`Add them all up: ${vals.join(' + ')} = ${sum}`};
+  const i=R(0,3),v=vals[i];
+  return {topic:'Charts and tables',_in:{vals,t:'frac',i},q:`${head}${d[6](L[i])}`,
+    ...optsS(frS(v,sum),[frS(v,sum-v),frS(sum-v,sum),fr(1,4)],()=>frS(R(1,sum-1),sum)),
+    why:`${L[i]} is ${v} out of ${sum} altogether: ${fr(v,sum)}${gcd(v,sum)>1?` which simplifies to ${frS(v,sum)}`:''}`};
+}
+function gAngle(c){
+  const t=R(0,2),
+    ln=(a,x)=>a.map(v=>v+'°').join(', ')+' and x';
+  if(t===0){const k=P([2,3]),a=Array.from({length:k},()=>R(3,10)*5),s=a.reduce((p,q)=>p+q,0);
+    return {topic:'Angles',_in:{t,a},q:`Angles on a straight line are ${ln(a)}. What is x?`,
+      ...opts(180-s,[360-s,s,90-s],degF),why:`Angles on a straight line add up to 180°. ${a.join(' + ')} = ${s}, so x = 180 − ${s} = ${180-s}°`};}
+  if(t===1){const a=Array.from({length:2},()=>R(4,16)*5),s=a[0]+a[1];
+    return {topic:'Angles',_in:{t,a},q:`Two angles in a triangle are ${a[0]}° and ${a[1]}°. What is the third angle?`,
+      ...opts(180-s,[360-s,s,90-s],degF),why:`Angles in a triangle add up to 180°. ${a[0]} + ${a[1]} = ${s}, so the third angle = 180 − ${s} = ${180-s}°`};}
+  const a=Array.from({length:3},()=>R(4,12)*5),s=a[0]+a[1]+a[2];
+  return {topic:'Angles',_in:{t,a},q:`Angles around a point are ${ln(a)}. What is x?`,
+    ...opts(360-s,[180-s,s,540-s],degF),why:`Angles around a point add up to 360°. ${a.join(' + ')} = ${s}, so x = 360 − ${s} = ${360-s}°`};
+}
+function gFormula(c){
+  const U=[['A plumber charges','call-out fee','hour'],['A taxi charges','starting charge','mile'],['A van hire costs','deposit','day'],['A tutor charges','booking fee','lesson']];
+  const [who,fx,u]=P(U),a=P(c?[6,7,8,9,12,15]:[3,4,5,6,8,10]),b=P(c?[8,12,15,18,25,30]:[5,10,12,15,20]),h=R(2,c?9:6),T=a*h+b;
+  const f=`<span class="big" style="font-size:20px">Cost = £${a} per ${u} + £${b} ${fx}</span>`,t=R(0,4);
+  if(t===0)return {topic:'Formulae',_in:{t,a,b,h},q:`${who} using this formula:${f}How much for ${h} ${u}s?`,
+    ...opts(T,[(a+b)*h,a*h,b*h+a],money),why:`${a} × ${h} = ${a*h}, then add the ${fx}: ${a*h} + ${b} = ${money(T)}`};
+  if(t===1)return {topic:'Formulae',_in:{t,a,b,h},q:`${who} using this formula:${f}The bill was ${money(T)}. How many ${u}s was that?`,
+    ...opts(h,[I(T/a),T-b,I(T/(a+b))],num),why:`Take off the ${fx} first: ${T} − ${b} = ${T-b}. Then ÷ ${a} = ${h} ${u}s`};
+  if(t===2)return {topic:'Formulae',_in:{t,a,b,h},q:`${who} a ${money(b)} ${fx} plus a fixed rate per ${u}. For ${h} ${u}s the total is ${money(T)}. What is the rate per ${u}?`,
+    ...opts(a,[I(T/h),T-b,I((T+b)/h)],money),why:`Take off the ${fx}: ${T} − ${b} = ${T-b}. Then ÷ ${h} = ${money(a)} per ${u}`};
+  const C=R(5,c?35:25);
+  if(t===3)return {topic:'Formulae',_in:{t,C},q:`A rule of thumb for temperatures:<span class="big" style="font-size:20px">°F = °C × 2 + 30</span>What is ${C}°C in °F?`,
+    ...opts(C*2+30,[(C+30)*2,C*2,C+60],v=>v+'°F'),why:`Double it, then add 30: ${C} × 2 = ${C*2}, ${C*2} + 30 = ${C*2+30}°F`};
+  const F=C*2+30;
+  return {topic:'Formulae',_in:{t,C},q:`A rule of thumb for temperatures:<span class="big" style="font-size:20px">°F = °C × 2 + 30</span>It's ${F}°F. What is that in °C?`,
+    ...opts(C,[F-30,F/2-30,(F+30)/2],v=>v+'°C'),why:`Work backwards: take off 30, then halve. ${F} − 30 = ${F-30}, ÷ 2 = ${C}°C`};
+}
+const nth=(d,k)=>`${d}n${k?` ${k>0?'+':'−'} ${Math.abs(k)}`:''}`;
+function gSequence(c){
+  const t=R(0,2);
+  if(t===0){const d=P(c?[-6,-4,-3,2,3,4,5,7,9]:[-3,-2,2,3,4,5,6]),f=d>0?R(1,12):R(30,50),s=[0,1,2,3].map(i=>f+i*d),ans=f+4*d;
+    return {topic:'Sequences',_in:{t,f,d},q:`What is the next number in this sequence?<span class="big">${s.join(', ')}, …</span>`,
+      ...opts(ans,[ans+1,ans-1,ans+d],num),why:`The sequence goes ${d>0?'up':'down'} by ${Math.abs(d)} each time. ${s[3]} ${d>0?'+':'−'} ${Math.abs(d)} = ${ans}`};}
+  const d=R(2,c?12:9);
+  if(t===1){const f=R(1,12),k=f-d;
+    return {topic:'Sequences',_in:{t,f,d},q:`Here is a sequence:<span class="big">${[0,1,2,3].map(i=>f+i*d).join(', ')}, …</span>What is the <b>nth term</b>?`,
+      ...optsS(nth(d,k),[nth(d,f),nth(f,d),`n + ${d}`],()=>nth(R(2,9),R(-5,12))),
+      why:`It goes up by ${d} each time, so start with ${d}n. ${d}n gives ${d} for the first term but we need ${f}, so adjust by ${f} − ${d} = ${k}: ${nth(d,k)}`};}
+  const k=R(-3,c?12:8),ans=10*d+k;
+  return {topic:'Sequences',_in:{t,d,k},q:`The nth term of a sequence is <b>${nth(d,k)}</b>. What is the 10th term?`,
+    ...opts(ans,[10*d,d*(10+k),ans+d],num),why:`Put n = 10: ${d} × 10 = ${10*d}${k?` ${k>0?'+':'−'} ${Math.abs(k)}`:''} = ${ans}`};
+}
+const QGENS=[gPercent,gFraction,gRatio,gBidmas,gArea,gPerim,gVolume,gAverage,gSpeed,gConvert,gNegative,gBestBuy,gProb,gTime,gScale,gMedian,gModeRange,gChart,gAngle,gFormula,gSequence];
+
+/* ---------- spot the mistake ---------- */
+function mPercent(){
+  const p=P([40,60,80,120,160,200,240]),a=p/10,b=p/20;
+  if(Math.random()<.5){const bb=p/5;return {topic:'Percentages',title:`Increase ${money(p)} by 15%`,
+    steps:[`10% of ${money(p)} = ${money(a)}`,`5% of ${money(p)} = ${money(bb)}`,`15% = ${money(a)} + ${money(bb)} = ${money(a+bb)}`,`New price = ${money(p)} + ${money(a+bb)} = ${money(p+a+bb)}`],
+    bad:1,fixAns:p+a+b,unit:'£',fix:`5% is half of 10%, so it's ${money(b)}. Dividing by 5 gives 20%. Right answer: ${money(p+a+b)}`};}
+  return {topic:'Percentages',title:`Increase ${money(p)} by 15%`,
+    steps:[`10% of ${money(p)} = ${money(a)}`,`5% of ${money(p)} = ${money(b)}`,`15% = ${money(a)} + ${money(b)} = ${money(a+b)}`,`New price = ${money(p)} − ${money(a+b)} = ${money(p-a-b)}`],
+    bad:3,fixAns:p+a+b,unit:'£',fix:`It's an increase, so add it on: ${money(p)} + ${money(a+b)} = ${money(p+a+b)}`};
+}
+function mBidmas(){
+  const a=R(2,9),b=R(2,9),d=R(3,9);
+  if(Math.random()<.5)return {topic:'Order of operations',title:`Work out ${a} + ${b} × ${d}`,
+    steps:[`${a} + ${b} × ${d}`,`= ${a+b} × ${d}`,`= ${(a+b)*d}`],bad:1,fixAns:a+b*d,unit:'',fix:`Multiply first! ${b} × ${d} = ${b*d}, then add ${a}. Answer: ${a+b*d}`};
+  const w=b*d+P([2,-2,3,-1]);
+  return {topic:'Order of operations',title:`Work out ${a} + ${b} × ${d}`,
+    steps:[`${a} + ${b} × ${d}`,`= ${a} + ${w}`,`= ${a+w}`],bad:1,fixAns:a+b*d,unit:'',fix:`${b} × ${d} is ${b*d}, not ${w}. Answer: ${a+b*d}`};
+}
+function mTriangle(){
+  const b=2*R(2,8),h=R(3,10);
+  return {topic:'Area',title:`Find the area of a triangle, base ${b} cm, height ${h} cm`,
+    steps:[`Base = ${b} cm, height = ${h} cm`,`Area = base × height`,`= ${b} × ${h} = ${b*h} cm²`],bad:1,fixAns:b*h/2,unit:'cm²',fix:`A triangle is half a rectangle: ½ × base × height. Answer: ${b*h/2} cm²`};
+}
+function mMean(){
+  const nums=Array.from({length:5},()=>R(2,15));let s=nums.reduce((a,b)=>a+b,0);const fix=(5-s%5)%5;nums[4]+=fix;s+=fix;
+  if(Math.random()<.5)return {topic:'Averages',title:`Find the mean of ${nums.join(', ')}`,
+    steps:[`Total = ${nums.join(' + ')} = ${s}`,`There are 5 numbers`,`Mean = ${s} ÷ 4 = ${num(s/4)}`],bad:2,fixAns:s/5,unit:'',fix:`Divide by how many numbers there are (5): ${s} ÷ 5 = ${s/5}`};
+  return {topic:'Averages',title:`Find the mean of ${nums.join(', ')}`,
+    steps:[`Total = ${nums.join(' + ')} = ${s+10}`,`There are 5 numbers`,`Mean = ${s+10} ÷ 5 = ${(s+10)/5}`],bad:0,fixAns:s/5,unit:'',fix:`The adding is off: the total is ${s}. So mean = ${s} ÷ 5 = ${s/5}`};
+}
+function mRatio(){
+  const [a,b]=P([[2,3],[3,5],[1,4],[3,7]]),unit=P([5,10,20]),t=(a+b)*unit,mx=Math.max(a,b);
+  return {topic:'Ratio',title:`Share ${money(t)} in the ratio ${a} : ${b}. Find the bigger share.`,
+    steps:[`${a} + ${b} = ${a+b} parts`,`1 part = ${money(t)} ÷ 2 = ${money(t/2)}`,`Bigger share = ${mx} × ${money(t/2)} = ${money(mx*t/2)}`],bad:1,fixAns:mx*unit,unit:'£',
+    fix:`Divide by the total parts (${a+b}), not 2: 1 part = ${money(unit)}. Bigger share = ${money(mx*unit)}`};
+}
+function mConvert(){
+  const k=R(2,10),km=8*k,mi=5*k;
+  return {topic:'Converting units',title:`Change ${km} km to miles (5 miles ≈ 8 km)`,
+    steps:[`${km} ÷ 5 = ${num(km/5)}`,`${num(km/5)} × 8 = ${num(km/5*8)} miles`],bad:0,fixAns:mi,unit:'miles',
+    fix:`Divide by the km number (8): ${km} ÷ 8 = ${k}, then × 5 = ${mi} miles. Miles is always the smaller number.`};
+}
+function mMedian(){
+  let nums,so,n;
+  do{n=P([5,7]);nums=Array.from({length:n},()=>R(2,30));so=[...nums].sort((a,b)=>a-b)}while(nums[n>>1]===so[n>>1]||new Set(nums).size<n);
+  const w=nums[n>>1];
+  return {topic:'Averages',_in:{nums},title:`Find the median of ${nums.join(', ')}`,
+    steps:[`There are ${n} numbers, so the middle is number ${(n+1)/2}`,`The middle one in the list is ${w}`,`Median = ${w}`],bad:1,fixAns:so[n>>1],unit:'',
+    fix:`Put them in order first: ${so.join(', ')}. Now the middle one is ${so[n>>1]}`};
+}
+function mAngle(){
+  if(Math.random()<.5){const a=R(4,16)*5,b=R(4,16)*5,s=a+b;
+    return {topic:'Angles',_in:{k:'tri',a,b},title:`Two angles in a triangle are ${a}° and ${b}°. Find the third angle.`,
+      steps:[`Angles in a triangle add up to 360°`,`${a} + ${b} = ${s}`,`360 − ${s} = ${360-s}°`],bad:0,fixAns:180-s,unit:'°',fix:`A triangle adds up to 180°, not 360°. 180 − ${s} = ${180-s}°`};}
+  const a=R(4,10)*5,b=R(4,10)*5,c=R(4,10)*5,s=a+b+c;
+  return {topic:'Angles',_in:{k:'pt',a,b,c},title:`Angles around a point are ${a}°, ${b}° and ${c}° and x. Find x.`,
+    steps:[`Angles around a point add up to 180°`,`${a} + ${b} + ${c} = ${s}`,`180 − ${s} = ${180-s}°`],bad:0,fixAns:360-s,unit:'°',fix:`Angles around a point add up to 360°, not 180°. 360 − ${s} = ${360-s}°`};
+}
+const MGENS=[mPercent,mBidmas,mTriangle,mMean,mRatio,mConvert,mMedian,mAngle];
+
+/* ---------- formula cards ---------- */
+const CARDS=[
+ ['Area of a rectangle','length × width','5 m × 3 m = 15 m²'],
+ ['Area of a triangle','½ × base × height','½ × 6 × 4 = 12 cm²'],
+ ['Area of a circle','π × r²','r = 3 → 3.14 × 3 × 3 ≈ 28.3'],
+ ['Circumference of a circle','π × diameter','d = 10 → 3.14 × 10 = 31.4'],
+ ['Volume of a cuboid','length × width × height','2 × 3 × 4 = 24 m³'],
+ ['Perimeter','add up every outside edge','4 + 3 + 4 + 3 = 14 m'],
+ ['Speed','distance ÷ time','120 miles ÷ 2 h = 60 mph'],
+ ['Distance','speed × time','50 mph × 3 h = 150 miles'],
+ ['Time taken','distance ÷ speed','150 miles ÷ 50 mph = 3 hours'],
+ ['Mean','total ÷ how many numbers','(2 + 4 + 6) ÷ 3 = 4'],
+ ['Median','the middle number, once in order','1, 3, 7, 8, 9 → 7'],
+ ['Mode','the number that comes up most','2, 5, 5, 7 → 5'],
+ ['Range','biggest − smallest','9 − 2 = 7'],
+ ['Percentage change','change ÷ original × 100','£40 → £50: 10 ÷ 40 × 100 = 25%'],
+ ['Sharing in a ratio','add the parts → divide → multiply','£50 in 2 : 3 → 5 parts → £10 each → £20 and £30'],
+ ['Angles in a triangle','add up to 180°','60° + 70° + 50° = 180°'],
+ ['Angles on a straight line','add up to 180°','110° + 70° = 180°'],
+ ['Angles round a point','add up to 360°','90° + 90° + 180° = 360°'],
+ ['nth term','difference × n, then adjust','2, 5, 8, 11 → 3n − 1'],
+ ['Miles and km','5 miles ≈ 8 km','40 km ≈ 25 miles'],
+ ['cm and m','100 cm = 1 m','250 cm = 2.5 m'],
+ ['g and kg','1000 g = 1 kg','1500 g = 1.5 kg'],
+ ['ml and litres','1000 ml = 1 litre','750 ml = 0.75 litres'],
+ ['Probability','ways it can happen ÷ total outcomes','3 red out of 10 sweets = 3/10'],
+ ['Percentage of an amount','÷ 100, then × the percent','15% of £40 → 40 ÷ 100 × 15 = £6'],
+ ['Fraction of an amount','divide by the bottom, times by the top','¾ of 20 → 20 ÷ 4 × 3 = 15'],
+ ['BIDMAS','Brackets, Indices, Divide & Multiply, Add & Subtract','2 + 3 × 4 = 2 + 12 = 14'],
+ ['Negative numbers','count along a number line, through 0','−3 + 5 = 2'],
+ ['Best buy','price ÷ amount = price for one. Cheapest each wins','4 for £3 → 75p each'],
+ ['Clock time','60 minutes in an hour, not 100','10:45 + 30 mins = 11:15'],
+ ['Map scale','map distance × scale, then change the units','1 : 25,000 and 4 cm → 100,000 cm = 1 km'],
+ ['Formulas in words','swap the words for numbers, then BIDMAS','£5 an hour + £12: 3 hours → 5 × 3 + 12 = £27'],
+ ['Reading a chart','read each value off carefully, then add or take away','Mon 40, Tue 25 → 15 more on Mon'],
+];
+/*EXTRA*/
+
+/* ---------- saved progress (this device only) ---------- */
+const KEY='numberbites-v1';
+let st={calc:false,streak:0,lastDay:null,xpDay:null,xpToday:0,totalXp:0};
+try{Object.assign(st,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
+const dayStr=o=>{const d=new Date();d.setDate(d.getDate()-o);return d.toISOString().slice(0,10)};
+
+function renderHome(){
+  if(st.xpDay!==dayStr(0))st.xpToday=0;
+  const alive=st.lastDay===dayStr(0)||st.lastDay===dayStr(1);
+  $('streak').textContent=alive?st.streak:0;
+  $('total').textContent=st.totalXp;
+  const g=Math.min(1,st.xpToday/50);
+  $('ring').setAttribute('stroke-dashoffset',163.4*(1-g));
+  $('goalText').textContent=`${st.xpToday} / 50 XP today`;
+  $('goalSub').textContent=g>=1?'Daily goal hit. Anything else is a bonus.':'One round gets you most of the way.';
+  $('calc').setAttribute('aria-checked',st.calc);
+  $('calcSub').textContent=st.calc?'On: bigger numbers, calculator allowed':'Off: no-calculator paper practice';
+  const topics=[...new Set(QGENS.map(g=>g(false).topic))];
+  $('topics').innerHTML=topics.map(t=>`<span>${t}</span>`).join('');
+}
+
+/* ---------- formula help for wrong answers ---------- */
+const TOPIC_CARD={'Percentages':'Percentage of an amount','Fractions':'Fraction of an amount','Ratio':'Sharing in a ratio','Order of operations':'BIDMAS',
+ 'Circles':'Area of a circle','Perimeter':'Perimeter','Volume':'Volume of a cuboid','Speed, distance, time':'Speed','Negative numbers':'Negative numbers',
+ 'Best buy':'Best buy','Probability':'Probability','Time':'Clock time','Scale':'Map scale','Formulae':'Formulas in words','Sequences':'nth term',
+ 'Charts and tables':'Reading a chart',...(typeof TOPIC_CARD2==='object'?TOPIC_CARD2:{})};
+const cardBy=f=>CARDS.find(c=>c[0]===f);
+function cardFor(d){
+  const t=((d.q||'')+' '+(d.title||'')).toLowerCase();let f=TOPIC_CARD[d.topic];
+  if(d.topic==='Area')f=/triangle/.test(t)?'Area of a triangle':'Area of a rectangle';
+  if(d.topic==='Averages')f=/median/.test(t)?'Median':/\bmode\b/.test(t)?'Mode':/range/.test(t)?'Range':'Mean';
+  if(d.topic==='Converting units')f=/mile/.test(t)?'Miles and km':/kg/.test(t)?'g and kg':'cm and m';
+  if(d.topic==='Angles')f=/triangle/.test(t)?'Angles in a triangle':/straight/.test(t)?'Angles on a straight line':'Angles round a point';
+  if(d.topic==='Speed, distance, time')f=/how long/.test(t)?'Time taken':/how far/.test(t)?'Distance':'Speed';
+  return f&&cardBy(f);
+}
+const ruleBox=c=>c?`<div class="rule"><span aria-hidden="true">📐</span><div><i>Formula card · ${c[0]}</i><b>${c[1]}</b></div></div>`:'';
+
+/* ---------- typed answers ---------- */
+function parseAns(a){
+  if(typeof a!=='string'||a.includes('<'))return null;
+  const m=a.match(/^(£?)(-?[\d,]*\d(?:\.\d+)?)\s*([^\d]*)$/);
+  if(!m)return null;
+  return {pre:m[1],val:+m[2].replace(/,/g,''),unit:m[3].trim()};
+}
+const readNum=s=>{s=String(s).replace(/[£,\s]/g,'').replace(/−/g,'-').match(/^-?\d*\.?\d+/);return s?+s[0]:NaN};
+const same=(a,b)=>Math.abs(a-b)<1e-6;
+const ansBox=(pre,unit)=>`<label class="ans">${pre?`<span>${pre}</span>`:''}<input id="typeIn" inputmode="decimal" autocomplete="off" enterkeyhint="done" aria-label="Your answer" placeholder="Type your answer">${unit?`<span>${unit}</span>`:''}</label>`;
+const fmtFix=(v,u)=>u==='£'?money(v):num(v)+(u?(u==='°'?'°':' '+u):'');
+
+/* ---------- card quiz: pick the rule ---------- */
+const grp=f=>/mean|median|mode|range/i.test(f)?'avg':/area|perimeter|volume|circumference|cylinder/i.test(f)?'shape':/^(speed|distance|time taken)/i.test(f)?'sdt':/angle/i.test(f)?'ang':/\b(km|cm|kg|ml)\b|litre/i.test(f)?'conv':/percent|interest|vat|%|fraction/i.test(f)?'money':/probab|expected/i.test(f)?'prob':'other';
+function cardQuiz(c){
+  const rule=c[1],pool=CARDS.filter(x=>x[1]!==rule);
+  const near=shuffle(pool.filter(x=>grp(x[0])===grp(c[0]))),far=shuffle(pool.filter(x=>grp(x[0])!==grp(c[0])));
+  const seen=new Set([rule]),wrong=[];
+  for(const x of [...near.slice(0,3),...far])if(wrong.length<4&&!seen.has(x[1])){seen.add(x[1]);wrong.push(x)}
+  const options=shuffle([{t:rule,ok:true},...wrong.map(x=>({t:x[1],from:x[0]}))]);
+  return {card:c,options};
+}
+
+/* ---------- a round ---------- */
+let S=null;
+const TYPE_CHANCE=.4;
+function mkQ(g){g=g||P(QGENS);const d=g(st.calc),p=parseAns(d.answer);return {kind:'q',g,d,typed:!!p&&Math.random()<TYPE_CHANCE,p}}
+function mkM(g){g=g||P(MGENS);return {kind:'m',g,d:g()}}
+const mkC=c=>({kind:'c',d:cardQuiz(c||P(CARDS))});
+
+function start(mode){
+  let items;
+  if(mode==='quick'){items=[mkQ(),mkQ(),mkQ(),mkM(),mkC()];const first=items.shift();shuffle(items);items.unshift(first)}
+  else if(mode==='mistake'){items=shuffle([...MGENS]).slice(0,5).map(g=>mkM(g))}
+  else {items=shuffle([...CARDS]).slice(0,8).map(c=>mkC(c))}
+  S={mode,items,i:0,first:0,firstRight:0,xp:0,retries:0};
+  show('play');$('calcTag').textContent=st.calc?'Calculator OK':'No calculator';$('calcBtn').hidden=!st.calc;
+  renderItem();
+}
+function show(id){if(id!=='play')calcOpen(false);['home','play','done'].forEach(s=>$(s).hidden=s!==id);$('dock').hidden=id!=='play';window.scrollTo(0,0)}
+
+function setDock(state,fbHtml,btns){
+  const d=$('dock');d.className='dock'+(state?' '+state:'');
+  $('fb').innerHTML=fbHtml||'';$('dockBtns').innerHTML='';
+  $('dockBtns').className=btns.length>1?'pair':'';
+  btns.forEach(b=>{const el=document.createElement('button');el.className='btn '+(b.cls||'');el.textContent=b.t;el.disabled=!!b.dis;el.id=b.id||'';el.onclick=b.fn;$('dockBtns').appendChild(el)});
+  if(state&&!$('cpad').hidden)calcOpen(false);
+  requestAnimationFrame(()=>{if($('cpad').hidden)document.querySelector('.app').style.paddingBottom=($('dock').offsetHeight+30)+'px'});
+}
+function hookInput(){const i=$('typeIn');if(!i)return;i.oninput=()=>{const b=$('checkBtn');if(b)b.disabled=!i.value.trim()};}
+
+function renderItem(){
+  const it=S.items[S.i];S.sel=null;S.locked=false;S.fixing=false;
+  $('fill').style.width=(S.i/S.items.length*100)+'%';
+  const stg=$('stage');
+  if(it.kind==='q'){
+    const body=it.typed?ansBox(it.p.pre,it.p.unit):`<div class="opts">${it.d.options.map((o,k)=>`<button class="opt" data-k="${k}" aria-pressed="false">${o}</button>`).join('')}</div>`;
+    stg.innerHTML=`<div class="eyebrow">${it.d.topic}${it.typed?' · type it in':''}</div><div class="q">${it.d.q}</div>${body}`;
+    stg.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(b,'.opt'));
+    setDock('','',[{t:'Check',dis:true,id:'checkBtn',fn:check}]);hookInput();
+  } else if(it.kind==='m'){
+    stg.innerHTML=`<div class="eyebrow">Spot the mistake · ${it.d.topic}</div><div class="q">${it.d.title}<span class="hint">Tap the line that's wrong</span></div><div class="steps">${it.d.steps.map((s,k)=>`<button class="step" data-k="${k}" aria-pressed="false"><em>${k+1}</em><span>${s}</span></button>`).join('')}</div><div id="fixArea"></div>`;
+    stg.querySelectorAll('.step').forEach(b=>b.onclick=()=>pick(b,'.step'));
+    setDock('','',[{t:'Check',dis:true,id:'checkBtn',fn:check}]);
+  } else {
+    const {card,options}=it.d;
+    stg.innerHTML=`<div class="eyebrow">Formula card</div><div class="face mini"><span class="label">What's the rule?</span><h2>${card[0]}</h2></div><div class="opts">${options.map((o,k)=>`<button class="opt rule-opt" data-k="${k}" aria-pressed="false">${o.t}<small hidden>${o.from?'That\'s '+o.from:''}</small></button>`).join('')}</div>`;
+    stg.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(b,'.opt'));
+    setDock('','',[{t:'Check',dis:true,id:'checkBtn',fn:check}]);
+  }
+}
+function pick(b,sel){
+  if(S.locked)return;
+  $('stage').querySelectorAll(sel).forEach(x=>x.setAttribute('aria-pressed','false'));
+  b.setAttribute('aria-pressed','true');S.sel=+b.dataset.k;$('checkBtn').disabled=false;
+}
+function score(it,ok,xp){
+  if(!it.retry){S.first++;if(ok)S.firstRight++}
+  if(ok){S.xp+=xp;return ''}
+  if(S.retries<3){S.retries++;
+    S.items.push(it.kind==='q'?{...mkQ(it.g),retry:true}:it.kind==='m'?{...mkM(it.g),retry:true}:{...mkC(it.d.card),retry:true});
+    return '<div class="again">You\'ll get another one like this at the end.</div>'}
+  return '';
+}
+const PRAISE=()=>P(['Nice one!','Spot on!','Nailed it!','Correct!']);
+function check(){
+  if(S.fixing)return checkFix();
+  const it=S.items[S.i];
+  if(it.kind==='q'&&it.typed){const v=readNum($('typeIn').value);if(isNaN(v))return;S.locked=true;$('typeIn').disabled=true;
+    const ok=same(v,it.p.val);$('typeIn').parentElement.classList.add(ok?'right':'wrong');
+    const again=score(it,ok,10);
+    return setDock(ok?'good':'bad',`<h3>${ok?PRAISE():`Not quite. It's ${it.d.answer}`}</h3><p>${it.d.why}</p>${ok?'':ruleBox(cardFor(it.d))}${again}`,[{t:'Continue',cls:ok?'good':'bad',fn:next}]);}
+  if(S.sel==null||S.locked)return;S.locked=true;
+  if(it.kind==='q'){
+    const ok=it.d.options[S.sel]===it.d.answer;
+    $('stage').querySelectorAll('.opt').forEach(b=>{const o=it.d.options[+b.dataset.k];if(o===it.d.answer)b.classList.add('right');else if(+b.dataset.k===S.sel)b.classList.add('wrong')});
+    const again=score(it,ok,10);
+    return setDock(ok?'good':'bad',`<h3>${ok?PRAISE():`Not quite. It's ${it.d.answer}`}</h3><p>${it.d.why}</p>${ok?'':ruleBox(cardFor(it.d))}${again}`,[{t:'Continue',cls:ok?'good':'bad',fn:next}]);
+  }
+  if(it.kind==='c'){
+    const {card,options}=it.d,ok=!!options[S.sel].ok;
+    $('stage').querySelectorAll('.opt').forEach(b=>{const k=+b.dataset.k,o=options[k];b.setAttribute('aria-pressed','false');if(o.ok)b.classList.add('right');else{b.querySelector('small').hidden=false;if(k===S.sel)b.classList.add('wrong')}});
+    const again=score(it,ok,5);
+    return setDock(ok?'good':'bad',`<h3>${ok?PRAISE():'Not quite'}</h3><p><b>${card[0]}</b> = ${card[1]}${card[2]?`<br><small>e.g. ${card[2]}</small>`:''}</p>${again}`,[{t:'Continue',cls:ok?'good':'bad',fn:next}]);
+  }
+  /* spot the mistake */
+  const ok=S.sel===it.d.bad;
+  $('stage').querySelectorAll('.step').forEach(b=>{const k=+b.dataset.k;b.setAttribute('aria-pressed','false');if(k===it.d.bad){b.classList.add(ok?'right':'here');b.dataset.note=ok?'✓ You found it':'← The mistake is here'}else if(k===S.sel){b.classList.add('fine');b.dataset.note='Your pick: this line is actually fine'}});
+  const again=score(it,ok,15);
+  if(ok&&it.d.fixAns!=null){
+    S.fixing=true;const u=it.d.unit||'';
+    $('fixArea').innerHTML=`<div class="fixq">Now fix it. What should the answer be?</div>${ansBox(u==='£'?'£':'',u==='£'?'':u)}`;
+    setDock('good','<h3>Good eye! That\'s the mistake.</h3><p>Bonus: type the right answer for +5 XP.</p>',[{t:'Skip',cls:'ghost',fn:()=>endFix(null)},{t:'Check',dis:true,id:'checkBtn',fn:check}]);
+    hookInput();const i=$('typeIn');i.scrollIntoView({block:'center'});try{i.focus({preventScroll:true})}catch(_){}
+    return;
+  }
+  setDock(ok?'good':'bad',`<h3>${ok?'Good eye! That\'s the mistake.':`Not that one. The mistake is line ${it.d.bad+1}`}</h3><p>${it.d.fix}${ok?'':'<br><small>Tip: find the first line that goes wrong.</small>'}</p>${ok?'':ruleBox(cardFor(it.d))}${again}`,[{t:'Continue',cls:ok?'good':'bad',fn:next}]);
+}
+function checkFix(){const v=readNum($('typeIn').value);if(isNaN(v))return;endFix(v)}
+function endFix(v){
+  const it=S.items[S.i];S.fixing=false;const i=$('typeIn');i.disabled=true;
+  const ok=v!=null&&same(v,it.d.fixAns);if(v!=null)i.parentElement.classList.add(ok?'right':'wrong');
+  if(ok)S.xp+=5;
+  const head=v==null?`The answer is ${fmtFix(it.d.fixAns,it.d.unit)}`:ok?'Fixed it! +5 XP':`So close. It's ${fmtFix(it.d.fixAns,it.d.unit)}`;
+  setDock(ok||v==null?'good':'bad',`<h3>${head}</h3><p>${it.d.fix}</p>${ok?'':ruleBox(cardFor(it.d))}`,[{t:'Continue',cls:ok||v==null?'good':'bad',fn:next}]);
+}
+function next(){S.i++;if(S.i>=S.items.length)finish();else{renderItem();window.scrollTo(0,0)}}
+
+function finish(){
+  const t=dayStr(0);
+  if(st.lastDay!==t){st.streak=st.lastDay===dayStr(1)?st.streak+1:1;st.lastDay=t}
+  if(st.xpDay!==t){st.xpDay=t;st.xpToday=0}
+  st.xpToday+=S.xp;st.totalXp+=S.xp;save();
+  const acc=S.first?Math.round(S.firstRight/S.first*100):0;
+  $('dXp').textContent='+'+S.xp;$('dAcc').textContent=acc+'%';$('dStreak').textContent=st.streak;
+  $('doneTitle').textContent=acc>=80?'Smashed it!':acc>=50?'Good round!':'Round done!';
+  $('doneMsg').textContent=st.xpToday>=50?`${st.xpToday} XP today. Daily goal done.`:`${50-st.xpToday} XP to go for today's goal.`;
+  $('again').onclick=()=>start(S.mode);
+  $('again').textContent=S.mode==='quick'?'Another 5':S.mode==='mistake'?'More mistakes':'More cards';
+  show('done');
+}
+
+/* ---------- wiring ---------- */
+$('goQuick').onclick=()=>start('quick');
+$('goMistake').onclick=()=>start('mistake');
+$('goCards').onclick=()=>start('cards');
+$('calc').onclick=()=>{st.calc=!st.calc;save();renderHome()};
+$('quit').onclick=()=>{show('home');renderHome()};
+$('home2').onclick=()=>{show('home');renderHome()};
+
+/* ---------- calculator (compact, fits a folded phone's front screen) ---------- */
+let cx='',cjust=false;
+const CK=['7','8','9','⌫','C','4','5','6','×','÷','1','2','3','−','+','0','.','%','(',')','='];
+$('cgrid').innerHTML=CK.map(k=>`<button type="button" data-c="${k}" class="${k==='='?'eq':/[÷×−+%()⌫C]/.test(k)?'op':''}"${k==='='?' style="grid-column:span 5"':''} aria-label="${{'⌫':'Delete','C':'Clear','−':'Minus','×':'Times','÷':'Divide'}[k]||k}">${k}</button>`).join('');
+function cshow(){$('cout').textContent=cx||'0';$('cuse').hidden=!($('typeIn')&&!$('typeIn').disabled&&cx&&/^-?[\d.]+$/.test(cx))}
+function cpress(k){
+  if(k==='C'){cx='';$('cprev').textContent='';cjust=false}
+  else if(k==='⌫'){cx=cx.slice(0,-1);cjust=false}
+  else if(k==='='){try{const e=cx.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/%/g,'/100');
+      if(!/^[0-9.+\-*/() ]+$/.test(e))throw 0;let v=Function('"use strict";return ('+e+')')();if(!isFinite(v))throw 0;
+      v=+v.toFixed(8);$('cprev').textContent=cx+' =';cx=String(v);cjust=true}catch(_){$('cprev').textContent='Check the sum';}}
+  else{if(cjust&&/[0-9.(]/.test(k)){cx='';$('cprev').textContent=''}cjust=false;cx+=k}
+  cshow();
+}
+$('cgrid').onclick=e=>{const b=e.target.closest('button');if(b)cpress(b.dataset.c)};
+$('cuse').onclick=()=>{const i=$('typeIn');if(!i||i.disabled)return;i.value=cx;i.dispatchEvent(new Event('input'))};
+function calcOpen(o){const c=$('cpad');c.hidden=!o;document.body.classList.toggle('calcon',o);$('calcBtn').setAttribute('aria-expanded',o);
+  if(o){c.style.bottom=$('dock').offsetHeight+'px';cshow();document.querySelector('.app').style.paddingBottom=(c.offsetHeight+$('dock').offsetHeight+20)+'px'}else document.querySelector('.app').style.paddingBottom=''}
+$('calcBtn').onclick=()=>calcOpen($('cpad').hidden);
+document.addEventListener('keydown',e=>{
+  const inInput=document.activeElement&&document.activeElement.tagName==='INPUT';
+  if(!$('cpad').hidden&&!inInput){const m={'*':'×','x':'×','/':'÷','-':'−','Enter':'=','=':'=','Backspace':'⌫','Escape':'C','Delete':'C'};
+    const k=m[e.key]||(/^[0-9.+%()]$/.test(e.key)?e.key:null);
+    if(k){e.preventDefault();cpress(k);return}}
+  if($('play').hidden)return;
+  if(!inInput&&/^[1-5]$/.test(e.key)){const b=$('stage').querySelector(`[data-k="${+e.key-1}"]`);if(b)b.click()}
+  if(e.key==='Enter'){const b=$('dockBtns').querySelector('button:not([disabled]):last-child');if(b&&document.activeElement.tagName!=='BUTTON'){e.preventDefault();b.click()}}
+});
+renderHome();
+</script>

@@ -1,1 +1,26 @@
-# mathbites
+# Math Bites
+
+Bite-size maths practice for **Functional Skills Maths Level 2**. Do 3–15 minutes a day, with a streak and XP.
+
+## What's in it
+
+- **Give me 5**: mixed questions, one mistake to spot and fix, and one formula card
+- **Spot the mistake**: find the wrong line in someone's working, then type the right answer
+- **Formula cards**: pick the right rule from 5. The wrong ones are real rules from other cards
+- **Type it in**: some questions have no options, like the real exam
+- **Get it wrong → see the formula**: the formula card for that topic pops up
+- **Calculator mode**: a compact on-screen calculator. Its "Put in answer" button drops the result into the box
+- Every question is random each time, with friendly numbers
+
+## Topics
+
+Number, measures/shape/space, and handling data, as covered by the Level 2 spec.
+
+## Run it
+
+It's one file: open `index.html` in a browser.
+
+To use it on your phone, turn on GitHub Pages:
+**Settings → Pages → Deploy from branch → `main` / root**.
+
+Progress is saved on your device only.
