@@ -590,7 +590,371 @@ const CARDS=[
  ['Formulas in words','swap the words for numbers, then BIDMAS','£5 an hour + £12: 3 hours → 5 × 3 + 12 = £27'],
  ['Reading a chart','read each value off carefully, then add or take away','Mon 40, Tue 25 → 15 more on Mon'],
 ];
-/*EXTRA*/
+/* ---------- extra Level 2 topics ---------- */
+/* ---------- extra question makers (paste after the existing makers) ---------- */
+const _s=v=>v<0?'−'+(-v):String(v);
+const _pt=(x,y)=>`(${_s(x)}, ${_s(y)})`;
+const _c=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+const _f=(u,z)=>{const f=v=>num(v)+u;if(z)f.zeroBad=true;return f};
+const _pc=v=>num(Math.round(v))+'%';_pc.zeroBad=true;
+const _sf1=x=>{const m=Math.pow(10,Math.floor(Math.log10(x)));return +(Math.round(x/m)*m).toPrecision(10)};
+const _pi=3.14;
+
+function gCircle(c){
+  const useD=Math.random()<.5,dp=P([0,1]),u=P(['cm','m']);
+  let r,d,C;
+  do{r=R(2,c?24:10);d=useD?(Math.random()<.5?2*r:R(3,c?45:20)):2*r;if(useD&&d%2)r=d/2;C=r2(_pi*d)}while(dp===0&&Math.abs(C%1-.5)<1e-9);
+  const rd=v=>dp?Math.round(v*10+1e-9)/10:Math.round(v+1e-9);
+  const ans=rd(C),dpT=dp?'1 decimal place':'the nearest whole number';
+  const ds=useD?[rd(2*_pi*d),rd(_pi*d/2),rd(_pi*d*d/4)]:[rd(_pi*r),rd(_pi*r*r),rd(_pi*d*d)];
+  const given=useD?`a diameter of ${d} ${u}`:`a radius of ${r} ${u}`;
+  return {topic:'Circles',_in:{d,dp},q:`A circular table has ${given}. What is its circumference, to ${dpT}?<span class="hint">Use π = 3.14</span>`,
+    ...opts(ans,ds,_f(' '+u,true)),
+    why:`Circumference = π × diameter. ${useD?'':`The diameter is 2 × ${r} = ${d} ${u}. `}3.14 × ${d} = ${num(C)}, which is ${num(ans)} ${u} to ${dpT}`};
+}
+function gCylinder(c){
+  const useD=Math.random()<.5,u=P(['cm','m']);
+  let r,h,V;
+  do{r=R(2,c?10:6);h=R(2,c?20:12);V=r2(_pi*r*r*h)}while(Math.abs(V%1-.5)<1e-9);
+  const ans=Math.round(V+1e-9),rd=Math.round,d=2*r;
+  const given=useD?`a diameter of ${d} ${u}`:`a radius of ${r} ${u}`;
+  return {topic:'Cylinders',_in:{r,h},q:`A cylinder has ${given} and a height of ${h} ${u}. What is its volume, to the nearest whole number?<span class="hint">Use π = 3.14</span>`,
+    ...opts(ans,[rd(_pi*d*d*h),rd(_pi*r*h),rd(_pi*r*r),rd(V/3)],_f(' '+u+'³',true)),
+    why:`Volume = π × r² × h. ${useD?`The radius is ${d} ÷ 2 = ${r}. `:''}3.14 × ${r} × ${r} × ${h} = ${num(V)}, so about ${ans} ${u}³`};
+}
+function gComposite(c){
+  const u=P(['m','cm']);
+  let W,x,a,b;
+  do{W=R(5,c?16:11);x=R(2,W-2);a=R(2,c?7:6);b=R(2,c?7:6)}while(W*a+x*b===W*(a+b));
+  const H=a+b,s=Math.floor(150/Math.max(W,H)),ox=38,oy=22;
+  const pts=[[0,0],[x,0],[x,b],[W,b],[W,H],[0,H]].map(p=>`${ox+p[0]*s},${oy+p[1]*s}`).join(' ');
+  const tx=(X,Y,t,an)=>`<text x="${X}" y="${Y}" text-anchor="${an}" font-size="13" font-weight="700" fill="currentColor">${t}</text>`;
+  const svg=`<svg viewBox="0 0 ${ox+W*s+44} ${oy+H*s+24}" width="${ox+W*s+44}" role="img" aria-label="L-shape" style="display:block;margin:8px 0;max-width:100%;color:inherit"><polygon points="${pts}" fill="rgba(80,130,255,.18)" stroke="currentColor" stroke-width="2"/>`+
+    tx(ox+x*s/2,oy-7,`${x} ${u}`,'middle')+tx(ox+W*s/2,oy+H*s+16,`${W} ${u}`,'middle')+tx(ox-6,oy+H*s/2+4,`${H} ${u}`,'end')+tx(ox+W*s+6,oy+b*s+a*s/2+4,`${a} ${u}`,'start')+`</svg>`;
+  const ans=W*a+x*b;
+  return {topic:'Composite shapes',_in:{W,x,a,b},q:`Find the area of this L-shape. All the corners are right angles.${svg}`,
+    ...opts(ans,[W*H,W*a+x*H,W*a,2*(W+H)],_f(' '+u+'²',true)),
+    why:`Split it into two rectangles. Bottom: ${W} × ${a} = ${W*a}. Top: the height is ${H} − ${a} = ${b}, so ${x} × ${b} = ${x*b}. Add: ${W*a} + ${x*b} = ${ans} ${u}²`};
+}
+function gInterest(c){
+  const t=R(0,3);
+  if(t===0){
+    const Pn=P([200,250,400,500,600,800,1000,1200,1500,2000,2500]),r=P(c?[2,3,4,5,6,8]:[2,3,4,5]),n=R(2,5),I=Pn*r*n/100,askTot=Math.random()<.5;
+    let comp=Pn;for(let i=0;i<n;i++)comp*=1+r/100;comp=r2(comp);
+    return {topic:'Simple interest',_in:{t:'simple',Pn,r,n,askTot},q:`${money(Pn)} is put in a savings account paying ${r}% <b>simple</b> interest a year. ${askTot?`How much is in the account after ${n} years?`:`How much interest is earned in ${n} years?`}`,
+      ...(askTot?opts(Pn+I,[I,comp,Pn+I/n],money):opts(I,[Pn+I,r2(comp-Pn),I/n],money)),
+      why:`${r}% of ${money(Pn)} = ${money(Pn*r/100)} each year. Over ${n} years: ${money(Pn*r/100)} × ${n} = ${money(I)}${askTot?`. Add the original ${money(Pn)} to get ${money(Pn+I)}`:''}`};}
+  if(t===1){
+    const Pn=P([200,400,500,800,1000,2000]),r=P([2,3,4,5,10]),y1=r2(Pn*(1+r/100)),tot=r2(y1*(1+r/100)),askInt=Math.random()<.4;
+    return {topic:'Compound interest',_in:{t:'compound',Pn,r,askInt},q:`${money(Pn)} is invested for 2 years at ${r}% <b>compound</b> interest a year. ${askInt?'How much interest is earned in total?':'How much is it worth after 2 years?'}`,
+      ...(askInt?opts(r2(tot-Pn),[r2(Pn*r*2/100),tot,r2(y1*r/100)],money):opts(tot,[r2(Pn+Pn*r*2/100),r2(tot-Pn),y1],money)),
+      why:`Year 1: ${r}% of ${money(Pn)} = ${money(y1-Pn)}, so ${money(y1)}. Year 2: ${r}% of ${money(y1)} = ${money(tot-y1)}, so ${money(tot)}${askInt?`. Interest = ${money(tot)} − ${money(Pn)} = ${money(tot-Pn)}`:''}`};}
+  if(t===2){
+    const p=R(4,c?150:60)*5,tot=r2(p*1.2);
+    return {topic:'VAT',_in:{t:'vat',p,add:true},q:`A ${P(['laptop','washing machine','bike','sofa'])} costs ${money(p)} <b>before</b> VAT. VAT is 20%. What is the price including VAT?`,
+      ...opts(tot,[p+20,p*0.2,p*0.8,p*1.02],money),
+      why:`20% of ${money(p)} = ${money(p*0.2)} (10% is ${money(p/10)}, double it). Add on: ${money(p)} + ${money(p*0.2)} = ${money(tot)}`};}
+  const pre=R(4,c?150:60)*5,T=r2(pre*1.2);
+  return {topic:'VAT',_in:{t:'vat',p:pre,add:false},q:`A ${P(['TV','phone','coat','desk'])} costs ${money(T)} <b>including</b> 20% VAT. What was the price before VAT?`,
+    ...opts(pre,[T*0.8,T-20,T*1.2,T*0.2],money),
+    why:`${money(T)} is 120% of the original price. 120% ÷ 6 = 20%, so ${money(T)} ÷ 6 = ${money(T/6)} and 100% is ${money(T/6)} × 5 = ${money(pre)}`};
+}
+function gPercChange(c){
+  const old=P([20,40,60,80,100,120,160,200,240,300,400,500]),inc=Math.random()<.5,p=P(inc?[5,10,15,20,25,30,40,50,60,75,80]:[5,10,15,20,25,30,40,50,60,75]);
+  const ch=old*p/100,nw=inc?old+ch:old-ch,item=P(['a jacket','a pair of trainers','a games console','a train ticket']);
+  return {topic:'Percentage change',_in:{old,nw,inc},q:`The price of ${item} ${inc?'goes up':'drops'} from ${money(old)} to ${money(nw)}. What is the percentage ${inc?'increase':'decrease'}?`,
+    ...opts(p,[ch/nw*100,ch,100+(inc?p:-p),p+10],_pc),
+    why:`Change = ${money(Math.abs(nw-old))}. Divide by the <b>original</b>: ${ch} ÷ ${old} = ${num(p/100)}, × 100 = ${p}%`};
+}
+function gFDP(c){
+  const t=R(0,3);
+  if(t===0){
+    const [n,d]=P([[1,8],[3,8],[5,8],[7,8],[3,4],[2,5],[3,5],[4,5],[7,20],[9,20],[13,25],[3,40],[1,20],[11,50]]),v=n/d;
+    const dsRaw=[parseFloat('0.'+n+d),v*10,v/10,d/n>1?r2(d/n):null];
+    const ds=dsRaw.filter(x=>x!=null&&Math.abs(Math.round(x*1000)-x*1000)<1e-6);
+    return {topic:'Fractions, decimals, percentages',_in:{t},q:`Write ${fr(n,d)} as a decimal.`,
+      ...opts(v,ds,_f('',true)),why:`Divide the top by the bottom: ${n} ÷ ${d} = ${num(v)}`};}
+  if(t===1){
+    const k=P([5,7,12,15,20,25,35,40,45,60,65,75,85,90,4,8]),v=k/100;
+    return {topic:'Fractions, decimals, percentages',_in:{t},q:`Write ${v} as a percentage.`,
+      ...opts(k,[v*10,v,k*10,v/10].filter(x=>x>0),_pc),why:`Multiply by 100 to turn a decimal into a percentage: ${v} × 100 = ${k}%`};}
+  if(t===2){
+    const p=P([4,5,6,8,15,16,24,35,36,45,55,60,65,70,85,90]),ans=frS(p,100),seen=new Set([ans]),ds=[];
+    const add=(n,d)=>{if(n<1||n>=d)return;const s=frS(n,d);if(seen.has(s))return;seen.add(s);ds.push(s)};
+    add(p,10);add(100-p,100);add(p,1000);add(1,p);
+    return {topic:'Fractions, decimals, percentages',_in:{t},q:`Write ${p}% as a fraction in its simplest form.`,
+      ...optsS(ans,ds,()=>{const d=P([20,25,40,50]);return frS(R(1,d-1),d)}),
+      why:`${p}% means ${p} out of 100: ${fr(p,100)}. Divide top and bottom by ${gcd(p,100)}: ${ans}`};}
+  const [n,d]=P([[1,8],[3,8],[5,8],[7,8],[7,20],[9,20],[3,5],[2,5],[13,25],[3,40],[19,20],[17,50]]),v=n/d*100;
+  return {topic:'Fractions, decimals, percentages',_in:{t},q:`Write ${fr(n,d)} as a percentage.`,
+    ...opts(v,[v/10,v*10,100-v,n/d].filter(x=>Math.abs(Math.round(x*1000)-x*1000)<1e-6),(()=>{const f=x=>num(x)+'%';f.zeroBad=true;return f})()),
+    why:`${n} ÷ ${d} = ${num(n/d)}, then × 100 = ${num(v)}%`};
+}
+function gRound(c){
+  const t=R(0,2);
+  if(t===0){
+    const pl=P([10,100,1000]);let n;
+    do{n=R(1100,c?99999:9999)}while(n%pl===pl/2);
+    const ans=Math.round(n/pl)*pl,fl=Math.floor(n/pl)*pl,ce=fl+pl,oth=[10,100,1000].filter(x=>x!==pl).map(x=>Math.round(n/x)*x);
+    const nm={10:'10',100:'100',1000:'1000'}[pl],f=v=>_c(v);f.zeroBad=true;
+    return {topic:'Rounding and estimating',_in:{t},q:`Round <b>${_c(n)}</b> to the nearest ${nm}.`,
+      ...opts(ans,[fl===ans?ce:fl,...oth],f),
+      why:`Look at the digit just after the ${nm} place (${_c(n)}). ${n-fl>=pl/2?'It is 5 or more, so round up':'It is less than 5, so round down'}: ${_c(ans)}`};}
+  if(t===1){
+    const dp=P([1,2]),dv=dp===2?10:100;let m;
+    do{m=R(1001,c?99999:19999)}while(m%10===0||(dp===2&&m%10===5)||(dp===1&&m%100===50));
+    const x=m/1000,ans=Math.round(m/dv)/(1000/dv),fl=Math.floor(m/dv)/(1000/dv),ob=Math.round(m/(dp===2?100:10))/(dp===2?10:100);
+    const fm=v=>v.toFixed(dp);fm.zeroBad=true;
+    return {topic:'Rounding and estimating',_in:{t,m,dp},q:`Round <b>${x.toFixed(3)}</b> to ${dp} decimal place${dp>1?'s':''}.`,
+      ...opts(ans,[fl,ob,Math.ceil(m/dv)/(1000/dv)],fm),
+      why:`Keep ${dp} decimal place${dp>1?'s':''} and look at the next digit (${String(m).padStart(4,'0').slice(dp===2?-1:-2,dp===2?undefined:-1)}). ${ans>fl?'It is 5 or more, so round up':'It is less than 5, so the digit stays'}: ${ans.toFixed(dp)}`};}
+  for(let tries=0;tries<500;tries++){
+    const dec=Math.random()<.4,a=dec?R(21,89)/10:R(21,89),b=R(12,89),div=Math.random()<.4;
+    const sd=v=>{const m=Math.pow(10,Math.floor(Math.log10(v)));return Math.round(v/m)%10};
+    let cc=null,ec=null;
+    if(div){ec=P([2,4,5,10,20,50]);const unit=ec>=10?1:.1,sh=R(-4,4);if(!sh)continue;cc=+(ec+sh*unit).toFixed(1)}
+    const vals=[a,b,...(div?[cc]:[])];
+    if(vals.some(v=>Math.round(v/Math.pow(10,Math.floor(Math.log10(v))))%10===5&&String(v).replace('.','').replace(/0/g,'')[1]==='5'))continue;
+    if(String(a).replace('.','')[1]==='5'||String(b)[1]==='5')continue;
+    const ea=_sf1(a),eb=_sf1(b),est=div?ea*eb/_sf1(cc):ea*eb;
+    if(div&&_sf1(cc)!==ec)continue;
+    if(!Number.isInteger(est)||est<20)continue;
+    const exact=r2(div?a*b/cc:a*b);
+    const fm=v=>_c(v);fm.zeroBad=true;
+    return {topic:'Rounding and estimating',_in:{t,div,a,b,cc},q:`Estimate the answer by rounding each number to 1 significant figure.<span class="big">${a} × ${b}${div?` ÷ ${cc}`:''}</span>`,
+      ...opts(est,[exact,est*10,est/10,div?ea*eb:ea+eb],fm),
+      why:`${a} → ${ea}, ${b} → ${eb}${div?`, ${cc} → ${_sf1(cc)}`:''}. So ${ea} × ${eb}${div?` ÷ ${_sf1(cc)}`:''} = ${_c(est)}`};
+  }
+  return gRound(c);
+}
+function gCoord(c){
+  const t=R(0,2);
+  if(t===0){
+    let x1,y1,x2,y2;
+    do{x1=R(-8,8);y1=R(-8,8);x2=x1+2*R(-5,5);y2=y1+2*R(-5,5)}while((x1===x2&&y1===y2)||Math.abs(x2)>9||Math.abs(y2)>9||(x1>=0&&x2>=0&&y1>=0&&y2>=0&&Math.random()<.7));
+    const mx=(x1+x2)/2,my=(y1+y2)/2;
+    return {topic:'Coordinates',_in:{t,x1,y1,x2,y2},q:`What is the midpoint of the line joining <b>A ${_pt(x1,y1)}</b> and <b>B ${_pt(x2,y2)}</b>?`,
+      ...optsS(_pt(mx,my),[_pt(x1+x2,y1+y2),_pt(my,mx),_pt((x2-x1)/2,(y2-y1)/2)],()=>_pt(mx+P([-2,-1,1,2]),my+P([-2,-1,1,2]))),
+      why:`Add the x-values and halve: (${_s(x1)} + ${_s(x2)}) ÷ 2 = ${_s(mx)}. Add the y-values and halve: (${_s(y1)} + ${_s(y2)}) ÷ 2 = ${_s(my)}`};}
+  if(t===1){
+    let x1,x2,y1,y2;
+    do{x1=R(-6,6);x2=R(-6,6);y1=R(-6,6);y2=R(-6,6)}while(x1===x2||y1===y2||(x1>=0&&x2>=0&&y1>=0&&y2>=0));
+    return {topic:'Coordinates',_in:{t,x1,x2,y1,y2},q:`<b>ABCD</b> is a rectangle with sides parallel to the axes. <b>A ${_pt(x1,y1)}</b>, <b>B ${_pt(x2,y1)}</b>, <b>C ${_pt(x2,y2)}</b>. What are the coordinates of D?`,
+      ...optsS(_pt(x1,y2),[_pt(y2,x1),_pt(-x1,y2),_pt(x1,-y2)],()=>_pt(R(-6,6),R(-6,6))),
+      why:`D is directly in line with A (same x = ${_s(x1)}) and in line with C (same y = ${_s(y2)}). So D is ${_pt(x1,y2)}`};}
+  let ax,ay,u,v,p,q;
+  do{ax=R(-5,5);ay=R(-5,5);u=R(-4,4);v=R(-4,4);p=R(-4,4);q=R(-4,4)}while(u*q-v*p===0||(!u&&!v)||(!p&&!q));
+  const bx=ax+u,by=ay+v,cx=bx+p,cy=by+q,dx=ax+p,dy=ay+q;
+  return {topic:'Coordinates',_in:{t},q:`<b>ABCD</b> is a parallelogram. <b>A ${_pt(ax,ay)}</b>, <b>B ${_pt(bx,by)}</b>, <b>C ${_pt(cx,cy)}</b>. What are the coordinates of D?`,
+    ...optsS(_pt(dx,dy),[_pt(bx+cx-ax,by+cy-ay),_pt(ax+bx-cx,ay+by-cy),_pt(dy,dx)],()=>_pt(dx+P([-2,-1,1,2]),dy+P([-2,-1,1,2]))),
+    why:`Going from B to C is ${_s(p)} across and ${_s(q)} up. D is the same move from A: ${_pt(ax,ay)} → ${_pt(dx,dy)}`};
+}
+function gProportion(c){
+  const t=R(0,2);
+  if(t===0){
+    const [item,un]=P([['flour','g'],['sugar','g'],['milk','ml'],['rice','g']]),p1=P([2,4,5,6]);let p2;do{p2=P([3,4,6,8,10,12,15])}while(p2===p1);
+    const k=P(c?[30,40,45,60,75,125]:[20,25,30,50,75]),q1=k*p1,ans=k*p2;
+    const dish=P(['a pancake recipe','a curry','a cake','a soup']);
+    return {topic:'Direct proportion',_in:{kind:'dir',q1,p1,p2},q:`${dish[0].toUpperCase()+dish.slice(1)} for ${p1} people needs ${q1}${un} of ${item}. How much ${item} is needed for ${p2} people?`,
+      ...opts(ans,[q1+(p2-p1),q1*p2,q1*p2/p1/p1,q1/p1*(p2-p1)].map(r2),_f(un,true)),
+      why:`For 1 person: ${q1} ÷ ${p1} = ${k}${un}. For ${p2} people: ${k} × ${p2} = ${ans}${un}`};}
+  if(t===1){
+    const n1=P([3,4,5,6,8]);let n2;do{n2=P([2,3,5,7,10,12])}while(n2===n1);
+    const u=P([0.4,0.5,0.6,0.8,1.2,1.5,2.5,0.35,0.65]),tot=r2(n1*u),ans=r2(n2*u),it=P(['pens','buns','apples','notebooks']);
+    return {topic:'Direct proportion',_in:{kind:'dirp',n1,tot,n2},q:`${n1} ${it} cost ${money(tot)}. How much do ${n2} ${it} cost?`,
+      ...opts(ans,[tot+(n2-n1),tot*n2,r2(tot/n2),tot/n1*(n2-n1)],money),
+      why:`1 costs ${money(tot)} ÷ ${n1} = ${money(u)}. So ${n2} cost ${money(u)} × ${n2} = ${money(ans)}`};}
+  let w1,d,w2,T,ans,ok;
+  do{w1=R(2,6);d=R(2,c?15:12);T=w1*d;const dv=[];for(let k=2;k<=12;k++)if(T%k===0&&k!==w1&&T/k>=2&&T/k!==d)dv.push(k);ok=dv.length>0;if(ok){w2=P(dv);ans=T/w2}}while(!ok);
+  const [job,un]=P([['build a wall','days'],['paint a fence','hours'],['clear a field','days'],['fill a skip','hours']]);
+  const nu=v=>num(v)+' '+(v===1?un.slice(0,-1):un),fm=v=>nu(v);fm.zeroBad=true;
+  return {topic:'Inverse proportion',_in:{kind:'inv',w1,d,w2},q:`${w1} workers take ${d} ${un} to ${job}. How long would ${w2} workers take, working at the same rate?`,
+    ...opts(ans,[d*w2/w1,d+(w2-w1),d-(w2-w1),T].map(r2),fm),
+    why:`Total work = ${w1} × ${d} = ${T} worker-${un}. With ${w2} workers: ${T} ÷ ${w2} = ${num(ans)} ${un}. More workers means less time`};
+}
+function gExpected(c){
+  const t=R(0,3);
+  if(t===0){
+    const d=P([4,5,8,10,3,6]),n=R(1,d-1),k=R(4,c?30:15),N=d*k,ans=k*n;
+    const [thing,hit]=P([['spinner','lands on red'],['bag of counters','gives a red counter (with replacement)'],['game','is won']]);
+    return {topic:'Expected outcomes',_in:{t,N,n,d},q:`The probability that a ${thing} ${hit} is ${frS(n,d)}. It is used ${N} times. How many times would you expect this to happen?`,
+      ...opts(ans,[N*(d-n)/d,N/d,N-n,N*n],_f('',true)),
+      why:`Expected = probability × number of tries = ${frS(n,d)} × ${N} = ${N} ÷ ${d/gcd(n,d)} × ${n/gcd(n,d)} = ${ans}`};}
+  if(t===1){
+    const p=P([0.1,0.2,0.25,0.3,0.35,0.4,0.6,0.7,0.15]),N=P([20,40,60,100,200,300]),ans=r2(p*N);
+    return {topic:'Expected outcomes',_in:{t,N,p},q:`The probability that a bus is late is ${p}. Over ${N} journeys, roughly how many times would you expect it to be late?`,
+      ...opts(ans,[N*(1-p),N/p,N+p*100,r2(p*N/10)].map(r2),_f(' times',true)),
+      why:`Expected = probability × number of journeys = ${p} × ${N} = ${num(ans)}`};}
+  const pr=[0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4];
+  if(t===2){
+    const names=P([['red','blue','green'],['early','on time','late'],['sunny','cloudy','rainy'],['Win','Draw','Lose']]);
+    let a,b;do{a=P(pr);b=P(pr)}while(a+b>.9);
+    const ans=r2(1-a-b);
+    return {topic:'Probabilities add to 1',_in:{t,sum:r2(a+b)},q:`The probabilities of three results are shown. What is the missing probability?<span class="big">${names[0]}: ${a} &nbsp; ${names[1]}: ${b} &nbsp; ${names[2]}: ?</span>`,
+      ...opts(ans,[r2(a+b),r2(1+a+b),r2(ans+0.1),r2(ans*10)],_f('',true)),
+      why:`Probabilities add up to 1. ${a} + ${b} = ${r2(a+b)}, so the missing one is 1 − ${r2(a+b)} = ${num(ans)}`};}
+  let a,b,d;do{a=P(pr);b=P(pr);d=P(pr)}while(a+b+d>.9);
+  const ans=r2(1-a-b-d),s=r2(a+b+d);
+  return {topic:'Probabilities add to 1',_in:{t,sum:s},q:`A spinner has 4 colours. P(red) = ${a}, P(blue) = ${b}, P(green) = ${d}. What is P(yellow)?`,
+    ...opts(ans,[s,r2(1+s),r2(ans+0.1),r2(ans*10)],_f('',true)),
+    why:`All four probabilities add up to 1. ${a} + ${b} + ${d} = ${s}, so P(yellow) = 1 − ${s} = ${num(ans)}`};
+}
+function gBigNum(c){
+  const t=R(0,2);
+  if(t===0){
+    const len=P([6,7]),big=Math.random()<.5;let nums;
+    for(;;){const dg=Array.from({length:len},()=>R(0,9));dg[0]=R(1,9);const set=new Set([dg.join('')]);let k=0;
+      while(set.size<4&&k++<60){const x=shuffle([...dg]);if(x[0]!==0)set.add(x.join(''))}
+      if(set.size===4){nums=[...set].map(Number);break}}
+    const ans=big?Math.max(...nums):Math.min(...nums),so=[...nums].sort((a,b)=>a-b);
+    return {topic:'Large numbers',_in:{t},q:`Which of these is the ${big?'largest':'smallest'} number?`,answer:_c(ans),options:shuffle(nums.map(_c)),
+      why:`Compare from the left, digit by digit. In order, smallest first: ${so.map(_c).join(', ')}`};}
+  if(t===1){
+    const dg=shuffle([1,2,3,4,5,6,7,8,9]).slice(0,7),n=Number(dg.join('')),pos=R(2,6),d=dg[6-pos],val=d*Math.pow(10,pos);
+    const names=['units','tens','hundreds','thousands','ten thousands','hundred thousands','millions'];
+    const f=v=>_c(v);f.zeroBad=true;
+    return {topic:'Large numbers',_in:{t},q:`What is the value of the <b>${d}</b> in ${_c(n)}?`,
+      ...opts(val,[val*10,val/10,val/100,val*100],f),why:`The ${d} is in the ${names[pos]} column, so its value is ${_c(val)}`};}
+  const ones=['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'],
+    tens=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+  const w3=n=>{const h=Math.floor(n/100),r=n%100;let s='';if(h)s+=ones[h]+' hundred';if(r){if(h)s+=' and ';s+=r<20?ones[r]:tens[Math.floor(r/10)]+(r%10?'-'+ones[r%10]:'')}return s};
+  const M=R(1,9),th=R(1,9)*100+R(0,1)*R(1,9),u=R(1,99),n=M*1e6+th*1000+u,f=v=>_c(v);f.zeroBad=true;
+  return {topic:'Large numbers',_in:{t},q:`Write this number in figures:<span class="big" style="font-size:18px">${w3(M)} million, ${w3(th)} thousand and ${w3(u)}</span>`,
+    ...opts(n,[Number(`${M}${th}${u}`),M*1e6+u*1000+th,M*1e6+th*100+u,M*1e6+th*1000+u*10],f),
+    why:`${M} million = ${_c(M*1e6)}, ${th} thousand = ${_c(th*1000)}, and ${u}. Keep three digits in each group, using zeros as place holders: ${_c(n)}`};
+}
+function gScatter(c){
+  const L=['Positive correlation','Negative correlation','No correlation'];
+  const t=R(0,2);
+  if(t===0){
+    const k=R(0,2);let pts,rr;
+    for(;;){pts=Array.from({length:10},(_,i)=>{const x=18+i*13+R(-4,4);let y;
+        if(k===0)y=112-(x-18)*0.75+R(-12,12);else if(k===1)y=22+(x-18)*0.75+R(-12,12);else y=R(20,112);return [x,Math.max(12,Math.min(120,y))]});
+      const mx=pts.reduce((s,p)=>s+p[0],0)/10,my=pts.reduce((s,p)=>s+p[1],0)/10;
+      const sxy=pts.reduce((s,p)=>s+(p[0]-mx)*(p[1]-my),0),sxx=pts.reduce((s,p)=>s+(p[0]-mx)**2,0),syy=pts.reduce((s,p)=>s+(p[1]-my)**2,0);
+      rr=sxy/Math.sqrt(sxx*syy);if(k===2?Math.abs(rr)<.3:Math.abs(rr)>.85)break}
+    const svg=`<svg viewBox="0 0 160 130" width="200" role="img" aria-label="scatter graph" style="display:block;margin:8px 0;max-width:100%;color:inherit"><path d="M8 4V124H156" fill="none" stroke="currentColor" stroke-width="2"/>${pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="currentColor"/>`).join('')}</svg>`;
+    // svg y is flipped: k=0 has y falling as x rises, i.e. points climb on screen
+    const real=k===0?L[0]:k===1?L[1]:L[2];
+    return {topic:'Scatter graphs',_in:{t,k},q:`What type of correlation does this scatter graph show?${svg}`,answer:real,options:shuffle([...L]),
+      why:real===L[0]?'As one value goes up, the other goes up too: the points slope upwards. Positive correlation':real===L[1]?'As one value goes up, the other goes down: the points slope downwards. Negative correlation':'The points are scattered with no pattern. No correlation'};}
+  if(t===1){
+    const D=[['The age of a car','its value','Negative correlation'],['Hours spent revising','exam mark','Positive correlation'],['Outside temperature','sales of hot soup','Negative correlation'],
+      ['Height of a child','shoe size','Positive correlation'],['A person’s shoe size','their maths test mark','No correlation'],['Distance from the town centre','house price','Negative correlation'],
+      ['Temperature','ice cream sales','Positive correlation'],['The day of the month','the number of goals scored in a match','No correlation']];
+    const d=P(D);
+    return {topic:'Scatter graphs',_in:{t},q:`A scatter graph compares <b>${d[0].toLowerCase()}</b> and <b>${d[1]}</b>. What correlation would you expect?`,answer:d[2],options:shuffle([...L]),
+      why:d[2]==='No correlation'?'These two things are not linked, so there is no pattern: no correlation':d[2]==='Positive correlation'?'As one goes up, the other tends to go up: positive correlation':'As one goes up, the other tends to go down: negative correlation'};}
+  const neg=['Age of a car and its value','Outside temperature and sales of hot soup','Distance from the town centre and house price','Number of days absent and test score'];
+  const oth=['Height and shoe size','Hours revised and exam mark','Temperature and ice cream sales','Shoe size and maths mark','Day of the month and rainfall','Floor area and house price'];
+  const a=P(neg);
+  return {topic:'Scatter graphs',_in:{t},q:`Which pair would you expect to show <b>negative</b> correlation?`,
+    ...optsS(a,shuffle([...oth]).slice(0,3),()=>P(oth)),why:`Negative correlation means as one thing goes up, the other goes down. ${a} fits this`};
+}
+function gMoneyBudget(c){
+  const t=R(0,2);
+  if(t===0){
+    const inc=R(15,c?45:32)*100,B=shuffle([['Rent',R(4,9)*100],['Food',R(10,30)*10],['Bills',R(4,15)*10],['Travel',R(4,12)*10],['Phone',R(2,6)*10]]).slice(0,R(3,4));
+    const sum=B.reduce((s,b)=>s+b[1],0),left=inc-sum;
+    if(left<50)return gMoneyBudget(c);
+    return {topic:'Budgeting',_in:{t,inc,sum},q:`Sam’s income is ${money(inc)} a month. Each month: ${B.map(b=>`${b[0].toLowerCase()} ${money(b[1])}`).join(', ')}. How much is left each month?`,
+      ...opts(left,[sum,inc+sum,left+B[B.length-1][1],left-B[0][1]],money),
+      why:`Add the costs: ${B.map(b=>b[1]).join(' + ')} = ${money(sum)}. Take that from the income: ${money(inc)} − ${money(sum)} = ${money(left)}`};}
+  if(t===1){
+    const w=P([5,8,10,12,15,20,25,30,35,45]),ans=w*52;
+    return {topic:'Budgeting',_in:{t,w},q:`Priya saves ${money(w)} every week. How much will she have saved after one year (52 weeks)?`,
+      ...opts(ans,[w*12,w*50,w*4,w*365],money),why:`${money(w)} × 52 = ${money(ans)}`};}
+  const x=P([12,15,18,24,30,35,48,55,60]),ans=x*12;
+  return {topic:'Budgeting',_in:{t,x},q:`A gym membership costs ${money(x)} a month. How much does it cost over a whole year?`,
+    ...opts(ans,[x*52,x*10,x*24,x*7],money),why:`There are 12 months in a year: ${money(x)} × 12 = ${money(ans)}`};
+}
+function gPlans(c){
+  const SH=['Circle','Square','Rectangle','Triangle','Semicircle','Hexagon'];
+  const Q=[
+    ['How many faces does the net of a cube have?','6',['4','5','8'],['3','7','9','10']],
+    ['How many faces does the net of a triangular prism have?','5',['3','4','6'],['7','8']],
+    ['A square-based pyramid is opened out into a net. How many faces does the net have?','5',['4','6','8'],['3','7']],
+    ['The net of a cylinder is made from how many pieces?','3',['2','4','5'],['1','6']],
+    ['Which shape is the <b>plan</b> (view from above) of a cylinder standing on its end?<span class="hint">Plan = view from above</span>','Circle',['Square','Rectangle','Triangle'],SH],
+    ['Which shape is the <b>side elevation</b> of a cylinder standing on its end?<span class="hint">Elevation = view from the side</span>','Rectangle',['Circle','Triangle','Semicircle'],SH],
+    ['Which shape is the <b>plan</b> (view from above) of a cone standing on its base?<span class="hint">Plan = view from above</span>','Circle',['Triangle','Square','Rectangle'],SH],
+    ['Which shape is the <b>side elevation</b> of a cone standing on its base?<span class="hint">Elevation = view from the side</span>','Triangle',['Circle','Square','Semicircle'],SH],
+    ['Which shape is the <b>plan</b> (view from above) of a cube?<span class="hint">Plan = view from above</span>','Square',['Circle','Triangle','Hexagon'],SH],
+    ['A sphere is viewed from above, from the front and from the side. What shape is each view?','Circle',['Square','Semicircle','Triangle'],SH],
+    ['A triangular prism lies on one of its rectangular faces. Which shape is its <b>end elevation</b> (viewed from one end)?','Triangle',['Rectangle','Square','Circle'],SH],
+    ['How many edges does a cube have?','12',['6','8','24'],['10','14','16']],
+    ['How many vertices (corners) does a cuboid have?','8',['6','12','4'],['10','16']]];
+  const [q,a,ds,pool]=P(Q);
+  return {topic:'Plans and elevations',q,...optsS(a,ds,()=>P(pool)),why:`${a} is correct${/net/.test(q)?'. Picture folding the net up and count the flat faces':/edges|vertices/.test(q)?'. Picture a cube or box and count them one by one':'. Imagine looking at the solid from that direction'}`};
+}
+const QGENS2=[gCircle,gCylinder,gComposite,gInterest,gPercChange,gFDP,gRound,gCoord,gProportion,gExpected,gBigNum,gScatter,gMoneyBudget,gPlans];
+
+/* ---------- extra spot-the-mistake makers ---------- */
+function mInterest(){
+  const Pn=P([200,400,500,800,1000,2000]),r=P([2,4,5,10]),i1=Pn*r/100,y1=r2(Pn+i1),i2=r2(y1*r/100),ans=r2(y1+i2);
+  const title=`${money(Pn)} is invested for 2 years at ${r}% compound interest a year. Find the total after 2 years.`;
+  if(Math.random()<.5)return {topic:'Compound interest',title,
+    steps:[`Year 1 interest = ${r}% of ${money(Pn)} = ${money(i1)}`,`Year 2 interest is the same: ${money(i1)}`,`Total = ${money(Pn)} + ${money(i1)} + ${money(i1)} = ${money(Pn+2*i1)}`],bad:1,
+    fix:`Compound interest is worked out on the new balance each year. Year 2: ${r}% of ${money(y1)} = ${money(i2)}. Total = ${money(y1)} + ${money(i2)} = ${money(ans)}`,fixAns:ans,unit:'£'};
+  return {topic:'Compound interest',title,
+    steps:[`${r}% of ${money(Pn)} = ${money(i1)}`,`After year 1: ${money(Pn)} + ${money(i1)} = ${money(y1)}`,`After year 2: ${money(y1)} + ${r} = ${money(y1+r)}`],bad:2,
+    fix:`Year 2 adds ${r}% of ${money(y1)}, not ${r} pounds. ${r}% of ${money(y1)} = ${money(i2)}. Total = ${money(ans)}`,fixAns:ans,unit:'£'};
+}
+function mCircle(){
+  if(Math.random()<.5){
+    const d=2*R(2,10),r=d/2,bad=r2(_pi*d*d),ans=r2(_pi*r*r);
+    return {topic:'Circles',title:`A circle has a diameter of ${d} cm. Find its area (use π = 3.14).`,
+      steps:[`Area = π × r × r`,`= 3.14 × ${d} × ${d}`,`= ${num(bad)} cm²`],bad:1,
+      fix:`The radius is half the diameter: ${d} ÷ 2 = ${r}. Area = 3.14 × ${r} × ${r} = ${num(ans)} cm²`,fixAns:ans,unit:'cm²'};}
+  const r=R(2,12),ans=r2(2*_pi*r);
+  return {topic:'Circles',title:`A circle has a radius of ${r} cm. Find its circumference (use π = 3.14).`,
+    steps:[`Circumference = π × r`,`= 3.14 × ${r}`,`= ${num(r2(_pi*r))} cm`],bad:0,
+    fix:`Circumference = π × diameter, and the diameter is 2 × ${r} = ${2*r}. So 3.14 × ${2*r} = ${num(ans)} cm`,fixAns:ans,unit:'cm'};
+}
+function mPercChange(){
+  const old=P([20,40,50,60,80,100,120,200,250]),inc=Math.random()<.5,p=P(inc?[10,20,25,30,40,50,60]:[10,20,25,30,40,50]);
+  const ch=old*p/100,nw=inc?old+ch:old-ch,wrong=Math.round(ch/nw*100);
+  return {topic:'Percentage change',title:`A price changes from ${money(old)} to ${money(nw)}. Find the percentage ${inc?'increase':'decrease'}.`,
+    steps:[`Change = ${money(Math.max(old,nw))} − ${money(Math.min(old,nw))} = ${money(ch)}`,`% change = ${num(ch)} ÷ ${num(nw)} × 100`,`= ${wrong}%`],bad:1,
+    fix:`Always divide by the <b>original</b> value, not the new one: ${num(ch)} ÷ ${num(old)} × 100 = ${p}%`,fixAns:p,unit:'%'};
+}
+const MGENS2=[mInterest,mCircle,mPercChange];
+
+/* ---------- extra formula cards ---------- */
+const CARDS2=[
+ ['Circumference (radius given)','2 × π × r (double the radius first)','r = 5 → 2 × 3.14 × 5 = 31.4'],
+ ['Volume of a cylinder','π × r² × h (area of the circle × height)','r = 2, h = 5 → 3.14 × 2 × 2 × 5 = 62.8'],
+ ['Composite shapes','split into rectangles, find each area, then add','4 × 3 + 2 × 5 = 12 + 10 = 22 m²'],
+ ['Simple interest','principal × rate% × years (same amount every year)','£500 at 4% for 3 years = 500 × 0.04 × 3 = £60'],
+ ['Compound interest','interest is worked out on the new total each year','£100 at 10% for 2 years: £110, then £121'],
+ ['VAT (20%)','add VAT: × 1.2.  Take VAT off: ÷ 1.2','£50 + VAT = 50 × 1.2 = £60.  £60 ÷ 1.2 = £50'],
+ ['Percentage change from two prices','(new − old) ÷ OLD × 100','£40 → £30: −10 ÷ 40 × 100 = 25% decrease'],
+ ['Fractions, decimals, percentages','fraction → ÷ top by bottom;  decimal → × 100 for %','3/8 = 0.375 = 37.5%'],
+ ['Rounding','look at the next digit: 5 or more rounds up','4,386 → 4,400 (nearest 100)'],
+ ['Estimating','round each number to 1 significant figure, then calculate','48 × 21 ≈ 50 × 20 = 1000'],
+ ['Midpoint','add the x-values and halve, add the y-values and halve','(−2, 4) and (6, 0) → (2, 2)'],
+ ['Direct proportion','find 1 first (÷), then scale up (×)','4 people need 200 g → 1 person 50 g → 6 people 300 g'],
+ ['Inverse proportion','multiply to find the total work, then divide by the new number','3 workers × 8 days = 24 → 6 workers: 24 ÷ 6 = 4 days'],
+ ['Expected outcomes','probability × number of tries','P(red) = 1/4, 80 spins → 1/4 × 80 = 20'],
+ ['Probabilities add to 1','all the probabilities add up to 1, so missing = 1 − the others','0.2 + 0.5 = 0.7 → missing = 0.3'],
+ ['Correlation','up and up = positive; one up, one down = negative; no pattern = none','hours revised vs mark → positive'],
+ ['Place value','each column is ten times bigger than the one on its right','In 4,370,215 the 7 is worth 70,000'],
+ ['Budgeting','income − costs = what is left.  Weekly × 52, monthly × 12','£15 a week = 15 × 52 = £780 a year'],
+ ['Plans and elevations','plan = view from above, elevation = view from the side','a cylinder: plan = circle, side = rectangle'],
+];
+
+/* ---------- topic -> card front ---------- */
+const TOPIC_CARD2={
+ 'Circles':'Circumference of a circle','Cylinders':'Volume of a cylinder','Composite shapes':'Composite shapes',
+ 'Simple interest':'Simple interest','Compound interest':'Compound interest','VAT':'VAT (20%)',
+ 'Percentage change':'Percentage change from two prices','Fractions, decimals, percentages':'Fractions, decimals, percentages',
+ 'Rounding and estimating':'Rounding','Coordinates':'Midpoint','Direct proportion':'Direct proportion','Inverse proportion':'Inverse proportion',
+ 'Expected outcomes':'Expected outcomes','Probabilities add to 1':'Probabilities add to 1','Large numbers':'Place value',
+ 'Scatter graphs':'Correlation','Budgeting':'Budgeting','Plans and elevations':'Plans and elevations'
+};
+
+QGENS.push(...QGENS2);MGENS.push(...MGENS2);CARDS.push(...CARDS2);
+
 
 /* ---------- saved progress (this device only) ---------- */
 const KEY='numberbites-v1';
