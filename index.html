@@ -230,6 +230,41 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .shake{animation:wshake .35s}
 @keyframes wshake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 @media (prefers-reduced-motion:reduce){.jl.cur span::after,.shake{animation:none}}
+/* ---------- name, progress, weak topics ---------- */
+.hello{margin:-8px 0 18px}
+.hello h2{font-family:var(--display);font-size:24px;margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px}
+.linkbtn{background:none;border:0;color:var(--blue);font:inherit;font-size:14px;font-weight:700;text-decoration:underline;cursor:pointer;padding:6px 2px}
+.namecard{background:var(--card);border:2px solid var(--gold);border-radius:20px;padding:16px}
+.namecard b{font-family:var(--display);font-size:20px}
+.namecard form{display:flex;gap:8px;margin-top:10px}
+.namecard input{flex:1;min-width:0;font:inherit;font-size:18px;padding:10px 12px;border:2px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink)}
+.namecard input:focus{outline:3px solid var(--blue);outline-offset:1px}
+.namecard .btn{width:auto;padding:10px 18px;font-size:17px}
+.namecard small{display:block;color:var(--soft);margin-top:10px;font-size:13px}
+.prog,.weak{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:14px;margin-bottom:20px}
+.week{display:flex;justify-content:space-between;gap:4px;margin-bottom:14px}
+.week div{flex:1;text-align:center;font-size:12px;color:var(--soft);font-weight:700}
+.week i{display:block;width:26px;height:26px;margin:4px auto 0;border-radius:50%;border:2px solid var(--line);background:var(--paper)}
+.week .on i{background:var(--gold);border-color:var(--gold-d)}
+.week .today{color:var(--ink)}
+.week .today i{box-shadow:0 0 0 3px var(--sel)}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pt{background:var(--paper);border-radius:14px;padding:10px 4px;text-align:center}
+.pt b{display:block;font-family:var(--display);font-size:24px;font-variant-numeric:tabular-nums}
+.pt span{font-size:12px;color:var(--soft);line-height:1.25;display:block}
+.pt small{font-size:11px;opacity:.9}
+.pt.full{background:var(--good-bg)}
+.pt.full b{color:var(--good)}
+.wrow{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;margin-bottom:12px}
+.wrow b{font-size:15px}
+.wrow em{font-style:normal;font-weight:700;color:var(--bad);font-variant-numeric:tabular-nums;font-size:14px}
+.wbar{grid-column:1/-1;height:8px;border-radius:99px;background:var(--bad-bg);overflow:hidden}
+.wbar i{display:block;height:100%;background:var(--bad);border-radius:99px}
+.weak p{margin:0;color:var(--soft);font-size:15px}
+.weak .hint{font-size:13px;margin:0 0 12px}
+.weak .btn{margin-top:4px}
+.runmsg{margin-top:8px;font-weight:700;color:var(--gold-d)}
+.reset{display:block;margin:6px auto 0;color:var(--soft)}
 </style>
 
 <div class="app">
@@ -242,6 +277,8 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
       <div class="chip" title="Total XP"><svg viewBox="0 0 24 24"><path fill="var(--blue)" d="M12 2l3 6.5 7 .8-5.2 4.8 1.5 7L12 17.6 5.7 21l1.5-7L2 9.3l7-.8z"/></svg><span id="total">0</span></div>
     </div>
   </div>
+
+  <div class="hello" id="hello"></div>
 
   <div class="goal">
     <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
@@ -267,6 +304,22 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
     </button>
   </div>
 
+  <p class="label">Your progress</p>
+  <div class="prog">
+    <div class="week" id="weekDots" aria-label="Days you practised this week"></div>
+    <div class="pgrid">
+      <div class="pt"><b id="pToday">0</b><span>score today</span></div>
+      <div class="pt"><b id="pStreak">0</b><span>day streak<br><small id="pBestDay"></small></span></div>
+      <div class="pt"><b id="pRun">0</b><span>right in a row<br><small id="pBestRun"></small></span></div>
+      <div class="pt" id="ptWeek"><b id="pWeek">–</b><span>right this week</span></div>
+      <div class="pt" id="ptMonth"><b id="pMonth">–</b><span>right this month</span></div>
+      <div class="pt"><b id="pTotal">0</b><span>total score</span></div>
+    </div>
+  </div>
+
+  <p class="label">Weak topics</p>
+  <div class="weak" id="weak"></div>
+
   <div class="toggle">
     <div><b>Calculator</b><span id="calcSub">Off: no-calculator paper practice</span></div>
     <button class="switch" id="calc" role="switch" aria-checked="false" aria-label="Calculator allowed"></button>
@@ -275,6 +328,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
   <p class="label">In the mix so far</p>
   <div class="topics" id="topics"></div>
   <p class="note">Mock version for Functional Skills Maths Level 2. New topics get added as you cover them in class.</p>
+  <button class="linkbtn reset" id="reset">Reset my progress</button>
 </section>
 
 <section id="play" hidden>
@@ -300,6 +354,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
       <div class="stat"><b id="dStreak">1</b><span>day streak</span></div>
     </div>
     <p id="doneMsg" style="margin:0;color:var(--soft)"></p>
+    <p id="doneRun" style="margin:0;font-weight:700"></p>
     <button class="btn gold" id="again">Another 5</button>
     <button class="btn ghost" id="home2">Home</button>
   </div>
@@ -1024,10 +1079,68 @@ QGENS.push(...QGENS2);MGENS.push(...MGENS2);CARDS.push(...CARDS2);
 
 /* ---------- saved progress (this device only) ---------- */
 const KEY='numberbites-v1';
-let st={calc:false,streak:0,lastDay:null,xpDay:null,xpToday:0,totalXp:0};
+let st={calc:false,streak:0,lastDay:null,xpDay:null,xpToday:0,totalXp:0,name:'',bestStreak:0,run:0,bestRun:0,days:{},topics:{}};
 try{Object.assign(st,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
-const dayStr=o=>{const d=new Date();d.setDate(d.getDate()-o);return d.toISOString().slice(0,10)};
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const dayStr=o=>{const d=new Date();d.setDate(d.getDate()-o);return ymd(d)};
+if(!st.bestStreak)st.bestStreak=st.streak||0;
+
+/* every answer gets logged: day totals, right-in-a-row, topic history */
+function logAns(it,ok,first){
+  const t=dayStr(0),d=st.days[t]||(st.days[t]={xp:0,n:0,r:0});
+  d.n++;if(first)d.r++;
+  st.run=ok?st.run+1:0;S.newBest=false;
+  if(st.run>st.bestRun){st.bestRun=st.run;S.newBest=st.run>=3}
+  const tp=it.kind==='c'?null:it.d.topic;
+  if(tp){const x=st.topics[tp]||(st.topics[tp]={n:0,r:0,h:[]});x.n++;if(first)x.r++;x.h.push(first?1:0);x.h=x.h.slice(-10)}
+  const old=dayStr(400);Object.keys(st.days).forEach(k=>{if(k<old)delete st.days[k]});
+  save();
+}
+function pctRange(keys){let n=0,r=0;keys.forEach(k=>{const d=st.days[k];if(d){n+=d.n;r+=d.r}});return n?Math.round(r/n*100):null}
+function weekKeys(){const now=new Date(),dow=(now.getDay()+6)%7,out=[];for(let i=0;i<7;i++){const d=new Date(now);d.setDate(now.getDate()-dow+i);out.push(ymd(d))}return out}
+function weakTopics(){
+  return Object.entries(st.topics).map(([t,x])=>{const h=x.h||[];return {t,n:h.length,p:h.length?Math.round(h.reduce((a,b)=>a+b,0)/h.length*100):100}})
+    .filter(w=>w.n>=2&&w.p<70&&topicMap()[w.t]).sort((a,b)=>a.p-b.p||b.n-a.n).slice(0,6);
+}
+let TMAP=null;
+function topicMap(){
+  if(TMAP)return TMAP;TMAP={};
+  const add=(t,k,g)=>{const e=TMAP[t]||(TMAP[t]={q:[],m:[]});if(!e[k].includes(g))e[k].push(g)};
+  QGENS.forEach(g=>{for(let i=0;i<4;i++){try{add(g(false).topic,'q',g)}catch(e){}}});
+  MGENS.forEach(g=>{for(let i=0;i<3;i++){try{add(g().topic,'m',g)}catch(e){}}});
+  return TMAP;
+}
+function renderHello(edit){
+  const h=$('hello');
+  if(!st.name||edit){
+    h.innerHTML=`<div class="namecard"><b>${st.name?'Change your name':'What should we call you?'}</b>
+<form id="nameForm"><input id="nameIn" maxlength="20" autocomplete="given-name" placeholder="Your first name" aria-label="Your name" value="${esc(st.name||'')}"><button class="btn gold" type="submit">Save</button></form>
+<small>🔒 Only saved on this phone. Never sent anywhere.</small></div>`;
+    $('nameForm').onsubmit=e=>{e.preventDefault();const v=$('nameIn').value.trim().slice(0,20);if(!v)return $('nameIn').focus();st.name=v;save();renderHello()};
+    if(edit)$('nameIn').focus();
+  }else{
+    h.innerHTML=`<h2>Hi, ${esc(st.name)} 👋 <button class="linkbtn" id="nameEdit">Change</button></h2>`;
+    $('nameEdit').onclick=()=>renderHello(true);
+  }
+}
+function renderProgress(){
+  const t=dayStr(0),wk=weekKeys(),alive=st.lastDay===t||st.lastDay===dayStr(1);
+  $('weekDots').innerHTML=wk.map((k,i)=>`<div class="${st.days[k]&&st.days[k].n?'on':''} ${k===t?'today':''}">${'MTWTFSS'[i]}<i></i></div>`).join('');
+  $('pToday').textContent=(st.days[t]&&st.days[t].xp)||0;
+  $('pStreak').textContent=alive?st.streak:0;
+  $('pBestDay').textContent=st.bestStreak?`best ${st.bestStreak}`:'';
+  $('pRun').textContent=st.run;
+  $('pBestRun').textContent=st.bestRun?`best ${st.bestRun}`:'';
+  const w=pctRange(wk),m=pctRange(Object.keys(st.days).filter(k=>k.startsWith(t.slice(0,7))));
+  $('pWeek').textContent=w==null?'–':w===100?'💯':w+'%';$('ptWeek').classList.toggle('full',w===100);
+  $('pMonth').textContent=m==null?'–':m===100?'💯':m+'%';$('ptMonth').classList.toggle('full',m===100);
+  $('pTotal').textContent=st.totalXp;
+  const wl=weakTopics();
+  $('weak').innerHTML=wl.length?`<p class="hint">From your last 10 tries at each topic.</p>${wl.map(x=>`<div class="wrow"><b>${x.t}</b><em>${x.p}% right</em><div class="wbar"><i style="width:${Math.max(4,x.p)}%"></i></div></div>`).join('')}<button class="btn gold" id="goWeak">Practise weak topics</button>`
+    :`<p>${Object.keys(st.topics).length?'No weak topics right now. Nice work 💪':"Nothing yet. Play a few rounds and we'll spot the topics to work on."}</p>`;
+  if(wl.length)$('goWeak').onclick=()=>start('weak');
+}
 
 function renderHome(){
   if(st.xpDay!==dayStr(0))st.xpToday=0;
@@ -1042,6 +1155,7 @@ function renderHome(){
   $('calcSub').textContent=st.calc?'On: bigger numbers, calculator allowed':'Off: no-calculator paper practice';
   const topics=[...new Set(QGENS.map(g=>g(false).topic))];
   $('topics').innerHTML=topics.map(t=>`<span>${t}</span>`).join('');
+  renderHello();renderProgress();
 }
 
 /* ---------- formula help for wrong answers ---------- */
@@ -1095,6 +1209,9 @@ function start(mode){
   let items;
   if(mode==='quick'){items=[mkQ(),mkQ(),mkQ(),mkM(),mkC()];const first=items.shift();shuffle(items);items.unshift(first)}
   else if(mode==='mistake'){items=shuffle([...MGENS]).slice(0,5).map(g=>mkM(g))}
+  else if(mode==='weak'){const wl=weakTopics(),tm=topicMap();if(!wl.length)return start('quick');
+    items=[];for(let i=0;i<5;i++){const e=tm[wl[i%wl.length].t];items.push(e.q.length&&(i!==4||!e.m.length)?mkQ(P(e.q)):mkM(P(e.m)))}
+    items=shuffle(items)}
   else {items=shuffle([...CARDS]).slice(0,8).map(c=>mkC(c))}
   S={mode,items,i:0,first:0,firstRight:0,xp:0,retries:0};
   show('play');$('calcTag').textContent=st.calc?'Calculator OK':'No calculator';$('calcBtn').hidden=!st.calc;
@@ -1142,7 +1259,8 @@ function pick(b,sel){
 }
 function score(it,ok,xp,first=ok){
   if(!it.retry){S.first++;if(first)S.firstRight++}
-  if(ok){S.xp+=xp;return ''}
+  logAns(it,ok,first);
+  if(ok){S.xp+=xp;return st.run>=3?`<div class="runmsg">🔥 ${st.run} right in a row${S.newBest?' · new best!':''}</div>`:''}
   if(S.retries<3){S.retries++;
     S.items.push(it.kind==='q'?{...mkQ(it.g),retry:true}:it.kind==='m'?{...mkM(it.g),retry:true}:{...mkC(it.d.card),retry:true});
     return '<div class="again">You\'ll get another one like this at the end.</div>'}
@@ -1204,14 +1322,17 @@ function next(){S.i++;if(S.i>=S.items.length)finish();else{renderItem();window.s
 function finish(){
   const t=dayStr(0);
   if(st.lastDay!==t){st.streak=st.lastDay===dayStr(1)?st.streak+1:1;st.lastDay=t}
+  st.bestStreak=Math.max(st.bestStreak||0,st.streak);
+  (st.days[t]||(st.days[t]={xp:0,n:0,r:0})).xp+=S.xp;
   if(st.xpDay!==t){st.xpDay=t;st.xpToday=0}
   st.xpToday+=S.xp;st.totalXp+=S.xp;save();
   const acc=S.first?Math.round(S.firstRight/S.first*100):0;
   $('dXp').textContent='+'+S.xp;$('dAcc').textContent=acc+'%';$('dStreak').textContent=st.streak;
-  $('doneTitle').textContent=acc>=80?'Smashed it!':acc>=50?'Good round!':'Round done!';
+  $('doneTitle').textContent=(acc>=80?'Smashed it':acc>=50?'Good round':'Round done')+(st.name?', '+st.name:'')+'!';
+  $('doneRun').textContent=st.run>=2?`🔥 ${st.run} right in a row · best ${st.bestRun}`:st.bestRun?`🎯 Best run: ${st.bestRun} right in a row`:'';
   $('doneMsg').textContent=st.xpToday>=50?`${st.xpToday} XP today. Daily goal done.`:`${50-st.xpToday} XP to go for today's goal.`;
   $('again').onclick=()=>start(S.mode);
-  $('again').textContent=S.mode==='quick'?'Another 5':S.mode==='mistake'?'More mistakes':'More cards';
+  $('again').textContent=S.mode==='quick'?'Another 5':S.mode==='mistake'?'More mistakes':S.mode==='weak'?'More weak topics':'More cards';
   show('done');
 }
 
@@ -1303,6 +1424,7 @@ if(document.fonts)document.fonts.ready.then(()=>fitWork());
 $('goQuick').onclick=()=>start('quick');
 $('goMistake').onclick=()=>start('mistake');
 $('goCards').onclick=()=>start('cards');
+$('reset').onclick=()=>{if(!confirm('Reset all your progress on this phone? Your name stays.'))return;st=Object.assign({calc:st.calc,name:st.name},{streak:0,lastDay:null,xpDay:null,xpToday:0,totalXp:0,bestStreak:0,run:0,bestRun:0,days:{},topics:{}});save();renderHome()};
 $('calc').onclick=()=>{st.calc=!st.calc;save();renderHome()};
 $('quit').onclick=()=>{show('home');renderHome()};
 $('home2').onclick=()=>{show('home');renderHome()};
