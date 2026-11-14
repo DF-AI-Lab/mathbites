@@ -303,13 +303,16 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .srow small{display:block;color:var(--soft);margin-top:6px;font-size:13px}
 .ver{text-align:center;color:var(--soft);font-size:13px;margin:0}
 .danger{color:var(--bad)!important}
+.step.noted::after{color:var(--soft);font-weight:400}
+.step[data-note]::after{line-height:1.35;margin-top:4px}
+.vtag{display:block;font-family:var(--body);font-size:11px;font-weight:700;color:var(--soft);letter-spacing:0;margin-top:-2px}
 </style>
 
 <div class="app">
 
 <section id="home">
   <div class="top">
-    <div class="brand">Number<span>Bites</span></div>
+    <div class="brand">Number<span>Bites</span><small class="vtag" id="vtag"></small></div>
     <div class="chips">
       <div class="chip" title="Day streak"><svg viewBox="0 0 24 24"><path fill="var(--gold)" d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3-1-3 0-7 1-9.5z"/></svg><span id="streak">0</span></div>
       <div class="chip" title="Total XP" id="xpChip"><svg viewBox="0 0 24 24"><path fill="var(--blue)" d="M12 2l3 6.5 7 .8-5.2 4.8 1.5 7L12 17.6 5.7 21l1.5-7L2 9.3l7-.8z"/></svg><span id="total">0</span></div>
@@ -666,41 +669,41 @@ function mPercent(){
   const p=P([40,60,80,120,160,200,240]),a=p/10,b=p/20;
   if(Math.random()<.5){const bb=p/5;return {topic:'Percentages',title:`Increase ${money(p)} by 15%`,
     steps:[`10% of ${money(p)} = ${money(a)}`,`5% of ${money(p)} = ${money(bb)}`,`15% = ${money(a)} + ${money(bb)} = ${money(a+bb)}`,`New price = ${money(p)} + ${money(a+bb)} = ${money(p+a+bb)}`],
-    bad:1,fixAns:p+a+b,unit:'£',fix:`5% is half of 10%, so it's ${money(b)}. Dividing by 5 gives 20%. Right answer: ${money(p+a+b)}`};}
+    why:[`To find 10%, divide by 10: ${money(p)} ÷ 10 = ${money(a)}`,`5% is half of 10%, so it's ${money(b)}. Dividing by 5 finds 20%, not 5%`,`Adding 10% and 5% to make 15% is the right method, but it uses the wrong 5%`,`Adding it on for an increase is right, but the 15% is wrong`],bad:1,fixAns:p+a+b,unit:'£',fix:`5% is half of 10%, so it's ${money(b)}. Dividing by 5 gives 20%. Right answer: ${money(p+a+b)}`};}
   return {topic:'Percentages',title:`Increase ${money(p)} by 15%`,
     steps:[`10% of ${money(p)} = ${money(a)}`,`5% of ${money(p)} = ${money(b)}`,`15% = ${money(a)} + ${money(b)} = ${money(a+b)}`,`New price = ${money(p)} − ${money(a+b)} = ${money(p-a-b)}`],
-    bad:3,fixAns:p+a+b,unit:'£',fix:`It's an increase, so add it on: ${money(p)} + ${money(a+b)} = ${money(p+a+b)}`};
+    why:[`Divide by 10 to find 10%: ${money(a)}`,`5% is half of 10%: ${money(b)}`,`10% + 5% = 15%: ${money(a+b)}`,`It's an increase, so add it on. Taking it away is for a decrease`],bad:3,fixAns:p+a+b,unit:'£',fix:`It's an increase, so add it on: ${money(p)} + ${money(a+b)} = ${money(p+a+b)}`};
 }
 function mBidmas(){
   const a=R(2,9),b=R(2,9),d=R(3,9);
   if(Math.random()<.5)return {topic:'Order of operations',title:`Work out ${a} + ${b} × ${d}`,
-    steps:[`${a} + ${b} × ${d}`,`= ${a+b} × ${d}`,`= ${(a+b)*d}`],bad:1,fixAns:a+b*d,unit:'',fix:`Multiply first! ${b} × ${d} = ${b*d}, then add ${a}. Answer: ${a+b*d}`};
+    steps:[`${a} + ${b} × ${d}`,`= ${a+b} × ${d}`,`= ${(a+b)*d}`],why:[`This just writes out the sum`,`BIDMAS: multiply before you add, so ${b} × ${d} goes first`,`The multiplying is fine, but it carries on from the wrong line 2`],bad:1,fixAns:a+b*d,unit:'',fix:`Multiply first! ${b} × ${d} = ${b*d}, then add ${a}. Answer: ${a+b*d}`};
   const w=b*d+P([2,-2,3,-1]);
   return {topic:'Order of operations',title:`Work out ${a} + ${b} × ${d}`,
-    steps:[`${a} + ${b} × ${d}`,`= ${a} + ${w}`,`= ${a+w}`],bad:1,fixAns:a+b*d,unit:'',fix:`${b} × ${d} is ${b*d}, not ${w}. Answer: ${a+b*d}`};
+    steps:[`${a} + ${b} × ${d}`,`= ${a} + ${w}`,`= ${a+w}`],why:[`This just writes out the sum`,`Multiplying first is right, but ${b} × ${d} = ${b*d}, not ${w}`,`The adding is fine, but it uses the wrong ${w}`],bad:1,fixAns:a+b*d,unit:'',fix:`${b} × ${d} is ${b*d}, not ${w}. Answer: ${a+b*d}`};
 }
 function mTriangle(){
   const b=2*R(2,8),h=R(3,10);
   return {topic:'Area',title:`Find the area of a triangle, base ${b} cm, height ${h} cm`,
-    steps:[`Base = ${b} cm, height = ${h} cm`,`Area = base × height`,`= ${b} × ${h} = ${b*h} cm²`],bad:1,fixAns:b*h/2,unit:'cm²',fix:`A triangle is half a rectangle: ½ × base × height. Answer: ${b*h/2} cm²`};
+    steps:[`Base = ${b} cm, height = ${h} cm`,`Area = base × height`,`= ${b} × ${h} = ${b*h} cm²`],why:[`Reading the base and height from the question is right`,`That's the rectangle formula. A triangle is half of that: ½ × base × height`,`The multiplying is right, but it forgot to halve`],bad:1,fixAns:b*h/2,unit:'cm²',fix:`A triangle is half a rectangle: ½ × base × height. Answer: ${b*h/2} cm²`};
 }
 function mMean(){
   const nums=Array.from({length:5},()=>R(2,15));let s=nums.reduce((a,b)=>a+b,0);const fix=(5-s%5)%5;nums[4]+=fix;s+=fix;
   if(Math.random()<.5)return {topic:'Averages',title:`Find the mean of ${nums.join(', ')}`,
-    steps:[`Total = ${nums.join(' + ')} = ${s}`,`There are 5 numbers`,`Mean = ${s} ÷ 4 = ${num(s/4)}`],bad:2,fixAns:s/5,unit:'',fix:`Divide by how many numbers there are (5): ${s} ÷ 5 = ${s/5}`};
+    steps:[`Total = ${nums.join(' + ')} = ${s}`,`There are 5 numbers`,`Mean = ${s} ÷ 4 = ${num(s/4)}`],why:[`Adding all the numbers up first is right`,`Counting the numbers is right: there are 5`,`Divide by how many numbers there are (5), not 4`],bad:2,fixAns:s/5,unit:'',fix:`Divide by how many numbers there are (5): ${s} ÷ 5 = ${s/5}`};
   return {topic:'Averages',title:`Find the mean of ${nums.join(', ')}`,
-    steps:[`Total = ${nums.join(' + ')} = ${s+10}`,`There are 5 numbers`,`Mean = ${s+10} ÷ 5 = ${(s+10)/5}`],bad:0,fixAns:s/5,unit:'',fix:`The adding is off: the total is ${s}. So mean = ${s} ÷ 5 = ${s/5}`};
+    steps:[`Total = ${nums.join(' + ')} = ${s+10}`,`There are 5 numbers`,`Mean = ${s+10} ÷ 5 = ${(s+10)/5}`],why:[`The adding has gone wrong. The real total is ${s}`,`Counting the numbers is right: there are 5`,`Dividing by 5 is right, but it uses the wrong total`],bad:0,fixAns:s/5,unit:'',fix:`The adding is off: the total is ${s}. So mean = ${s} ÷ 5 = ${s/5}`};
 }
 function mRatio(){
   const [a,b]=P([[2,3],[3,5],[1,4],[3,7]]),unit=P([5,10,20]),t=(a+b)*unit,mx=Math.max(a,b);
   return {topic:'Ratio',title:`Share ${money(t)} in the ratio ${a} : ${b}. Find the bigger share.`,
-    steps:[`${a} + ${b} = ${a+b} parts`,`1 part = ${money(t)} ÷ 2 = ${money(t/2)}`,`Bigger share = ${mx} × ${money(t/2)} = ${money(mx*t/2)}`],bad:1,fixAns:mx*unit,unit:'£',
+    steps:[`${a} + ${b} = ${a+b} parts`,`1 part = ${money(t)} ÷ 2 = ${money(t/2)}`,`Bigger share = ${mx} × ${money(t/2)} = ${money(mx*t/2)}`],why:[`Add the ratio numbers to get the total parts: ${a} + ${b} = ${a+b}`,`Divide by the total parts (${a+b}), not 2`,`Times by the bigger ratio number is right, but 1 part is wrong`],bad:1,fixAns:mx*unit,unit:'£',
     fix:`Divide by the total parts (${a+b}), not 2: 1 part = ${money(unit)}. Bigger share = ${money(mx*unit)}`};
 }
 function mConvert(){
   const k=R(2,10),km=8*k,mi=5*k;
   return {topic:'Converting units',title:`Change ${km} km to miles (5 miles ≈ 8 km)`,
-    steps:[`${km} ÷ 5 = ${num(km/5)}`,`${num(km/5)} × 8 = ${num(km/5*8)} miles`],bad:0,fixAns:mi,unit:'miles',
+    steps:[`${km} ÷ 5 = ${num(km/5)}`,`${num(km/5)} × 8 = ${num(km/5*8)} miles`],why:[`5 miles ≈ 8 km, so divide the km by 8, not 5`,`This is backwards too. It should be ÷ 8, then × 5`],bad:0,fixAns:mi,unit:'miles',
     fix:`Divide by the km number (8): ${km} ÷ 8 = ${k}, then × 5 = ${mi} miles. Miles is always the smaller number.`};
 }
 function mMedian(){
@@ -708,16 +711,16 @@ function mMedian(){
   do{n=P([5,7]);nums=Array.from({length:n},()=>R(2,30));so=[...nums].sort((a,b)=>a-b)}while(nums[n>>1]===so[n>>1]||new Set(nums).size<n);
   const w=nums[n>>1];
   return {topic:'Averages',_in:{nums},title:`Find the median of ${nums.join(', ')}`,
-    steps:[`There are ${n} numbers, so the middle is number ${(n+1)/2}`,`The middle one in the list is ${w}`,`Median = ${w}`],bad:1,fixAns:so[n>>1],unit:'',
+    steps:[`There are ${n} numbers, so the middle is number ${(n+1)/2}`,`The middle one in the list is ${w}`,`Median = ${w}`],why:[`With ${n} numbers, the middle one is number ${(n+1)/2}. That's right`,`The numbers weren't put in order first. In order, the middle one is ${so[n>>1]}`,`This carries on the wrong number from line 2`],bad:1,fixAns:so[n>>1],unit:'',
     fix:`Put them in order first: ${so.join(', ')}. Now the middle one is ${so[n>>1]}`};
 }
 function mAngle(){
   if(Math.random()<.5){const a=R(4,16)*5,b=R(4,16)*5,s=a+b;
     return {topic:'Angles',_in:{k:'tri',a,b},title:`Two angles in a triangle are ${a}° and ${b}°. Find the third angle.`,
-      steps:[`Angles in a triangle add up to 360°`,`${a} + ${b} = ${s}`,`360 − ${s} = ${360-s}°`],bad:0,fixAns:180-s,unit:'°',fix:`A triangle adds up to 180°, not 360°. 180 − ${s} = ${180-s}°`};}
+      steps:[`Angles in a triangle add up to 360°`,`${a} + ${b} = ${s}`,`360 − ${s} = ${360-s}°`],why:[`Angles in a triangle add up to 180°, not 360°`,`Adding the two angles you know is right: ${s}°`,`Taking away from the total is right, but the total should be 180`],bad:0,fixAns:180-s,unit:'°',fix:`A triangle adds up to 180°, not 360°. 180 − ${s} = ${180-s}°`};}
   const a=R(4,10)*5,b=R(4,10)*5,c=R(4,10)*5,s=a+b+c;
   return {topic:'Angles',_in:{k:'pt',a,b,c},title:`Angles around a point are ${a}°, ${b}° and ${c}° and x. Find x.`,
-    steps:[`Angles around a point add up to 180°`,`${a} + ${b} + ${c} = ${s}`,`180 − ${s} = ${180-s}°`],bad:0,fixAns:360-s,unit:'°',fix:`Angles around a point add up to 360°, not 180°. 360 − ${s} = ${360-s}°`};
+    steps:[`Angles around a point add up to 180°`,`${a} + ${b} + ${c} = ${s}`,`180 − ${s} = ${180-s}°`],why:[`Angles around a point add up to 360°. 180° is for a straight line`,`Adding the angles you know is right: ${s}°`,`Taking away from the total is right, but the total should be 360`],bad:0,fixAns:360-s,unit:'°',fix:`Angles around a point add up to 360°, not 180°. 360 − ${s} = ${360-s}°`};
 }
 const MGENS=[mPercent,mBidmas,mTriangle,mMean,mRatio,mConvert,mMedian,mAngle];
 
@@ -1061,28 +1064,28 @@ function mInterest(){
   const Pn=P([200,400,500,800,1000,2000]),r=P([2,4,5,10]),i1=Pn*r/100,y1=r2(Pn+i1),i2=r2(y1*r/100),ans=r2(y1+i2);
   const title=`${money(Pn)} is invested for 2 years at ${r}% compound interest a year. Find the total after 2 years.`;
   if(Math.random()<.5)return {topic:'Compound interest',title,
-    steps:[`Year 1 interest = ${r}% of ${money(Pn)} = ${money(i1)}`,`Year 2 interest is the same: ${money(i1)}`,`Total = ${money(Pn)} + ${money(i1)} + ${money(i1)} = ${money(Pn+2*i1)}`],bad:1,
+    steps:[`Year 1 interest = ${r}% of ${money(Pn)} = ${money(i1)}`,`Year 2 interest is the same: ${money(i1)}`,`Total = ${money(Pn)} + ${money(i1)} + ${money(i1)} = ${money(Pn+2*i1)}`],why:[`${r}% of ${money(Pn)} = ${money(i1)}. That's right`,`Compound interest grows. Year 2 is ${r}% of the new total, ${money(y1)}`,`Adding it all up is right, but year 2's interest is wrong`],bad:1,
     fix:`Compound interest is worked out on the new balance each year. Year 2: ${r}% of ${money(y1)} = ${money(i2)}. Total = ${money(y1)} + ${money(i2)} = ${money(ans)}`,fixAns:ans,unit:'£'};
   return {topic:'Compound interest',title,
-    steps:[`${r}% of ${money(Pn)} = ${money(i1)}`,`After year 1: ${money(Pn)} + ${money(i1)} = ${money(y1)}`,`After year 2: ${money(y1)} + ${r} = ${money(y1+r)}`],bad:2,
+    steps:[`${r}% of ${money(Pn)} = ${money(i1)}`,`After year 1: ${money(Pn)} + ${money(i1)} = ${money(y1)}`,`After year 2: ${money(y1)} + ${r} = ${money(y1+r)}`],why:[`${r}% of ${money(Pn)} = ${money(i1)}. That's right`,`Adding year 1's interest on is right: ${money(y1)}`,`It added £${r} instead of ${r}% of ${money(y1)}`],bad:2,
     fix:`Year 2 adds ${r}% of ${money(y1)}, not ${r} pounds. ${r}% of ${money(y1)} = ${money(i2)}. Total = ${money(ans)}`,fixAns:ans,unit:'£'};
 }
 function mCircle(){
   if(Math.random()<.5){
     const d=2*R(2,10),r=d/2,bad=r2(_pi*d*d),ans=r2(_pi*r*r);
     return {topic:'Circles',title:`A circle has a diameter of ${d} cm. Find its area (use π = 3.14).`,
-      steps:[`Area = π × r × r`,`= 3.14 × ${d} × ${d}`,`= ${num(bad)} cm²`],bad:1,
+      steps:[`Area = π × r × r`,`= 3.14 × ${d} × ${d}`,`= ${num(bad)} cm²`],why:[`The area formula is right: π × r × r`,`It uses the diameter (${d}) instead of the radius (${r})`,`The multiplying is right, but it uses the wrong numbers`],bad:1,
       fix:`The radius is half the diameter: ${d} ÷ 2 = ${r}. Area = 3.14 × ${r} × ${r} = ${num(ans)} cm²`,fixAns:ans,unit:'cm²'};}
   const r=R(2,12),ans=r2(2*_pi*r);
   return {topic:'Circles',title:`A circle has a radius of ${r} cm. Find its circumference (use π = 3.14).`,
-    steps:[`Circumference = π × r`,`= 3.14 × ${r}`,`= ${num(r2(_pi*r))} cm`],bad:0,
+    steps:[`Circumference = π × r`,`= 3.14 × ${r}`,`= ${num(r2(_pi*r))} cm`],why:[`Circumference is π × diameter (or 2 × π × r), not π × r`,`The maths is right, but it uses the wrong formula`,`This carries on from the wrong formula`],bad:0,
     fix:`Circumference = π × diameter, and the diameter is 2 × ${r} = ${2*r}. So 3.14 × ${2*r} = ${num(ans)} cm`,fixAns:ans,unit:'cm'};
 }
 function mPercChange(){
   const old=P([20,40,50,60,80,100,120,200,250]),inc=Math.random()<.5,p=P(inc?[10,20,25,30,40,50,60]:[10,20,25,30,40,50]);
   const ch=old*p/100,nw=inc?old+ch:old-ch,wrong=Math.round(ch/nw*100);
   return {topic:'Percentage change',title:`A price changes from ${money(old)} to ${money(nw)}. Find the percentage ${inc?'increase':'decrease'}.`,
-    steps:[`Change = ${money(Math.max(old,nw))} − ${money(Math.min(old,nw))} = ${money(ch)}`,`% change = ${num(ch)} ÷ ${num(nw)} × 100`,`= ${wrong}%`],bad:1,
+    steps:[`Change = ${money(Math.max(old,nw))} − ${money(Math.min(old,nw))} = ${money(ch)}`,`% change = ${num(ch)} ÷ ${num(nw)} × 100`,`= ${wrong}%`],why:[`Bigger minus smaller gives the change: ${money(ch)}. That's right`,`Divide by the original price (${money(old)}), not the new one`,`This carries on from the wrong division`],bad:1,
     fix:`Always divide by the <b>original</b> value, not the new one: ${num(ch)} ÷ ${num(old)} × 100 = ${p}%`,fixAns:p,unit:'%'};
 }
 const MGENS2=[mInterest,mCircle,mPercChange];
@@ -1246,7 +1249,7 @@ function cardQuiz(c){
 /* ---------- a round ---------- */
 let S=null;
 const TYPE_CHANCE=.4;
-function mkQ(g){g=g||P(QGENS);const d=g(st.calc),p=parseAns(d.answer);return {kind:'q',g,d,typed:!!p&&Math.random()<TYPE_CHANCE,p}}
+function mkQ(g){g=g||P(QGENS);const d=g(st.calc),p=/^Which (of these|pair|one)/i.test(d.q)?null:parseAns(d.answer);return {kind:'q',g,d,typed:!!p&&Math.random()<TYPE_CHANCE,p}}
 function mkM(g){g=g||P(MGENS);return {kind:'m',g,d:g()}}
 const mkC=c=>({kind:'c',d:cardQuiz(c||P(CARDS))});
 
@@ -1340,7 +1343,11 @@ function check(){
   }
   /* spot the mistake */
   const ok=S.sel===it.d.bad;
-  $('stage').querySelectorAll('.step').forEach(b=>{const k=+b.dataset.k;b.setAttribute('aria-pressed','false');if(k===it.d.bad){b.classList.add(ok?'right':'here');b.dataset.note=ok?'✓ You found it':'← The mistake is here'}else if(k===S.sel){b.classList.add('fine');b.dataset.note='Your pick: this line is actually fine'}});
+  const why=it.d.why||[];
+  $('stage').querySelectorAll('.step').forEach(b=>{const k=+b.dataset.k,w=why[k];b.setAttribute('aria-pressed','false');
+    if(k===it.d.bad){b.classList.add(ok?'right':'here');b.dataset.note=(ok?'✓ You found it. ':'✗ The mistake is here. ')+(w||'')}
+    else if(k===S.sel){b.classList.add('fine');b.dataset.note='Your pick, but this line is fine. '+(w||'')}
+    else if(w){b.classList.add('noted');b.dataset.note=w}});
   const again=score(it,ok,15);
   if(ok&&it.d.fixAns!=null){
     S.fixing=true;const u=it.d.unit||'';
@@ -1391,7 +1398,7 @@ const wcv=document.createElement('canvas'),wcx=wcv.getContext('2d');
 const wmore=document.createElement('button');wmore.type='button';wmore.className='wchip wmore';wmore.textContent='＋ More paper';
 wmore.onclick=()=>{W.extra+=300;sizeCv();$('wpaper').scrollTop=1e5};
 function workHTML(calcQ){
-  return `<div class="work" id="work"><div class="wtabs" role="tablist" id="wtabs"><button type="button" role="tab" data-t="0">✏️ Scribble</button><button type="button" role="tab" data-t="2">▦ Squares</button>${calcQ?'<button type="button" role="tab" data-t="3" class="ctab">🧮 Calc</button>':''}<button type="button" role="tab" data-t="1">📝 Jotter</button></div>
+  return `<div class="work" id="work"><div class="wtabs" role="tablist" id="wtabs"><button type="button" role="tab" data-t="2">▦ Squares</button><button type="button" role="tab" data-t="0">✏️ Scribble</button>${calcQ?'<button type="button" role="tab" data-t="3" class="ctab">🧮 Calc</button>':''}<button type="button" role="tab" data-t="1">📝 Jotter</button></div>
 <div class="wpaper" id="wpaper"></div>
 <div class="wtools" id="wtools"><button type="button" class="wchip on" data-m="pen">✏️ Pen</button><button type="button" class="wchip" data-m="rub">🧽 Rubber</button><button type="button" class="wchip" data-m="move">✋ Scroll</button><button type="button" class="wchip" data-a="undo">↶ Undo</button><button type="button" class="wchip" data-a="clr">Clear</button></div>
 <div class="wkeys" id="wkeys" hidden>${WK.map(k=>`<button type="button" class="${/[0-9.]/.test(k)?'':'op'}" data-k="${k}" aria-label="${{'⌫':'Delete','→':'Next square','−':'Minus','×':'Times','÷':'Divide'}[k]||k}">${k}</button>`).join('')}<button type="button" class="op wide" data-k="↵">New line ↵</button><button type="button" class="op wide" data-k="space">Space</button><button type="button" class="op wide" data-k="clear">Clear</button></div></div>`}
@@ -1410,7 +1417,7 @@ function wireWork(calcQ){
     if(b.dataset.m){W.mode=b.dataset.m;$('wtools').querySelectorAll('[data-m]').forEach(x=>x.classList.toggle('on',x===b));wcv.classList.toggle('move',W.mode==='move');$('wpaper').classList.toggle('locked',W.mode!=='move')}
     else if(b.dataset.a==='undo'){W.strokes.pop();redrawCv()}else{W.strokes=[];W.extra=0;sizeCv()}};
   $('wkeys').onclick=e=>{const b=e.target.closest('button');if(b)(W.tab===1?jot:sqKey)(b.dataset.k)};
-  wtab(calcQ?3:0);
+  wtab(calcQ?3:2);
 }
 function restoreCalc(){const ci=document.querySelector('.cpad-in');if(ci&&ci.parentElement!==$('cpad'))$('cpad').appendChild(ci)}
 function wtab(t){W.tab=t;const p=$('wpaper');
@@ -1467,7 +1474,7 @@ addEventListener('resize',()=>fitWork());
 if(document.fonts)document.fonts.ready.then(()=>fitWork());
 
 /* ---------- settings ---------- */
-const VERSION='1.5.0',VDATE='14 Nov 2026';
+const VERSION='1.6.0',VDATE='14 Nov 2026';
 function autoTs(){const w=innerWidth,h=innerHeight;return h<640||w<360?.82:h<760||w<400?.9:1}
 function applyTs(){const f={small:.85,normal:1,large:1.15}[st.ts]||autoTs();document.documentElement.style.setProperty('--ts',f);if($('play')&&!$('play').hidden)requestAnimationFrame(fitWork)}
 function openSettings(){
@@ -1479,7 +1486,7 @@ $('menu').onclick=openSettings;$('sheetX').onclick=closeSettings;
 $('sheet').onclick=e=>{if(e.target===$('sheet'))closeSettings()};
 $('setName').onsubmit=e=>{e.preventDefault();const v=$('setNameIn').value.trim().slice(0,20);if(!v)return $('setNameIn').focus();st.name=v;save();renderHello();closeSettings()};
 $('tsSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;st.ts=b.dataset.v;save();applyTs();openSettings()};
-addEventListener('resize',applyTs);applyTs();
+addEventListener('resize',applyTs);applyTs();$('vtag').textContent='v'+VERSION;
 
 /* ---------- wiring ---------- */
 $('goQuick').onclick=()=>start('quick');
