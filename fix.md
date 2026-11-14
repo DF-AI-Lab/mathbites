@@ -1,6 +1,6 @@
 # Fix list
 
-## 1. Best buy cards — numbers look broken
+## 1. ✅ DONE — Best buy cards — numbers look broken
 
 **What you see**
 - On "Which is better value?" the numbers (2, 10, 0.52, 2) sit in little boxes.
