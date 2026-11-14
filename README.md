@@ -7,6 +7,7 @@ Bite-size maths practice for **Functional Skills Maths Level 2**. Do 3–15 minu
 - **Give me 5**: mixed questions, one mistake to spot and fix, and one formula card
 - **Spot the mistake**: find the wrong line in someone's working, then type the right answer
 - **Squares = column maths**: numbers line up on the right, = draws a double answer line, answer fills right to left, Carry adds small slanted carry digits in any square you tap; digits in the row under the answer become small carries and the box jumps back up
+- **Squares builds itself**: + − × ÷ starts the next row with the sign next to the number, = draws a line that only covers the columns used, and a "Use answer" button on the left puts the answer in the box (or picks the matching option)
 - **Short pick 'em answers** show 2 × 2
 - **Formula cards**: pick the right rule from 5. The wrong ones are real rules from other cards
 - **Type it in**: some questions have no options, like the real exam
@@ -20,8 +21,9 @@ Bite-size maths practice for **Functional Skills Maths Level 2**. Do 3–15 minu
 - **Answer bar**: answer box and Check on one line, and tabs go Jotter, Squares, Scribble, Calc
 - **Spot the mistake**: after you check, every line says why it is right or wrong
 - **Squares = column maths**: numbers line up on the right, = draws a double answer line, answer fills right to left, Carry adds small slanted carry digits in any square you tap; digits in the row under the answer become small carries and the box jumps back up
+- **Squares builds itself**: + − × ÷ starts the next row with the sign next to the number, = draws a line that only covers the columns used, and a "Use answer" button on the left puts the answer in the box (or picks the matching option)
 - **Short pick 'em answers** show 2 × 2
-- **Version** shows under the logo (v1.9.0)
+- **Version** shows under the logo (v1.10.0)
 - **Get it wrong → see the formula**: the formula card for that topic pops up
 - **Calculator mode**: a compact on-screen calculator. Its "Put in answer" button drops the result into the box
 - Every question is random each time, with friendly numbers

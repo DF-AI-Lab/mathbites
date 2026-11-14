@@ -233,6 +233,8 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .opts.two .opt{text-align:center;padding-inline:8px}
 .wcell.crow .cy{left:50%;top:3px;bottom:auto;margin-left:-4px;font-size:13px}
 .wcell .cy{position:absolute;left:2px;bottom:1px;font-size:11px;line-height:1;transform:skewX(-14deg) rotate(-8deg);color:var(--gold-d)}
+.wcell.suse{aspect-ratio:auto;white-space:nowrap;overflow:hidden;margin:5px 6px;border:2px dashed var(--line);border-radius:12px;font:700 13px var(--body);color:var(--soft);padding:6px 4px;line-height:1.2}
+.wcell.suse.on{border:0;background:var(--gold);color:#2A1D00;box-shadow:0 3px 0 var(--gold-d)}
 .sqhint{margin:0;padding:6px 8px 0;font-size:12px;color:var(--soft)}
 .wpaper .cpad-in{padding:8px;max-width:none}
 .wpaper .cgrid button{padding:5px 0}
@@ -1448,7 +1450,7 @@ function wrapNums(el){
     f.innerHTML=esc(n.nodeValue).replace(/\d[\d,]*(?:\.\d+)?/g,m=>`<span class="tn" data-n="${m.replace(/,/g,'')}">${m}</span>`);n.replaceWith(...f.childNodes)});
 }
 function wireWork(calcQ){
-  Object.assign(W,{strokes:[],cur:null,mode:'pen',extra:0,jl:[''],cells:Array.from({length:WC*WR},()=>({v:'',c:''})),lines:[],carry:false,free:false,sel:WC-1});wcv.classList.remove('move');
+  Object.assign(W,{strokes:[],cur:null,mode:'pen',extra:0,jl:[''],cells:Array.from({length:WC*WR},()=>({v:'',c:''})),lines:[],signs:{},carry:false,free:false,sel:WC-1});wcv.classList.remove('move');
   const qp=$('qpanel');if(!qp.querySelector('.tn'))wrapNums(qp.querySelector('.q'));
   qp.onclick=e=>{const t=e.target.closest('.tn');if(t&&W.tab===1)jot(' '+t.dataset.n+' ')};
   $('wtabs').onclick=e=>{const b=e.target.closest('button');if(b)wtab(+b.dataset.t)};
@@ -1464,7 +1466,7 @@ function wtab(t){W.tab=t;const p=$('wpaper');
   $('wtools').hidden=t!==0;$('wkeys').hidden=!(t===1||t===2);if(t===1||t===2)$('wkeys').innerHTML=keysHTML(t);$('qpanel').classList.toggle('tap',t===1);
   p.classList.toggle('locked',t===0&&W.mode!=='move');restoreCalc();p.innerHTML='';p.scrollTop=0;
   if(t===0){p.append(wcv,wmore)}else if(t===1){p.innerHTML='<div class="wlines" id="wlines"></div>';drawJ()}
-  else if(t===2){p.innerHTML='<p class="sqhint">Numbers line up on the right. <b>=</b> draws the answer line. Tap any square to write or carry there.</p><div class="wgrid" id="wgrid"></div>';drawSq()}else{p.appendChild(document.querySelector('.cpad-in'));cshow()}
+  else if(t===2){p.innerHTML='<p class="sqhint">Type a number, then <b>+ − × ÷</b> starts the next row. <b>=</b> draws the answer line.</p><div class="wgrid" id="wgrid"></div>';drawSq()}else{p.appendChild(document.querySelector('.cpad-in'));cshow()}
   fitWork()}
 function fitWork(){const p=$('wpaper');if(!p||$('play').hidden)return;
   if(!$('play').classList.contains('wm')){const h=window.innerHeight-(p.getBoundingClientRect().top+window.scrollY)-12-($('wtools').hidden?0:$('wtools').offsetHeight+8)-($('wkeys').hidden?0:$('wkeys').offsetHeight+8)-$('dock').offsetHeight;
@@ -1498,21 +1500,51 @@ function drawJ(){const el=$('wlines');if(!el)return;const jl=W.jl;
    '=' draws a double line under the row; the row below is the answer row,
    filled right to left. Carry puts a small slanted digit in the current square. */
 const sqRow=i=>Math.floor(i/WC),sqCol=i=>i%WC,isAns=r=>W.lines.includes(r-1),isCarry=r=>r>0&&isAns(r-1)&&!W.lines.includes(r-1);
+/* where each block of sums starts, so the sign sits next to the number and the line stops there */
+function sqLayout(){
+  const C=W.cells,L={},SC={},lines=[...W.lines].sort((x,y)=>x-y);let bs=0;
+  const leftmost=r=>{for(let j=0;j<WC;j++)if(C[r*WC+j].v)return j;return WC};
+  const block=(from,to,lr)=>{let mn=WC,sg=false;
+    for(let r=from;r<=to;r++){mn=Math.min(mn,leftmost(r));if(W.signs[r])sg=true}
+    const sc=Math.max(0,Math.min(mn,WC-1)-1);for(let r=from;r<=to;r++)SC[r]=sc;
+    if(lr==null)return;
+    let st=sg?sc:Math.min(mn,WC-1);const ar=lr+1;
+    if(ar<WR){st=Math.min(st,leftmost(ar));if(sqRow(W.sel)===ar)st=Math.min(st,sqCol(W.sel))}
+    L[lr]={st}};
+  lines.forEach(lr=>{block(bs,lr,lr);bs=lr+2});
+  if(bs<WR)block(bs,WR-1,null);
+  return {L,SC,last:lines.length?lines[lines.length-1]:null};
+}
+function sqAnswer(lr,st){const ar=lr+1;if(ar>=WR)return '';let t='';for(let j=st;j<WC;j++)t+=W.cells[ar*WC+j].v||'';return /^\d*\.?\d+$/.test(t)?t:''}
+function useAns(n,btn){
+  if($('typeIn')&&!$('typeIn').disabled){putAns(n);shake($('typeIn').parentElement);return}
+  const o=[...document.querySelectorAll('.opt:not([disabled])')].find(b=>readNum(b.textContent)===+n);
+  if(o){o.click();o.scrollIntoView({block:'center',behavior:'smooth'})}else shake(btn);
+}
 function drawSq(){const el=$('wgrid');if(!el)return;
-  const sr=sqRow(W.sel);
-  el.innerHTML=W.cells.map((x,i)=>{const r=sqRow(i),cls=(i===W.sel?' sel':'')+(W.lines.includes(r)?' ln':'')+(isAns(r)?' arow':'')+(isCarry(r)?' crow':'');
-    return `<button type="button" class="wcell${cls}" data-i="${i}" aria-label="Row ${r+1}, square ${sqCol(i)+1}">${esc(x.v)}${x.c?`<span class="cy">${esc(x.c)}</span>`:''}</button>`}).join('');
-  el.onclick=e=>{const b=e.target.closest('.wcell');if(!b)return;W.sel=+b.dataset.i;W.free=!isAns(sqRow(W.sel))&&sqCol(W.sel)<WC-1;drawSq()};
+  const {L,SC,last}=sqLayout();let h='';
+  const cellHTML=(i,r,j)=>{const x=W.cells[i],sg=!x.v&&W.signs[r]&&j===SC[r]?W.signs[r]:'';
+    const cls=(i===W.sel?' sel':'')+(L[r]&&j>=L[r].st?' ln':'')+(isAns(r)&&L[r-1]&&j>=L[r-1].st?' arow':'')+(isCarry(r)?' crow':'');
+    return `<button type="button" class="wcell${cls}" data-i="${i}" aria-label="Row ${r+1}, square ${j+1}">${esc(x.v||sg)}${x.c?`<span class="cy">${esc(x.c)}</span>`:''}</button>`};
+  for(let r=0;r<WR;r++){
+    const useRow=last!=null&&r===last+1,st=useRow?L[last].st:0,val=useRow?sqAnswer(last,st):'';
+    const ub=`<button type="button" class="wcell suse${val?' on':''}" data-use="${val}" style="grid-column:span ${useRow&&st>=2?st:WC}">${val?(useRow&&st>=2&&st<4?'Use ↓':`Use ${esc(val)} ↓`):(useRow&&st>=2&&st<4?'Use':'Use answer')}</button>`;
+    if(useRow&&st>=2){h+=ub;for(let j=st;j<WC;j++)h+=cellHTML(r*WC+j,r,j)}
+    else{for(let j=0;j<WC;j++)h+=cellHTML(r*WC+j,r,j);if(useRow)h+=ub}
+  }
+  el.innerHTML=h;
+  el.onclick=e=>{const u=e.target.closest('.suse');if(u){if(u.dataset.use)useAns(u.dataset.use,u);else shake(u);return}
+    const b=e.target.closest('.wcell');if(!b)return;W.sel=+b.dataset.i;W.free=!isAns(sqRow(W.sel))&&sqCol(W.sel)<WC-1;drawSq()};
   const ck=$('wkeys')&&$('wkeys').querySelector('.cyk');if(ck){ck.classList.toggle('on',W.carry);ck.setAttribute('aria-pressed',W.carry)}}
 function sqKey(k){const c=W.cells,r=sqRow(W.sel),col=sqCol(W.sel),base=r*WC,last=WR-1;
-  const blank=()=>({v:'',c:''});
-  if(k==='clear'){W.cells=Array.from({length:WC*WR},blank);W.lines=[];W.carry=false;W.free=false;W.sel=WC-1}
+  const blank=()=>({v:'',c:''}),rowHas=rr=>{for(let j=rr*WC+1;j<rr*WC+WC;j++)if(c[j].v)return true;return false};
+  if(k==='clear'){W.cells=Array.from({length:WC*WR},blank);W.lines=[];W.signs={};W.carry=false;W.free=false;W.sel=WC-1}
   else if(k==='carry'){W.carry=!W.carry}
   else if(k==='↵'){if(r<last)W.sel=(r+1)*WC+WC-1;W.carry=false;W.free=false}
   else if(k==='='){if(r<last){if(!W.lines.includes(r))W.lines.push(r);W.sel=(r+1)*WC+WC-1}W.carry=false;W.free=false}
   else if(isCarry(r)&&k!=='⌫'&&!W.carry){c[W.sel].c=k;W.sel-=WC}  /* row under the answer: carries, then jump back up */
   else if(isCarry(r)&&k==='⌫'){c[W.sel]=blank()}
-  else if(W.carry&&k!=='⌫'){c[W.sel].c=k;W.carry=false;if(isCarry(r))W.sel-=WC}          /* carry: small digit in the square you picked */
+  else if(W.carry&&k!=='⌫'){c[W.sel].c=k;W.carry=false;if(isCarry(r))W.sel-=WC}
   else if(isAns(r)){                                               /* answer row: right to left */
     if(k==='⌫'){if(c[W.sel].v||c[W.sel].c)c[W.sel]=blank();else if(col<WC-1){W.sel++;c[W.sel]=blank()}}
     else{c[W.sel].v=k;if(col>0)W.sel--}
@@ -1521,9 +1553,8 @@ function sqKey(k){const c=W.cells,r=sqRow(W.sel),col=sqCol(W.sel),base=r*WC,last
     else{c[W.sel].v=k;if(col<WC-1)W.sel++}
   }else{                                                           /* number row: push in from the right */
     W.carry=false;
-    if(k==='⌫'){let n=false;for(let j=base+WC-1;j>base;j--){if(c[j].v){n=true;break}}
-      if(n){for(let j=base+WC-1;j>base+1;j--)c[j]=c[j-1];c[base+1]=blank()}else c[base]=blank()}
-    else if(/[+−×÷]/.test(k))c[base]={v:k,c:c[base].c};
+    if(k==='⌫'){if(rowHas(r)){for(let j=base+WC-1;j>base+1;j--)c[j]=c[j-1];c[base+1]=blank()}else delete W.signs[r]}
+    else if(/[+−×÷]/.test(k)){if(rowHas(r)&&r<last){W.signs[r+1]=k;W.sel=(r+1)*WC+WC-1;drawSq();return}W.signs[r]=k}  /* sign starts the next row */
     else if(!c[base+1].v){for(let j=base+1;j<base+WC-1;j++)c[j]=c[j+1];c[base+WC-1]={v:k,c:''}}
     else shake($('wgrid'));
     W.sel=base+WC-1;
@@ -1538,7 +1569,7 @@ addEventListener('resize',()=>fitWork());
 if(document.fonts)document.fonts.ready.then(()=>fitWork());
 
 /* ---------- settings ---------- */
-const VERSION='1.9.0',VDATE='14 Nov 2026';
+const VERSION='1.10.0',VDATE='14 Nov 2026';
 function autoTs(){const w=innerWidth,h=innerHeight;return h<640||w<360?.78:h<760||w<400?.85:.92}
 function applyTs(){const f={small:.85,normal:1,large:1.15}[st.ts]||autoTs();document.documentElement.style.setProperty('--ts',f);if($('play')&&!$('play').hidden)requestAnimationFrame(fitWork)}
 function openSettings(){
