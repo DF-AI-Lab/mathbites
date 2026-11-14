@@ -217,6 +217,14 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .wkeys button{font:700 18px var(--body);color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:10px;padding:6px 0;min-width:0}
 .wkeys .op{color:var(--blue)}
 .wkeys .wide{grid-column:span 2;font-size:14px}
+.wkeys .wide3{grid-column:span 3;font-size:14px}
+.wkeys .cyk{font-size:14px}
+.wkeys .cyk.on{background:var(--gold);color:#2A1D00;border-color:var(--gold-d)}
+.wcell{position:relative}
+.wcell.ln{border-bottom:5px double var(--ink)}
+.wcell.arow{background:var(--sel);border-bottom:2px solid var(--ink)}
+.wcell .cy{position:absolute;left:3px;bottom:0;font-size:14px;line-height:1;transform:skewX(-14deg) rotate(-8deg);color:var(--gold-d)}
+.sqhint{margin:0;padding:6px 8px 0;font-size:12px;color:var(--soft)}
 .wpaper .cpad-in{padding:8px;max-width:none}
 .wpaper .cgrid button{padding:5px 0}
 #play.wm .qpanel{position:sticky;top:0;z-index:5}
@@ -1394,14 +1402,21 @@ const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const shake=el=>{if(!el)return;el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')};
 const WC=9,WR=14,W={tab:0,strokes:[],cur:null,mode:'pen',extra:0,jl:[''],cells:[],sel:0};
 const WK=['7','8','9','+','−','⌫','4','5','6','×','÷','=','1','2','3','0','.','→'];
+const WKS=['7','8','9','+','−','⌫','4','5','6','×','÷','=','1','2','3','0','.','carry'];
+const KL={'⌫':'Delete','→':'Next square','−':'Minus','×':'Times','÷':'Divide','=':'Draw the answer line','carry':'Carry a number'};
+const kb=k=>`<button type="button" class="${/[0-9.]/.test(k)?'':'op'}" data-k="${k}" aria-label="${KL[k]||k}">${k}</button>`;
+function keysHTML(t){
+  if(t===2)return WKS.map(k=>k==='carry'?`<button type="button" class="op cyk${W.carry?' on':''}" data-k="carry" aria-pressed="${!!W.carry}">Carry</button>`:kb(k)).join('')+'<button type="button" class="op wide3" data-k="↵">New row ↵</button><button type="button" class="op wide3" data-k="clear">Clear</button>';
+  return WK.map(kb).join('')+'<button type="button" class="op wide" data-k="↵">New line ↵</button><button type="button" class="op wide" data-k="space">Space</button><button type="button" class="op wide" data-k="clear">Clear</button>';
+}
 const wcv=document.createElement('canvas'),wcx=wcv.getContext('2d');
 const wmore=document.createElement('button');wmore.type='button';wmore.className='wchip wmore';wmore.textContent='＋ More paper';
 wmore.onclick=()=>{W.extra+=300;sizeCv();$('wpaper').scrollTop=1e5};
 function workHTML(calcQ){
-  return `<div class="work" id="work"><div class="wtabs" role="tablist" id="wtabs"><button type="button" role="tab" data-t="2">▦ Squares</button><button type="button" role="tab" data-t="0">✏️ Scribble</button>${calcQ?'<button type="button" role="tab" data-t="3" class="ctab">🧮 Calc</button>':''}<button type="button" role="tab" data-t="1">📝 Jotter</button></div>
+  return `<div class="work" id="work"><div class="wtabs" role="tablist" id="wtabs"><button type="button" role="tab" data-t="1">📝 Jotter</button><button type="button" role="tab" data-t="2">▦ Squares</button><button type="button" role="tab" data-t="0">✏️ Scribble</button>${calcQ?'<button type="button" role="tab" data-t="3" class="ctab">🧮 Calc</button>':''}</div>
 <div class="wpaper" id="wpaper"></div>
 <div class="wtools" id="wtools"><button type="button" class="wchip on" data-m="pen">✏️ Pen</button><button type="button" class="wchip" data-m="rub">🧽 Rubber</button><button type="button" class="wchip" data-m="move">✋ Scroll</button><button type="button" class="wchip" data-a="undo">↶ Undo</button><button type="button" class="wchip" data-a="clr">Clear</button></div>
-<div class="wkeys" id="wkeys" hidden>${WK.map(k=>`<button type="button" class="${/[0-9.]/.test(k)?'':'op'}" data-k="${k}" aria-label="${{'⌫':'Delete','→':'Next square','−':'Minus','×':'Times','÷':'Divide'}[k]||k}">${k}</button>`).join('')}<button type="button" class="op wide" data-k="↵">New line ↵</button><button type="button" class="op wide" data-k="space">Space</button><button type="button" class="op wide" data-k="clear">Clear</button></div></div>`}
+<div class="wkeys" id="wkeys" hidden></div></div>`}
 function wrapNums(el){
   const tw=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest('svg,button')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
   const nodes=[];while(tw.nextNode())nodes.push(tw.currentNode);
@@ -1409,7 +1424,7 @@ function wrapNums(el){
     f.innerHTML=esc(n.nodeValue).replace(/\d[\d,]*(?:\.\d+)?/g,m=>`<span class="tn" data-n="${m.replace(/,/g,'')}">${m}</span>`);n.replaceWith(...f.childNodes)});
 }
 function wireWork(calcQ){
-  Object.assign(W,{strokes:[],cur:null,mode:'pen',extra:0,jl:[''],cells:Array(WC*WR).fill(''),sel:0});wcv.classList.remove('move');
+  Object.assign(W,{strokes:[],cur:null,mode:'pen',extra:0,jl:[''],cells:Array.from({length:WC*WR},()=>({v:'',c:''})),lines:[],carry:false,sel:WC-1});wcv.classList.remove('move');
   const qp=$('qpanel');if(!qp.querySelector('.tn'))wrapNums(qp.querySelector('.q'));
   qp.onclick=e=>{const t=e.target.closest('.tn');if(t&&W.tab===1)jot(' '+t.dataset.n+' ')};
   $('wtabs').onclick=e=>{const b=e.target.closest('button');if(b)wtab(+b.dataset.t)};
@@ -1417,15 +1432,15 @@ function wireWork(calcQ){
     if(b.dataset.m){W.mode=b.dataset.m;$('wtools').querySelectorAll('[data-m]').forEach(x=>x.classList.toggle('on',x===b));wcv.classList.toggle('move',W.mode==='move');$('wpaper').classList.toggle('locked',W.mode!=='move')}
     else if(b.dataset.a==='undo'){W.strokes.pop();redrawCv()}else{W.strokes=[];W.extra=0;sizeCv()}};
   $('wkeys').onclick=e=>{const b=e.target.closest('button');if(b)(W.tab===1?jot:sqKey)(b.dataset.k)};
-  wtab(calcQ?3:2);
+  wtab(calcQ?3:1);
 }
 function restoreCalc(){const ci=document.querySelector('.cpad-in');if(ci&&ci.parentElement!==$('cpad'))$('cpad').appendChild(ci)}
 function wtab(t){W.tab=t;const p=$('wpaper');
   $('wtabs').querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',+b.dataset.t===t));
-  $('wtools').hidden=t!==0;$('wkeys').hidden=!(t===1||t===2);$('qpanel').classList.toggle('tap',t===1);
+  $('wtools').hidden=t!==0;$('wkeys').hidden=!(t===1||t===2);if(t===1||t===2)$('wkeys').innerHTML=keysHTML(t);$('qpanel').classList.toggle('tap',t===1);
   p.classList.toggle('locked',t===0&&W.mode!=='move');restoreCalc();p.innerHTML='';p.scrollTop=0;
   if(t===0){p.append(wcv,wmore)}else if(t===1){p.innerHTML='<div class="wlines" id="wlines"></div>';drawJ()}
-  else if(t===2){p.innerHTML='<div class="wgrid" id="wgrid"></div>';drawSq()}else{p.appendChild(document.querySelector('.cpad-in'));cshow()}
+  else if(t===2){p.innerHTML='<p class="sqhint">Numbers line up on the right. <b>=</b> draws the answer line, then fill the answer right to left.</p><div class="wgrid" id="wgrid"></div>';drawSq()}else{p.appendChild(document.querySelector('.cpad-in'));cshow()}
   fitWork()}
 function fitWork(){const p=$('wpaper');if(!p||$('play').hidden)return;
   if(!$('play').classList.contains('wm')){const h=window.innerHeight-(p.getBoundingClientRect().top+window.scrollY)-12-($('wtools').hidden?0:$('wtools').offsetHeight+8)-($('wkeys').hidden?0:$('wkeys').offsetHeight+8)-$('dock').offsetHeight;
@@ -1455,15 +1470,35 @@ const lastNum=s=>{const m=s.match(/-?\d+(\.\d+)?(?!.*\d)/);return m?m[0]:null};
 function drawJ(){const el=$('wlines');if(!el)return;const jl=W.jl;
   el.innerHTML=(jl.length===1&&!jl[0]?'<div class="jl hint"><span>Tap the numbers above, or use the keys</span></div>':'')+jl.map((l,i)=>{const n=lastNum(l);return `<div class="jl${i===jl.length-1?' cur':''}"><span>${esc(l)||'&nbsp;'}</span>${n?`<button type="button" class="wuse" data-n="${n}">use ${n} ↑</button>`:''}</div>`}).join('');
   el.onclick=e=>{const b=e.target.closest('.wuse');if(b)putAns(b.dataset.n)}}
+/* Squares = column maths: numbers push in from the right so units line up.
+   '=' draws a double line under the row; the row below is the answer row,
+   filled right to left. Carry puts a small slanted digit in the current square. */
+const sqRow=i=>Math.floor(i/WC),sqCol=i=>i%WC,isAns=r=>W.lines.includes(r-1);
 function drawSq(){const el=$('wgrid');if(!el)return;
-  el.innerHTML=W.cells.map((v,i)=>`<button type="button" class="wcell${i===W.sel?' sel':''}" data-i="${i}" aria-label="Square ${i+1}">${esc(v)}</button>`).join('');
-  el.onclick=e=>{const b=e.target.closest('.wcell');if(b){W.sel=+b.dataset.i;drawSq()}}}
-function sqKey(k){const c=W.cells,max=WC*WR-1;
-  if(k==='⌫'){if(!c[W.sel]&&W.sel>0)W.sel--;c[W.sel]=''}
-  else if(k==='↵')W.sel=Math.min(max,(Math.floor(W.sel/WC)+1)*WC);
-  else if(k==='clear'){c.fill('');W.sel=0}
-  else if(k==='space'||k==='→')W.sel=Math.min(max,W.sel+1);
-  else{c[W.sel]=k;W.sel=Math.min(max,W.sel+1)}
+  const sr=sqRow(W.sel);
+  el.innerHTML=W.cells.map((x,i)=>{const r=sqRow(i),cls=(i===W.sel?' sel':'')+(W.lines.includes(r)?' ln':'')+(isAns(r)?' arow':'');
+    return `<button type="button" class="wcell${cls}" data-i="${i}" aria-label="Row ${r+1}, square ${sqCol(i)+1}">${esc(x.v)}${x.c?`<span class="cy">${esc(x.c)}</span>`:''}</button>`}).join('');
+  el.onclick=e=>{const b=e.target.closest('.wcell');if(!b)return;const i=+b.dataset.i,r=sqRow(i);W.sel=isAns(r)?i:r*WC+WC-1;drawSq()};
+  const ck=$('wkeys')&&$('wkeys').querySelector('.cyk');if(ck){ck.classList.toggle('on',W.carry);ck.setAttribute('aria-pressed',W.carry)}}
+function sqKey(k){const c=W.cells,r=sqRow(W.sel),col=sqCol(W.sel),base=r*WC,last=WR-1;
+  const blank=()=>({v:'',c:''});
+  if(k==='clear'){W.cells=Array.from({length:WC*WR},blank);W.lines=[];W.carry=false;W.sel=WC-1}
+  else if(k==='carry'){W.carry=!W.carry}
+  else if(k==='↵'){if(r<last)W.sel=(r+1)*WC+WC-1;W.carry=false}
+  else if(k==='='){if(r<last){if(!W.lines.includes(r))W.lines.push(r);W.sel=(r+1)*WC+WC-1}W.carry=false}
+  else if(isAns(r)){                       /* answer row: right to left */
+    if(k==='⌫'){if(c[W.sel].v||c[W.sel].c)c[W.sel]=blank();else if(col<WC-1){W.sel++;c[W.sel]=blank()}}
+    else if(W.carry){c[W.sel].c=k;W.carry=false}
+    else{c[W.sel].v=k;if(col>0)W.sel--}
+  }else{                                    /* number row: push in from the right */
+    W.carry=false;
+    if(k==='⌫'){let n=false;for(let j=base+WC-1;j>base;j--){if(c[j].v){n=true;break}}
+      if(n){for(let j=base+WC-1;j>base+1;j--)c[j]=c[j-1];c[base+1]=blank()}else c[base]=blank()}
+    else if(/[+−×÷]/.test(k))c[base]={v:k,c:''};
+    else if(!c[base+1].v){for(let j=base+1;j<base+WC-1;j++)c[j]=c[j+1];c[base+WC-1]={v:k,c:''}}
+    else shake($('wgrid'));
+    W.sel=base+WC-1;
+  }
   drawSq()}
 function askDock(it,msg,keep){const g=S.goes;
   setDock('wm',`<div class="brow"><span class="blabel">Your answer</span><span class="goes" aria-label="${g} goes left">Goes <i class="pip${g<1?' used':''}"></i><i class="pip${g<2?' used':''}"></i></span></div>${msg?`<p class="msg">${msg}</p>`:''}${ansBox(it.p.pre,it.p.unit)}`,[{t:'Check',dis:!keep,id:'checkBtn',fn:check}]);
@@ -1474,7 +1509,7 @@ addEventListener('resize',()=>fitWork());
 if(document.fonts)document.fonts.ready.then(()=>fitWork());
 
 /* ---------- settings ---------- */
-const VERSION='1.6.0',VDATE='14 Nov 2026';
+const VERSION='1.7.0',VDATE='14 Nov 2026';
 function autoTs(){const w=innerWidth,h=innerHeight;return h<640||w<360?.82:h<760||w<400?.9:1}
 function applyTs(){const f={small:.85,normal:1,large:1.15}[st.ts]||autoTs();document.documentElement.style.setProperty('--ts',f);if($('play')&&!$('play').hidden)requestAnimationFrame(fitWork)}
 function openSettings(){
