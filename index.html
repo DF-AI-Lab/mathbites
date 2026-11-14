@@ -1,7 +1,7 @@
 <title>Number Bites</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=Caveat:wght@600;700&display=swap">
 <style>
 /* Layout: one phone-width column on squared exercise-book paper; chunky press buttons; feedback sheet slides up from the bottom */
 :root{
@@ -10,6 +10,7 @@
   --good:#1C8F5A; --good-bg:#DDF5E8; --bad:#C93A2E; --bad-bg:#FBE3E0; --sel:#E5ECFF;
   --display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
   --body:"Atkinson Hyperlegible", Verdana, system-ui, sans-serif;
+  --hand:"Caveat","Comic Sans MS",cursive;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --paper:#0F1529; --grid:#1A2340; --card:#18213F; --ink:#E9EDF8; --soft:#A2ACC8;
@@ -165,6 +166,62 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .rule-opt small{display:block;font-weight:400;color:var(--soft);font-size:13px}
 .rule-opt small[hidden]{display:none}
 .fb small{color:var(--soft)}
+
+/* ---------- question panels + working out ---------- */
+.dock{background:var(--card);border-top-color:var(--gold);border-radius:20px 20px 0 0}
+.dock.wm .fb{display:block}
+#play.qp .bar{background:var(--card);margin:-18px calc(-1*max(16px,env(safe-area-inset-right,0px))) 0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:14px max(16px,env(safe-area-inset-right,0px)) 6px max(16px,env(safe-area-inset-left,0px))}
+#play.qp .tag{background:var(--paper)}
+.qpanel{background:var(--card);border-bottom:2px solid var(--gold);border-radius:0 0 20px 20px;margin:0 calc(-1*max(16px,env(safe-area-inset-right,0px))) 14px calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:8px max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px))}
+.qpanel .q{margin-bottom:0}
+#play.wm .qpanel .q{font-size:20px}
+#play.wm .qpanel .q .big{font-size:28px;margin:4px 0 0}
+#play.wm .cbtn{display:none}
+.qpanel.tap .tn{border-bottom:3px dashed var(--gold);cursor:pointer;border-radius:4px}
+.qpanel.tap .tn:active{background:var(--gold);color:#2A1D00}
+.opt[disabled]{opacity:.75;cursor:default}
+.work{display:flex;flex-direction:column;gap:8px}
+.work>*{min-width:0}
+.wtabs{display:flex;gap:4px;background:var(--card);border:2px solid var(--line);padding:4px;border-radius:14px}
+.wtabs button{flex:1;border:0;background:none;color:var(--soft);font:700 13px var(--body);padding:8px 2px;border-radius:10px;white-space:nowrap;min-width:0}
+.wtabs [aria-selected="true"]{background:var(--blue);color:#fff}
+.wtabs .ctab[aria-selected="true"]{background:var(--gold);color:#2A1D00}
+.wpaper{background:var(--card);border:2px solid var(--line);border-radius:14px;overflow:auto;position:relative;min-height:120px;box-sizing:border-box}
+.wpaper.locked{overflow:hidden}
+.wpaper canvas{display:block;width:100%;touch-action:none;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+.wpaper canvas.move{touch-action:pan-y}
+.wmore{display:block;margin:6px auto 10px}
+.wtools{display:flex;gap:4px;justify-content:space-between;overflow-x:auto}
+.wchip{flex:none;font:700 12px var(--body);color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:999px;padding:4px 7px;white-space:nowrap}
+.wchip.on{background:var(--gold);color:#2A1D00;border-color:var(--gold)}
+.wlines{min-height:100%;padding:2px 12px 10px;box-sizing:border-box;background-image:repeating-linear-gradient(transparent 0 37px,var(--line) 37px 38px)}
+.jl{font:600 27px/38px var(--hand);color:var(--ink);display:flex;align-items:center;gap:8px}
+.jl span{flex:1;min-width:0;overflow-wrap:anywhere}
+.jl.hint span{color:var(--soft);font-size:22px}
+.jl.cur span::after{content:"";display:inline-block;width:2px;height:24px;background:var(--gold);margin-left:3px;vertical-align:middle;animation:wblink 1s steps(1) infinite}
+@keyframes wblink{50%{opacity:0}}
+.wuse{flex:none;font:700 11px var(--body);background:var(--good);color:#fff;border:0;border-radius:999px;padding:4px 9px}
+.wgrid{display:grid;grid-template-columns:repeat(9,1fr);padding:6px}
+.wcell{aspect-ratio:1;border:1px solid var(--grid);display:flex;align-items:center;justify-content:center;font:700 25px var(--hand);color:var(--ink);background:none;padding:0;min-width:0}
+.wcell.sel{outline:3px solid var(--gold);outline-offset:-3px;border-radius:4px}
+.wkeys{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.wkeys button{font:700 18px var(--body);color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:10px;padding:6px 0;min-width:0}
+.wkeys .op{color:var(--blue)}
+.wkeys .wide{grid-column:span 2;font-size:14px}
+.wpaper .cpad-in{padding:8px;max-width:none}
+.wpaper .cgrid button{padding:5px 0}
+#play.wm .qpanel{position:sticky;top:0;z-index:5}
+.brow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.blabel{font-size:12px;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--blue)}
+.goes{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--soft)}
+.pip{width:12px;height:12px;border-radius:50%;background:var(--gold);box-sizing:border-box}
+.pip.used{background:none;border:2px solid var(--line)}
+.msg{margin:8px 0 0;font-weight:700;font-size:15px;line-height:1.35;padding:9px 12px;border-radius:10px;background:var(--paper);border:2px solid var(--gold)}
+.fb .you{color:var(--soft);font-size:15px}
+.dock .ans{margin-top:8px}
+.shake{animation:wshake .35s}
+@keyframes wshake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){.jl.cur span::after,.shake{animation:none}}
 </style>
 
 <div class="app">
@@ -1035,7 +1092,7 @@ function start(mode){
   show('play');$('calcTag').textContent=st.calc?'Calculator OK':'No calculator';$('calcBtn').hidden=!st.calc;
   renderItem();
 }
-function show(id){if(id!=='play')calcOpen(false);['home','play','done'].forEach(s=>$(s).hidden=s!==id);$('dock').hidden=id!=='play';window.scrollTo(0,0)}
+function show(id){if(id!=='play'){calcOpen(false);restoreCalc();$('play').classList.remove('wm','qp')}['home','play','done'].forEach(s=>$(s).hidden=s!==id);$('dock').hidden=id!=='play';window.scrollTo(0,0)}
 
 function setDock(state,fbHtml,btns){
   const d=$('dock');d.className='dock'+(state?' '+state:'');
@@ -1043,19 +1100,21 @@ function setDock(state,fbHtml,btns){
   $('dockBtns').className=btns.length>1?'pair':'';
   btns.forEach(b=>{const el=document.createElement('button');el.className='btn '+(b.cls||'');el.textContent=b.t;el.disabled=!!b.dis;el.id=b.id||'';el.onclick=b.fn;$('dockBtns').appendChild(el)});
   if(state&&!$('cpad').hidden)calcOpen(false);
-  requestAnimationFrame(()=>{if($('cpad').hidden)document.querySelector('.app').style.paddingBottom=($('dock').offsetHeight+30)+'px'});
+  requestAnimationFrame(()=>{if($('cpad').hidden)document.querySelector('.app').style.paddingBottom=($('dock').offsetHeight+30)+'px';fitWork()});
 }
 function hookInput(){const i=$('typeIn');if(!i)return;i.oninput=()=>{const b=$('checkBtn');if(b)b.disabled=!i.value.trim()};}
 
 function renderItem(){
-  const it=S.items[S.i];S.sel=null;S.locked=false;S.fixing=false;
+  const it=S.items[S.i];S.sel=null;S.locked=false;S.fixing=false;S.goes=2;S.fixGoes=2;
+  restoreCalc();$('play').classList.toggle('qp',it.kind==='q');$('play').classList.toggle('wm',it.kind==='q'&&it.typed);
   $('fill').style.width=(S.i/S.items.length*100)+'%';
   const stg=$('stage');
   if(it.kind==='q'){
-    const body=it.typed?ansBox(it.p.pre,it.p.unit):`<div class="opts">${it.d.options.map((o,k)=>`<button class="opt" data-k="${k}" aria-pressed="false">${o}</button>`).join('')}</div>`;
-    stg.innerHTML=`<div class="eyebrow">${it.d.topic}${it.typed?' · type it in':''}</div><div class="q">${it.d.q}</div>${body}`;
+    const head=`<div class="qpanel" id="qpanel"><div class="eyebrow">${it.d.topic}${it.typed?' · type it in':''}</div><div class="q">${it.d.q}</div></div>`;
+    if(it.typed){stg.innerHTML=head+workHTML(st.calc);wireWork(st.calc);askDock(it);return}
+    stg.innerHTML=head+`<div class="opts">${it.d.options.map((o,k)=>`<button class="opt" data-k="${k}" aria-pressed="false">${o}</button>`).join('')}</div>`;
     stg.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(b,'.opt'));
-    setDock('','',[{t:'Check',dis:true,id:'checkBtn',fn:check}]);hookInput();
+    setDock('','',[{t:'Check',dis:true,id:'checkBtn',fn:check}]);
   } else if(it.kind==='m'){
     stg.innerHTML=`<div class="eyebrow">Spot the mistake · ${it.d.topic}</div><div class="q">${it.d.title}<span class="hint">Tap the line that's wrong</span></div><div class="steps">${it.d.steps.map((s,k)=>`<button class="step" data-k="${k}" aria-pressed="false"><em>${k+1}</em><span>${s}</span></button>`).join('')}</div><div id="fixArea"></div>`;
     stg.querySelectorAll('.step').forEach(b=>b.onclick=()=>pick(b,'.step'));
@@ -1072,8 +1131,8 @@ function pick(b,sel){
   $('stage').querySelectorAll(sel).forEach(x=>x.setAttribute('aria-pressed','false'));
   b.setAttribute('aria-pressed','true');S.sel=+b.dataset.k;$('checkBtn').disabled=false;
 }
-function score(it,ok,xp){
-  if(!it.retry){S.first++;if(ok)S.firstRight++}
+function score(it,ok,xp,first=ok){
+  if(!it.retry){S.first++;if(first)S.firstRight++}
   if(ok){S.xp+=xp;return ''}
   if(S.retries<3){S.retries++;
     S.items.push(it.kind==='q'?{...mkQ(it.g),retry:true}:it.kind==='m'?{...mkM(it.g),retry:true}:{...mkC(it.d.card),retry:true});
@@ -1084,16 +1143,22 @@ const PRAISE=()=>P(['Nice one!','Spot on!','Nailed it!','Correct!']);
 function check(){
   if(S.fixing)return checkFix();
   const it=S.items[S.i];
-  if(it.kind==='q'&&it.typed){const v=readNum($('typeIn').value);if(isNaN(v))return;S.locked=true;$('typeIn').disabled=true;
-    const ok=same(v,it.p.val);$('typeIn').parentElement.classList.add(ok?'right':'wrong');
-    const again=score(it,ok,10);
-    return setDock(ok?'good':'bad',`<h3>${ok?PRAISE():`Not quite. It's ${it.d.answer}`}</h3><p>${it.d.why}</p>${ok?'':ruleBox(cardFor(it.d))}${again}`,[{t:'Continue',cls:ok?'good':'bad',fn:next}]);}
-  if(S.sel==null||S.locked)return;S.locked=true;
+  if(it.kind==='q'&&it.typed){const raw=$('typeIn').value,v=readNum(raw);if(isNaN(v))return;
+    const ok=same(v,it.p.val);
+    if(!ok&&S.goes>1){S.goes--;askDock(it,'Not quite. Check your working and have another go 💪',raw);return}
+    S.locked=true;const firstTry=S.goes===2;
+    const again=score(it,ok,ok&&!firstTry?5:10,ok&&firstTry);
+    return setDock(ok?'good':'bad',`<h3>${ok?(firstTry?PRAISE():'Got it on your second go! +5 XP'):`Not quite. It's ${it.d.answer}`}</h3>${ok?'':`<p class="you">You put ${esc(raw)}</p>`}<p>${it.d.why}</p>${ok?'':ruleBox(cardFor(it.d))}${again}`,[{t:'Continue',cls:ok?'good':'bad',fn:next}]);}
+  if(S.sel==null||S.locked)return;
+  if(it.kind==='q'&&it.d.options[S.sel]!==it.d.answer&&S.goes>1){
+    S.goes--;const b=$('stage').querySelector(`.opt[data-k="${S.sel}"]`);b.classList.add('wrong');b.disabled=true;b.setAttribute('aria-pressed','false');S.sel=null;
+    setDock('wm','<p class="msg" style="margin:0">Not quite. Have another go 💪</p>',[{t:'Check',dis:true,id:'checkBtn',fn:check}]);return}
+  S.locked=true;
   if(it.kind==='q'){
-    const ok=it.d.options[S.sel]===it.d.answer;
+    const ok=it.d.options[S.sel]===it.d.answer,firstTry=S.goes===2;
     $('stage').querySelectorAll('.opt').forEach(b=>{const o=it.d.options[+b.dataset.k];if(o===it.d.answer)b.classList.add('right');else if(+b.dataset.k===S.sel)b.classList.add('wrong')});
-    const again=score(it,ok,10);
-    return setDock(ok?'good':'bad',`<h3>${ok?PRAISE():`Not quite. It's ${it.d.answer}`}</h3><p>${it.d.why}</p>${ok?'':ruleBox(cardFor(it.d))}${again}`,[{t:'Continue',cls:ok?'good':'bad',fn:next}]);
+    const again=score(it,ok,ok&&!firstTry?5:10,ok&&firstTry);
+    return setDock(ok?'good':'bad',`<h3>${ok?(firstTry?PRAISE():'Got it on your second go! +5 XP'):`Not quite. It's ${it.d.answer}`}</h3><p>${it.d.why}</p>${ok?'':ruleBox(cardFor(it.d))}${again}`,[{t:'Continue',cls:ok?'good':'bad',fn:next}]);
   }
   if(it.kind==='c'){
     const {card,options}=it.d,ok=!!options[S.sel].ok;
@@ -1114,7 +1179,10 @@ function check(){
   }
   setDock(ok?'good':'bad',`<h3>${ok?'Good eye! That\'s the mistake.':`Not that one. The mistake is line ${it.d.bad+1}`}</h3><p>${it.d.fix}${ok?'':'<br><small>Tip: find the first line that goes wrong.</small>'}</p>${ok?'':ruleBox(cardFor(it.d))}${again}`,[{t:'Continue',cls:ok?'good':'bad',fn:next}]);
 }
-function checkFix(){const v=readNum($('typeIn').value);if(isNaN(v))return;endFix(v)}
+function checkFix(){const raw=$('typeIn').value,v=readNum(raw);if(isNaN(v))return;const it=S.items[S.i];
+  if(!same(v,it.d.fixAns)&&S.fixGoes>1){S.fixGoes--;const i=$('typeIn');i.select();shake(i.parentElement);
+    setDock('wm','<p class="msg" style="margin:0">Not quite. Check your working and have another go 💪</p>',[{t:'Skip',cls:'ghost',fn:()=>endFix(null)},{t:'Check',id:'checkBtn',fn:check}]);return}
+  endFix(v)}
 function endFix(v){
   const it=S.items[S.i];S.fixing=false;const i=$('typeIn');i.disabled=true;
   const ok=v!=null&&same(v,it.d.fixAns);if(v!=null)i.parentElement.classList.add(ok?'right':'wrong');
@@ -1137,6 +1205,88 @@ function finish(){
   $('again').textContent=S.mode==='quick'?'Another 5':S.mode==='mistake'?'More mistakes':'More cards';
   show('done');
 }
+
+
+/* ---------- working out: scribble, jotter, squares, calc ---------- */
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shake=el=>{if(!el)return;el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')};
+const WC=9,WR=14,W={tab:0,strokes:[],cur:null,mode:'pen',extra:0,jl:[''],cells:[],sel:0};
+const WK=['7','8','9','+','−','⌫','4','5','6','×','÷','=','1','2','3','0','.','→'];
+const wcv=document.createElement('canvas'),wcx=wcv.getContext('2d');
+const wmore=document.createElement('button');wmore.type='button';wmore.className='wchip wmore';wmore.textContent='＋ More paper';
+wmore.onclick=()=>{W.extra+=300;sizeCv();$('wpaper').scrollTop=1e5};
+function workHTML(calcQ){
+  return `<div class="work" id="work"><div class="wtabs" role="tablist" id="wtabs"><button type="button" role="tab" data-t="0">✏️ Scribble</button><button type="button" role="tab" data-t="1">📝 Jotter</button><button type="button" role="tab" data-t="2">▦ Squares</button>${calcQ?'<button type="button" role="tab" data-t="3" class="ctab">🧮 Calc</button>':''}</div>
+<div class="wpaper" id="wpaper"></div>
+<div class="wtools" id="wtools"><button type="button" class="wchip on" data-m="pen">✏️ Pen</button><button type="button" class="wchip" data-m="rub">🧽 Rubber</button><button type="button" class="wchip" data-m="move">✋ Scroll</button><button type="button" class="wchip" data-a="undo">↶ Undo</button><button type="button" class="wchip" data-a="clr">Clear</button></div>
+<div class="wkeys" id="wkeys" hidden>${WK.map(k=>`<button type="button" class="${/[0-9.]/.test(k)?'':'op'}" data-k="${k}" aria-label="${{'⌫':'Delete','→':'Next square','−':'Minus','×':'Times','÷':'Divide'}[k]||k}">${k}</button>`).join('')}<button type="button" class="op wide" data-k="↵">New line ↵</button><button type="button" class="op wide" data-k="space">Space</button><button type="button" class="op wide" data-k="clear">Clear</button></div></div>`}
+function wrapNums(el){
+  const tw=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest('svg,button')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+  const nodes=[];while(tw.nextNode())nodes.push(tw.currentNode);
+  nodes.forEach(n=>{if(!/\d/.test(n.nodeValue))return;const f=document.createElement('span');
+    f.innerHTML=esc(n.nodeValue).replace(/\d[\d,]*(?:\.\d+)?/g,m=>`<span class="tn" data-n="${m.replace(/,/g,'')}">${m}</span>`);n.replaceWith(...f.childNodes)});
+}
+function wireWork(calcQ){
+  Object.assign(W,{strokes:[],cur:null,mode:'pen',extra:0,jl:[''],cells:Array(WC*WR).fill(''),sel:0});wcv.classList.remove('move');
+  const qp=$('qpanel');wrapNums(qp);
+  qp.onclick=e=>{const t=e.target.closest('.tn');if(t&&W.tab===1)jot(' '+t.dataset.n+' ')};
+  $('wtabs').onclick=e=>{const b=e.target.closest('button');if(b)wtab(+b.dataset.t)};
+  $('wtools').onclick=e=>{const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.m){W.mode=b.dataset.m;$('wtools').querySelectorAll('[data-m]').forEach(x=>x.classList.toggle('on',x===b));wcv.classList.toggle('move',W.mode==='move');$('wpaper').classList.toggle('locked',W.mode!=='move')}
+    else if(b.dataset.a==='undo'){W.strokes.pop();redrawCv()}else{W.strokes=[];W.extra=0;sizeCv()}};
+  $('wkeys').onclick=e=>{const b=e.target.closest('button');if(b)(W.tab===1?jot:sqKey)(b.dataset.k)};
+  wtab(calcQ?3:0);
+}
+function restoreCalc(){const ci=document.querySelector('.cpad-in');if(ci&&ci.parentElement!==$('cpad'))$('cpad').appendChild(ci)}
+function wtab(t){W.tab=t;const p=$('wpaper');
+  $('wtabs').querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',+b.dataset.t===t));
+  $('wtools').hidden=t!==0;$('wkeys').hidden=!(t===1||t===2);$('qpanel').classList.toggle('tap',t===1);
+  p.classList.toggle('locked',t===0&&W.mode!=='move');restoreCalc();p.innerHTML='';p.scrollTop=0;
+  if(t===0){p.append(wcv,wmore)}else if(t===1){p.innerHTML='<div class="wlines" id="wlines"></div>';drawJ()}
+  else if(t===2){p.innerHTML='<div class="wgrid" id="wgrid"></div>';drawSq()}else{p.appendChild(document.querySelector('.cpad-in'));cshow()}
+  fitWork()}
+function fitWork(){const p=$('wpaper');if(!p||$('play').hidden)return;
+  let below=12;['wtools','wkeys'].forEach(id=>{const e=$(id);if(e&&!e.hidden)below+=e.offsetHeight+8});
+  const dock=$('dock').hidden?0:$('dock').offsetHeight;
+  const h=window.innerHeight-(p.getBoundingClientRect().top+window.scrollY)-below-dock;
+  p.style.height=Math.max(W.tab===3?250:120,Math.floor(h))+'px';if(W.tab===0)sizeCv()}
+function sizeCv(){const p=$('wpaper');if(!p||W.tab!==0)return;const w=p.clientWidth,h=Math.max(p.clientHeight-48,120)+W.extra,d=window.devicePixelRatio||1;if(!w)return;
+  wcv.style.height=h+'px';wcv.width=w*d;wcv.height=h*d;wcx.setTransform(d,0,0,d,0,0);redrawCv()}
+function redrawCv(){const css=getComputedStyle(document.documentElement);wcx.clearRect(0,0,wcv.width,wcv.height);
+  if(!W.strokes.length&&!W.cur){wcx.fillStyle=css.getPropertyValue('--soft');wcx.font='600 26px Caveat, cursive';wcx.fillText('Draw your working here…',16,40);return}
+  const ink=css.getPropertyValue('--ink');
+  for(const s of [...W.strokes,W.cur].filter(Boolean)){wcx.globalCompositeOperation=s.rub?'destination-out':'source-over';wcx.strokeStyle=ink;wcx.lineWidth=s.rub?22:3.5;wcx.lineCap=wcx.lineJoin='round';wcx.beginPath();s.p.forEach((q,i)=>i?wcx.lineTo(q[0],q[1]):wcx.moveTo(q[0],q[1]));if(s.p.length===1)wcx.lineTo(s.p[0][0]+.1,s.p[0][1]);wcx.stroke()}
+  wcx.globalCompositeOperation='source-over'}
+const wpt=e=>{const r=wcv.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};
+wcv.onpointerdown=e=>{if(W.mode==='move')return;wcv.setPointerCapture(e.pointerId);W.cur={rub:W.mode==='rub',p:[wpt(e)]};redrawCv()};
+wcv.onpointermove=e=>{if(W.cur){W.cur.p.push(wpt(e));redrawCv()}};
+wcv.onpointerup=wcv.onpointercancel=()=>{if(W.cur){W.strokes.push(W.cur);W.cur=null;redrawCv()}};
+function putAns(n){const i=$('typeIn');if(!i||i.disabled)return;i.value=n;i.dispatchEvent(new Event('input'))}
+function jot(k){const jl=W.jl,L=jl.length-1;
+  if(k==='↵')jl.push('');else if(k==='⌫'){if(jl[L].length)jl[L]=jl[L].replace(/\s*.\s*$/,'');else if(jl.length>1)jl.pop()}
+  else if(k==='clear')W.jl=[''];else if(k==='space')jl[L]+=' ';
+  else jl[L]=(jl[L]+(/[0-9.]/.test(k)||k.startsWith(' ')?k:' '+k+' ')).replace(/\s+/g,' ').replace(/^ /,'');
+  drawJ();$('wpaper').scrollTop=1e5}
+const lastNum=s=>{const m=s.match(/-?\d+(\.\d+)?(?!.*\d)/);return m?m[0]:null};
+function drawJ(){const el=$('wlines');if(!el)return;const jl=W.jl;
+  el.innerHTML=(jl.length===1&&!jl[0]?'<div class="jl hint"><span>Tap the numbers above, or use the keys</span></div>':'')+jl.map((l,i)=>{const n=lastNum(l);return `<div class="jl${i===jl.length-1?' cur':''}"><span>${esc(l)||'&nbsp;'}</span>${n?`<button type="button" class="wuse" data-n="${n}">use ${n} ↑</button>`:''}</div>`}).join('');
+  el.onclick=e=>{const b=e.target.closest('.wuse');if(b)putAns(b.dataset.n)}}
+function drawSq(){const el=$('wgrid');if(!el)return;
+  el.innerHTML=W.cells.map((v,i)=>`<button type="button" class="wcell${i===W.sel?' sel':''}" data-i="${i}" aria-label="Square ${i+1}">${esc(v)}</button>`).join('');
+  el.onclick=e=>{const b=e.target.closest('.wcell');if(b){W.sel=+b.dataset.i;drawSq()}}}
+function sqKey(k){const c=W.cells,max=WC*WR-1;
+  if(k==='⌫'){if(!c[W.sel]&&W.sel>0)W.sel--;c[W.sel]=''}
+  else if(k==='↵')W.sel=Math.min(max,(Math.floor(W.sel/WC)+1)*WC);
+  else if(k==='clear'){c.fill('');W.sel=0}
+  else if(k==='space'||k==='→')W.sel=Math.min(max,W.sel+1);
+  else{c[W.sel]=k;W.sel=Math.min(max,W.sel+1)}
+  drawSq()}
+function askDock(it,msg,keep){const g=S.goes;
+  setDock('wm',`<div class="brow"><span class="blabel">Your answer</span><span class="goes" aria-label="${g} goes left">Goes <i class="pip${g<1?' used':''}"></i><i class="pip${g<2?' used':''}"></i></span></div>${msg?`<p class="msg">${msg}</p>`:''}${ansBox(it.p.pre,it.p.unit)}`,[{t:'Check',dis:!keep,id:'checkBtn',fn:check}]);
+  hookInput();if(keep!=null){const i=$('typeIn');i.value=keep;shake(i.parentElement);try{i.focus({preventScroll:true});i.select()}catch(_){}}
+  if(W.tab===3)cshow()}
+addEventListener('resize',()=>fitWork());
+if(document.fonts)document.fonts.ready.then(()=>fitWork());
 
 /* ---------- wiring ---------- */
 $('goQuick').onclick=()=>start('quick');
@@ -1167,7 +1317,7 @@ function calcOpen(o){const c=$('cpad');c.hidden=!o;document.body.classList.toggl
 $('calcBtn').onclick=()=>calcOpen($('cpad').hidden);
 document.addEventListener('keydown',e=>{
   const inInput=document.activeElement&&document.activeElement.tagName==='INPUT';
-  if(!$('cpad').hidden&&!inInput){const m={'*':'×','x':'×','/':'÷','-':'−','Enter':'=','=':'=','Backspace':'⌫','Escape':'C','Delete':'C'};
+  if((!$('cpad').hidden||($('wpaper')&&W.tab===3))&&!inInput){const m={'*':'×','x':'×','/':'÷','-':'−','Enter':'=','=':'=','Backspace':'⌫','Escape':'C','Delete':'C'};
     const k=m[e.key]||(/^[0-9.+%()]$/.test(e.key)?e.key:null);
     if(k){e.preventDefault();cpress(k);return}}
   if($('play').hidden)return;
