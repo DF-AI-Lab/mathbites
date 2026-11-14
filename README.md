@@ -13,6 +13,8 @@ Bite-size maths practice for **Functional Skills Maths Level 2**. Do 3–15 minu
 - **Your name** is saved on this phone only
 - **Progress**: score today, day streak, right-in-a-row streak, % right this week and month (💯 at 100%)
 - **Weak topics**: topics under 70% over your last 10 tries, with a "Practise weak topics" round
+- **Settings (⋮)**: change name, text size (Auto fits your screen), reset progress, version number
+- **Answer bar**: answer box and Check on one line, and Jotter is the last working-out tab
 - **Get it wrong → see the formula**: the formula card for that topic pops up
 - **Calculator mode**: a compact on-screen calculator. Its "Put in answer" button drops the result into the box
 - Every question is random each time, with friendly numbers
