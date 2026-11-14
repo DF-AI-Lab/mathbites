@@ -168,6 +168,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .fb small{color:var(--soft)}
 
 /* ---------- question panels + working out ---------- */
+[hidden]{display:none!important}
 .dock{background:var(--card);border-top-color:var(--gold);border-radius:20px 20px 0 0}
 .dock.wm .fb{display:block}
 #play.qp .bar{background:var(--card);margin:-18px calc(-1*max(16px,env(safe-area-inset-right,0px))) 0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:14px max(16px,env(safe-area-inset-right,0px)) 6px max(16px,env(safe-area-inset-left,0px))}
@@ -176,7 +177,10 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .qpanel .q{margin-bottom:0}
 #play.wm .qpanel .q{font-size:20px}
 #play.wm .qpanel .q .big{font-size:28px;margin:4px 0 0}
-#play.wm .cbtn{display:none}
+#play.wm .cbtn,#play.wo .cbtn{display:none}
+#play.wo .qpanel{position:sticky;top:0;z-index:5}
+.wopen{margin-top:14px;font-size:17px;padding:12px}
+#wslot .work{margin-top:14px;scroll-margin-top:12px}
 .qpanel.tap .tn{border-bottom:3px dashed var(--gold);cursor:pointer;border-radius:4px}
 .qpanel.tap .tn:active{background:var(--gold);color:#2A1D00}
 .opt[disabled]{opacity:.75;cursor:default}
@@ -1106,14 +1110,16 @@ function hookInput(){const i=$('typeIn');if(!i)return;i.oninput=()=>{const b=$('
 
 function renderItem(){
   const it=S.items[S.i];S.sel=null;S.locked=false;S.fixing=false;S.goes=2;S.fixGoes=2;
-  restoreCalc();$('play').classList.toggle('qp',it.kind==='q');$('play').classList.toggle('wm',it.kind==='q'&&it.typed);
+  restoreCalc();$('play').classList.toggle('qp',it.kind==='q');$('play').classList.toggle('wm',it.kind==='q'&&it.typed);$('play').classList.remove('wo');
   $('fill').style.width=(S.i/S.items.length*100)+'%';
   const stg=$('stage');
   if(it.kind==='q'){
     const head=`<div class="qpanel" id="qpanel"><div class="eyebrow">${it.d.topic}${it.typed?' · type it in':''}</div><div class="q">${it.d.q}</div></div>`;
     if(it.typed){stg.innerHTML=head+workHTML(st.calc);wireWork(st.calc);askDock(it);return}
-    stg.innerHTML=head+`<div class="opts">${it.d.options.map((o,k)=>`<button class="opt" data-k="${k}" aria-pressed="false">${o}</button>`).join('')}</div>`;
+    stg.innerHTML=head+`<div class="opts">${it.d.options.map((o,k)=>`<button class="opt" data-k="${k}" aria-pressed="false">${o}</button>`).join('')}</div><div id="wslot"><button type="button" class="btn ghost wopen" id="wopen">✏️ Work it out</button></div>`;
     stg.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(b,'.opt'));
+    $('wopen').onclick=()=>{calcOpen(false);$('play').classList.add('wo');$('wslot').innerHTML=workHTML(st.calc);wireWork(st.calc);
+      requestAnimationFrame(()=>{const w=$('work');w.style.scrollMarginTop=($('qpanel').offsetHeight+10)+'px';w.scrollIntoView({block:'start'})})};
     setDock('','',[{t:'Check',dis:true,id:'checkBtn',fn:check}]);
   } else if(it.kind==='m'){
     stg.innerHTML=`<div class="eyebrow">Spot the mistake · ${it.d.topic}</div><div class="q">${it.d.title}<span class="hint">Tap the line that's wrong</span></div><div class="steps">${it.d.steps.map((s,k)=>`<button class="step" data-k="${k}" aria-pressed="false"><em>${k+1}</em><span>${s}</span></button>`).join('')}</div><div id="fixArea"></div>`;
@@ -1228,7 +1234,7 @@ function wrapNums(el){
 }
 function wireWork(calcQ){
   Object.assign(W,{strokes:[],cur:null,mode:'pen',extra:0,jl:[''],cells:Array(WC*WR).fill(''),sel:0});wcv.classList.remove('move');
-  const qp=$('qpanel');wrapNums(qp);
+  const qp=$('qpanel');if(!qp.querySelector('.tn'))wrapNums(qp.querySelector('.q'));
   qp.onclick=e=>{const t=e.target.closest('.tn');if(t&&W.tab===1)jot(' '+t.dataset.n+' ')};
   $('wtabs').onclick=e=>{const b=e.target.closest('button');if(b)wtab(+b.dataset.t)};
   $('wtools').onclick=e=>{const b=e.target.closest('button');if(!b)return;
@@ -1246,6 +1252,7 @@ function wtab(t){W.tab=t;const p=$('wpaper');
   else if(t===2){p.innerHTML='<div class="wgrid" id="wgrid"></div>';drawSq()}else{p.appendChild(document.querySelector('.cpad-in'));cshow()}
   fitWork()}
 function fitWork(){const p=$('wpaper');if(!p||$('play').hidden)return;
+  if(!$('play').classList.contains('wm')){p.style.height=(W.tab===3?290:260)+'px';if(W.tab===0)sizeCv();return}
   let below=12;['wtools','wkeys'].forEach(id=>{const e=$(id);if(e&&!e.hidden)below+=e.offsetHeight+8});
   const dock=$('dock').hidden?0:$('dock').offsetHeight;
   const h=window.innerHeight-(p.getBoundingClientRect().top+window.scrollY)-below-dock;
