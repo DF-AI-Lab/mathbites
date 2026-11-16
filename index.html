@@ -315,9 +315,9 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .srow form{display:flex;gap:8px}
 .srow input{flex:1;min-width:0;font:inherit;font-size:17px;padding:10px 12px;border:2px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink)}
 .srow .btn{width:auto;padding:10px 18px;font-size:16px}
-.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:var(--paper);border:2px solid var(--line);border-radius:14px;padding:4px}
+.seg{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;background:var(--paper);border:2px solid var(--line);border-radius:14px;padding:4px}
 .seg button{border:0;background:none;color:var(--ink);font:inherit;font-weight:700;padding:9px 0;border-radius:10px;cursor:pointer}
-.seg button:nth-child(2){font-size:13px}.seg button:nth-child(3){font-size:16px}.seg button:nth-child(4){font-size:21px}
+.seg button:nth-child(2){font-size:10px}.seg button:nth-child(3){font-size:12px}.seg button:nth-child(4){font-size:14px}.seg button:nth-child(5){font-size:17px}.seg button:nth-child(6){font-size:21px}
 .seg button[aria-pressed="true"]{background:var(--blue);color:#fff}
 .srow small{display:block;color:var(--soft);margin-top:6px;font-size:13px}
 .ver{text-align:center;color:var(--soft);font-size:13px;margin:0}
@@ -433,7 +433,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 <dialog class="sheet" id="sheet" aria-label="Settings"><div class="sheet-in">
   <h2>Settings <button type="button" id="sheetX" aria-label="Close">×</button></h2>
   <div class="srow"><b>Your name</b><form id="setName"><input id="setNameIn" maxlength="20" placeholder="Your first name" aria-label="Your name"><button class="btn gold" type="submit">Save</button></form><small>🔒 Only saved on this phone.</small></div>
-  <div class="srow"><b>Text size</b><div class="seg" id="tsSeg" role="group" aria-label="Text size"><button type="button" data-v="auto">Auto</button><button type="button" data-v="small">A</button><button type="button" data-v="normal">A</button><button type="button" data-v="large">A</button></div><small id="tsNote">Auto fits the text to your screen.</small></div>
+  <div class="srow"><b>Text size</b><div class="seg" id="tsSeg" role="group" aria-label="Text size"><button type="button" data-v="auto">Auto</button><button type="button" data-v="xxsmall" aria-label="Smallest">A</button><button type="button" data-v="xsmall" aria-label="Extra small">A</button><button type="button" data-v="small" aria-label="Small">A</button><button type="button" data-v="normal" aria-label="Normal">A</button><button type="button" data-v="large" aria-label="Large">A</button></div><small id="tsNote">Auto fits the text to your screen.</small></div>
   <div class="srow"><button class="btn ghost danger" id="reset" type="button">Reset my progress</button><small>Clears scores, streaks and weak topics. Your name stays.</small></div>
   <p class="ver" id="ver"></p>
 </div></dialog>
@@ -1569,9 +1569,9 @@ addEventListener('resize',()=>fitWork());
 if(document.fonts)document.fonts.ready.then(()=>fitWork());
 
 /* ---------- settings ---------- */
-const VERSION='1.10.0',VDATE='14 Nov 2026';
+const VERSION='1.11.0',VDATE='16 Nov 2026';
 function autoTs(){const w=innerWidth,h=innerHeight;return h<640||w<360?.78:h<760||w<400?.85:.92}
-function applyTs(){const f={small:.85,normal:1,large:1.15}[st.ts]||autoTs();document.documentElement.style.setProperty('--ts',f);if($('play')&&!$('play').hidden)requestAnimationFrame(fitWork)}
+function applyTs(){const f={xxsmall:.65,xsmall:.75,small:.85,normal:1,large:1.15}[st.ts]||autoTs();document.documentElement.style.setProperty('--ts',f);if($('play')&&!$('play').hidden)requestAnimationFrame(fitWork)}
 function openSettings(){
   $('setNameIn').value=st.name||'';$('ver').textContent=`Number Bites · version ${VERSION} · ${VDATE}`;
   $('tsSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===(st.ts||'auto'))));
