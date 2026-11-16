@@ -19,11 +19,11 @@ Bite-size maths practice for **Functional Skills Maths Level 2**. Do 3–15 minu
 - **App icon** top left on home; on the question screen it takes you home (asks first if you are mid-round)
 - **Settings (⋮)**: change name, text size (Auto, or 5 sizes from extra tiny to large), reset progress, version number
 - **Answer bar**: answer box and Check on one line, and tabs go Jotter, Squares, Scribble, Calc
-- **Spot the mistake**: after you check, every line says why it is right or wrong
+- **Spot the mistake**: after you check, every line says why it is right or wrong, and a green "The right way, step by step" card shows the full working and answer
 - **Squares = column maths**: numbers line up on the right, = draws a double answer line, answer fills right to left, Carry adds small slanted carry digits in any square you tap; digits in the row under the answer become small carries and the box jumps back up
 - **Squares builds itself**: + − × ÷ starts the next row with the sign next to the number, = draws a line that only covers the columns used, and a "Use answer" button on the left puts the answer in the box (or picks the matching option)
 - **Short pick 'em answers** show 2 × 2
-- **Version** shows under the logo (v1.11.0)
+- **Version** shows under the logo (v1.12.0)
 - **Get it wrong → see the formula**: the formula card for that topic pops up
 - **Calculator mode**: a compact on-screen calculator. Its "Put in answer" button drops the result into the box
 - Every question is random each time, with friendly numbers
