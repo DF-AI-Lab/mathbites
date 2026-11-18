@@ -94,6 +94,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-o
 <div class="ex">Try an example:
   <button id="ex-money" class="on" type="button">Money</button>
   <button id="ex-graph" type="button">Graph</button>
+  <button id="ex-calc" type="button">Calculator</button>
 </div>
 
 <main class="split">
@@ -157,7 +158,10 @@ const Q={
     steps:["\"How much for both\" means <b>add</b> them.","Line up the units: 148 on top, 37 underneath.","Add the units first: 8 + 7 = 15. Write 5, carry the 1.","Tens: 4 + 3 + 1 = 8. Hundreds: 1. Answer £185."]},
   graph:{tag:"Graphs · calculator allowed",q:"The graph shows the temperature on a day out. How much warmer was it at 2pm than at 10am?",calc:true,graph:true,
     clue:"<b>Where to start:</b> you need two numbers off the graph. Tap 10am, then tap 2pm, and write both down.",
-    steps:["Find 10am on the bottom. Go up to the line, then across. It's 12°C.","Find 2pm. Up to the line, then across. It's 19°C.","\"How much warmer\" means take away: 19 − 12.","Answer: 7°C warmer."]}
+    steps:["Find 10am on the bottom. Go up to the line, then across. It's 12°C.","Find 2pm. Up to the line, then across. It's 19°C.","\"How much warmer\" means take away: 19 − 12.","Answer: 7°C warmer."]},
+  calc:{tag:"Percentages · calculator allowed",q:"A sofa costs £640. It is 15% off in a sale. What is the sale price?",calc:true,graph:false,
+    clue:"<b>Where to start:</b> find 15% of £640 first. On the calculator: 640 × 15 ÷ 100.",
+    steps:["15% off means work out 15% of the price, then take it away.","640 × 15 ÷ 100 = 96. So £96 off.","Take it away: 640 − 96.","Answer: £544. Tip: quick way is 640 × 0.85."]}
 };
 let cur="money", shown=0;
 
@@ -183,14 +187,14 @@ $("gsvg").addEventListener("click",e=>{
 
 function show(k){
   cur=k; shown=0; const d=Q[k];
-  $("ex-money").classList.toggle("on",k==="money"); $("ex-graph").classList.toggle("on",k==="graph");
+  ["money","graph","calc"].forEach(x=>$("ex-"+x).classList.toggle("on",k===x));
   $("tag").textContent=d.tag; $("q").textContent=d.q;
-  $("graph").hidden=!d.graph; $("sum").hidden=d.graph;
+  $("graph").hidden=!d.graph; $("sum").hidden=k!=="money";
   $("clue").hidden=true; $("steps").hidden=true; $("answer").value="";
   $("calc").classList.toggle("off",!d.calc); $("calcNote").textContent=d.calc?"Allowed":"Not allowed on this one";
   picks=[]; $("read").textContent=""; drawGraph([]);
 }
-$("ex-money").onclick=()=>show("money"); $("ex-graph").onclick=()=>show("graph");
+$("ex-money").onclick=()=>show("money"); $("ex-graph").onclick=()=>show("graph"); $("ex-calc").onclick=()=>show("calc");
 $("clueBtn").onclick=()=>{$("clue").innerHTML=Q[cur].clue;$("clue").hidden=false};
 function renderSteps(){
   const st=Q[cur].steps; let h="<b>Step by step</b>";
