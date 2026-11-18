@@ -1,114 +1,217 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Math Bites mock</title>
+<title>Math Bites Fold Mock</title>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:wght@600;800&family=Caveat:wght@600&display=swap" rel="stylesheet">
 <style>
+/* Layout: question + help on the left, working area (pad + calc) on the right; stacks when narrow */
 :root{
   --paper:#F3F6FB; --grid:#DDE5F2; --card:#FFFFFF; --ink:#1B2440; --soft:#5B6584;
-  --line:#CBD5E6; --blue:#2F5BEA; --blue-d:#1E3FB0; --gold:#FFB627; --gold-d:#C98500;
-  --good:#1C8F5A; --good-bg:#DDF5E8; --sel:#E5ECFF;
-  --display:"Bricolage Grotesque", system-ui, sans-serif;
+  --line:#CBD5E6; --blue:#2F5BEA; --blue-d:#1E3FB0; --gold:#FFB627; --gold-d:#A86F00;
+  --good:#1C8F5A; --good-bg:#DDF5E8; --sel:#E5ECFF; --clue-bg:#FFF4DA;
+  --display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
   --body:"Atkinson Hyperlegible", Verdana, system-ui, sans-serif;
-  --hand:"Caveat", cursive;
+  --hand:"Caveat","Comic Sans MS",cursive;
 }
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#0F1529;--grid:#1A2340;--card:#18213F;--ink:#E9EDF8;--soft:#A2ACC8;--line:#2E3A60;--blue:#7C9BFF;--blue-d:#9DB4FF;--gold:#FFC757;--gold-d:#FFC757;--good:#45D394;--good-bg:#123A2A;--sel:#24305A;--clue-bg:#3A2E12;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0F1529;--grid:#1A2340;--card:#18213F;--ink:#E9EDF8;--soft:#A2ACC8;--line:#2E3A60;--blue:#7C9BFF;--blue-d:#9DB4FF;--gold:#FFC757;--gold-d:#FFC757;--good:#45D394;--good-bg:#123A2A;--sel:#24305A;--clue-bg:#3A2E12;color-scheme:dark}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%}
-body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;
-  display:flex;flex-direction:column}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;display:flex;flex-direction:column}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 
-/* top bar */
 .top{display:flex;align-items:center;gap:14px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--card)}
 .icon{width:36px;height:36px;border-radius:10px;background:var(--blue);color:#fff;display:grid;place-items:center;font-family:var(--display);font-weight:800}
 .bar{flex:1;height:10px;border-radius:99px;background:var(--grid);overflow:hidden}
 .bar i{display:block;width:40%;height:100%;background:var(--gold)}
 .count{font-family:var(--display);font-weight:800;color:var(--soft)}
+.ex{display:flex;gap:6px;padding:8px 16px;font-size:14px;color:var(--soft);align-items:center;flex-wrap:wrap}
+.ex button{border:1px solid var(--line);background:var(--card);color:var(--soft);padding:4px 12px;border-radius:99px;font-size:14px}
+.ex button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 
-/* split layout */
 .split{flex:1;display:grid;grid-template-columns:1fr;min-height:0}
-@media (min-width:700px){ .split{grid-template-columns:minmax(320px,40%) 1fr} }
-@media (min-width:1200px){ .split{grid-template-columns:420px 1fr;max-width:1400px;margin:0 auto;width:100%} }
+@media (min-width:700px){.split{grid-template-columns:minmax(320px,42%) 1fr}}
+@media (min-width:1200px){.split{grid-template-columns:440px 1fr;max-width:1500px;margin:0 auto;width:100%}}
 
-.left{padding:18px 16px;display:flex;flex-direction:column;gap:14px;overflow:auto}
-@media (min-width:700px){ .left{border-right:1px solid var(--line)} }
+.left{padding:16px;display:flex;flex-direction:column;gap:12px;overflow:auto;min-width:0}
+@media (min-width:700px){.left{border-right:1px solid var(--line)}}
 .tag{align-self:flex-start;font-size:13px;font-weight:700;color:var(--blue-d);background:var(--sel);padding:3px 10px;border-radius:99px}
-.q{font-family:var(--display);font-weight:800;font-size:24px;line-height:1.25;margin:0}
+.q{font-family:var(--display);font-weight:800;font-size:23px;line-height:1.25;margin:0;text-wrap:balance}
 .ans{display:flex;gap:10px}
 .ans input{flex:1;min-width:0;font:inherit;font-size:20px;padding:12px 14px;border:2px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink)}
-.btn{border:0;border-radius:14px;padding:12px 20px;font-family:var(--display);font-weight:800;font-size:18px;cursor:pointer}
-.btn.check{background:var(--blue);color:#fff}
-.btn.how{background:transparent;border:2px dashed var(--gold-d);color:var(--gold-d);width:100%}
+.btn{border:0;border-radius:14px;padding:12px 18px;font-family:var(--display);font-weight:800;font-size:17px}
+.check{background:var(--blue);color:#fff}
+.help{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.help .btn{background:transparent;border:2px dashed var(--gold-d);color:var(--gold-d)}
+.help .btn.how{border-style:solid;border-color:var(--line);color:var(--soft)}
+.clue{background:var(--clue-bg);border-radius:14px;padding:12px 14px}
+.clue b{font-family:var(--display)}
 .steps{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
 .steps b{font-family:var(--display)}
 .step{display:flex;gap:10px;align-items:flex-start}
-.step span{flex:none;width:24px;height:24px;border-radius:50%;background:var(--gold);color:var(--ink);display:grid;place-items:center;font-size:13px;font-weight:700}
-.step.locked{color:var(--soft);opacity:.6}
-.step.locked span{background:var(--grid)}
+.step span{flex:none;width:24px;height:24px;border-radius:50%;background:var(--gold);color:#1B2440;display:grid;place-items:center;font-size:13px;font-weight:700}
 .next{align-self:flex-start;background:var(--sel);color:var(--blue-d);font-size:15px;padding:8px 14px}
 
-.right{display:flex;flex-direction:column;min-height:0;padding:12px 16px 16px;gap:10px}
-.tabs{display:flex;gap:6px}
-.tabs button{font:inherit;font-weight:700;font-size:15px;border:1px solid var(--line);background:var(--card);color:var(--soft);padding:8px 14px;border-radius:12px}
+.graph{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px}
+.graph svg{display:block;width:100%;height:auto;touch-action:manipulation;cursor:crosshair}
+.graph .hint{font-size:13px;color:var(--soft);padding:2px 6px 4px}
+.graph .read{font-weight:700;color:var(--blue-d)}
+
+.right{display:flex;flex-direction:column;min-height:0;min-width:0;padding:12px 16px 16px;gap:10px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{font-weight:700;font-size:15px;border:1px solid var(--line);background:var(--card);color:var(--soft);padding:8px 14px;border-radius:12px}
 .tabs button.on{background:var(--blue);border-color:var(--blue);color:#fff}
-.pad{flex:1;min-height:360px;border-radius:16px;border:1px solid var(--line);
-  background-color:var(--card);
+.work{flex:1;display:grid;grid-template-rows:1fr auto;gap:10px;min-height:0}
+@media (min-width:1200px){.work{grid-template-rows:1fr;grid-template-columns:1fr 300px}}
+.padwrap{display:flex;flex-direction:column;gap:8px;min-height:300px}
+.pad{flex:1;border-radius:16px;border:1px solid var(--line);background-color:var(--card);
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
-  background-size:44px 44px;position:relative}
-.sum{position:absolute;top:44px;left:176px;font-family:var(--hand);font-size:36px;line-height:44px;color:var(--ink)}
-.sum div{display:flex}
-.sum div i{width:44px;text-align:center;font-style:normal}
+  background-size:40px 40px;position:relative;overflow:hidden}
+.sum{position:absolute;top:40px;left:120px;font-family:var(--hand);font-size:34px;line-height:40px}
+.sum div{display:flex}.sum i{width:40px;text-align:center;font-style:normal}
 .sum .ul{border-top:3px double var(--ink);border-bottom:3px double var(--ink)}
 .sum .carry{font-size:20px;line-height:20px;color:var(--blue)}
-.padtools{display:flex;gap:8px;justify-content:space-between}
+.padtools{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap}
 .padtools .btn{font-size:15px;padding:8px 14px;background:var(--sel);color:var(--blue-d)}
 .padtools .use{background:var(--good-bg);color:var(--good)}
-.note{position:fixed;right:12px;bottom:10px;font-size:12px;color:var(--soft)}
+
+.calc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.calc .head{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;color:var(--soft)}
+.screen{font-family:var(--display);font-weight:800;font-size:26px;text-align:right;background:var(--paper);border-radius:10px;padding:6px 12px;font-variant-numeric:tabular-nums;overflow:hidden}
+.keys{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+@media (min-width:1200px){.keys{grid-template-columns:repeat(4,1fr)}}
+.keys button{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:10px;padding:8px 0;font-weight:700;font-size:17px}
+.keys button.op{color:var(--blue-d)}
+.keys button.eq{background:var(--blue);color:#fff;border-color:var(--blue)}
+.calc .put{background:var(--good-bg);color:var(--good);font-size:15px;padding:8px}
+.calc.off{opacity:.45}
+[hidden]{display:none!important}
 </style>
-</head>
-<body>
+
 <header class="top">
   <div class="icon">=</div>
   <div class="bar"><i></i></div>
   <div class="count">2 / 5</div>
 </header>
+<div class="ex">Try an example:
+  <button id="ex-money" class="on" type="button">Money</button>
+  <button id="ex-graph" type="button">Graph</button>
+</div>
 
 <main class="split">
   <section class="left">
-    <div class="tag">Money · no calculator</div>
-    <h1 class="q">A shop sells a coat for £148 and a scarf for £37. How much for both?</h1>
+    <div class="tag" id="tag">Money · no calculator</div>
+    <h1 class="q" id="q">A shop sells a coat for £148 and a scarf for £37. How much for both?</h1>
+
+    <div class="graph" id="graph" hidden>
+      <svg viewBox="0 0 340 220" id="gsvg" aria-label="Temperature line graph"></svg>
+      <div class="hint">Tap a time on the graph and it draws the lines for you. <span class="read" id="read"></span></div>
+    </div>
+
     <div class="ans">
-      <input value="185" aria-label="Answer">
-      <button class="btn check">Check</button>
+      <input id="answer" aria-label="Answer" placeholder="Your answer">
+      <button class="btn check" type="button">Check</button>
     </div>
-    <button class="btn how">💡 Show me how</button>
-    <div class="steps">
-      <b>Step by step</b>
-      <div class="step"><span>1</span><div>"How much for both" means <b>add</b> them.</div></div>
-      <div class="step"><span>2</span><div>Line up the units: 148 on top, 37 underneath.</div></div>
-      <div class="step locked"><span>3</span><div>Add the units column first…</div></div>
-      <button class="btn next">Next step →</button>
+
+    <div class="help">
+      <button class="btn" id="clueBtn" type="button">🔎 Clue</button>
+      <button class="btn how" id="howBtn" type="button">Show me how</button>
     </div>
+    <div class="clue" id="clue" hidden></div>
+    <div class="steps" id="steps" hidden></div>
   </section>
 
   <section class="right">
     <div class="tabs">
-      <button class="on">Squares</button><button>Scribble</button><button>Jotter</button><button>Calc</button>
+      <button class="on" type="button">Squares</button><button type="button">Scribble</button><button type="button">Jotter</button>
     </div>
-    <div class="pad">
-      <div class="sum">
-        <div><i></i><i>1</i><i>4</i><i>8</i></div>
-        <div><i>+</i><i></i><i>3</i><i>7</i></div>
-        <div class="ul"><i></i><i>1</i><i>8</i><i>5</i></div>
-        <div class="carry"><i></i><i></i><i>1</i><i></i></div>
+    <div class="work">
+      <div class="padwrap">
+        <div class="pad">
+          <div class="sum" id="sum">
+            <div><i></i><i>1</i><i>4</i><i>8</i></div>
+            <div><i>+</i><i></i><i>3</i><i>7</i></div>
+            <div class="ul"><i></i><i>1</i><i>8</i><i>5</i></div>
+            <div class="carry"><i></i><i></i><i>1</i><i></i></div>
+          </div>
+        </div>
+        <div class="padtools">
+          <div style="display:flex;gap:8px"><button class="btn" type="button">Carry</button><button class="btn" type="button">Clear</button></div>
+          <button class="btn use" type="button">Use answer ↑</button>
+        </div>
       </div>
-    </div>
-    <div class="padtools">
-      <div style="display:flex;gap:8px"><button class="btn">Carry</button><button class="btn">Clear</button></div>
-      <button class="btn use">Use answer ↑</button>
+
+      <div class="calc" id="calc">
+        <div class="head"><span>Calculator</span><span id="calcNote">Not allowed on this one</span></div>
+        <div class="screen" id="screen">0</div>
+        <div class="keys" id="keys"></div>
+        <button class="btn put" type="button" id="put">Put in answer ↑</button>
+      </div>
     </div>
   </section>
 </main>
-</body>
-</html>
+
+<script>
+const $=id=>document.getElementById(id);
+const Q={
+  money:{tag:"Money · no calculator",q:"A shop sells a coat for £148 and a scarf for £37. How much for both?",calc:false,graph:false,
+    clue:"<b>Where to start:</b> \"for both\" is a clue word. It means put the two prices together.",
+    steps:["\"How much for both\" means <b>add</b> them.","Line up the units: 148 on top, 37 underneath.","Add the units first: 8 + 7 = 15. Write 5, carry the 1.","Tens: 4 + 3 + 1 = 8. Hundreds: 1. Answer £185."]},
+  graph:{tag:"Graphs · calculator allowed",q:"The graph shows the temperature on a day out. How much warmer was it at 2pm than at 10am?",calc:true,graph:true,
+    clue:"<b>Where to start:</b> you need two numbers off the graph. Tap 10am, then tap 2pm, and write both down.",
+    steps:["Find 10am on the bottom. Go up to the line, then across. It's 12°C.","Find 2pm. Up to the line, then across. It's 19°C.","\"How much warmer\" means take away: 19 − 12.","Answer: 7°C warmer."]}
+};
+let cur="money", shown=0;
+
+// graph
+const temps={8:9,9:10,10:12,11:14,12:16,13:18,14:19,15:18,16:16};
+const X=h=>40+(h-8)*35, Y=t=>190-t*8;
+function drawGraph(pick){
+  const s=$("gsvg"); let g="";
+  for(let t=0;t<=20;t+=5){g+=`<line x1="40" x2="320" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--grid)"/><text x="32" y="${Y(t)+4}" font-size="11" text-anchor="end" fill="var(--soft)">${t}</text>`}
+  for(let h=8;h<=16;h++){const lab=h<12?h+"am":h==12?"12pm":(h-12)+"pm";g+=`<line x1="${X(h)}" x2="${X(h)}" y1="30" y2="190" stroke="var(--grid)"/><text x="${X(h)}" y="206" font-size="10" text-anchor="middle" fill="var(--soft)">${lab}</text>`}
+  g+=`<text x="12" y="22" font-size="11" fill="var(--soft)">°C</text>`;
+  g+=`<polyline fill="none" stroke="var(--blue)" stroke-width="3" points="${Object.entries(temps).map(([h,t])=>X(+h)+","+Y(t)).join(" ")}"/>`;
+  (pick||[]).forEach(h=>{const t=temps[h];g+=`<line x1="${X(h)}" x2="${X(h)}" y1="190" y2="${Y(t)}" stroke="var(--gold-d)" stroke-width="2" stroke-dasharray="5 4"/><line x1="40" x2="${X(h)}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--gold-d)" stroke-width="2" stroke-dasharray="5 4"/><circle cx="${X(h)}" cy="${Y(t)}" r="5" fill="var(--gold)"/><text x="44" y="${Y(t)-5}" font-size="12" font-weight="700" fill="var(--gold-d)">${t}°C</text>`});
+  s.innerHTML=g;
+}
+let picks=[];
+$("gsvg").addEventListener("click",e=>{
+  const r=e.currentTarget.getBoundingClientRect(); const x=(e.clientX-r.left)/r.width*340;
+  const h=Math.max(8,Math.min(16,Math.round((x-40)/35+8)));
+  picks=[...picks.filter(p=>p!==h),h].slice(-2); drawGraph(picks);
+  $("read").textContent=picks.map(p=>(p<12?p+"am":p==12?"12pm":(p-12)+"pm")+" = "+temps[p]+"°C").join(", ");
+});
+
+function show(k){
+  cur=k; shown=0; const d=Q[k];
+  $("ex-money").classList.toggle("on",k==="money"); $("ex-graph").classList.toggle("on",k==="graph");
+  $("tag").textContent=d.tag; $("q").textContent=d.q;
+  $("graph").hidden=!d.graph; $("sum").hidden=d.graph;
+  $("clue").hidden=true; $("steps").hidden=true; $("answer").value="";
+  $("calc").classList.toggle("off",!d.calc); $("calcNote").textContent=d.calc?"Allowed":"Not allowed on this one";
+  picks=[]; $("read").textContent=""; drawGraph([]);
+}
+$("ex-money").onclick=()=>show("money"); $("ex-graph").onclick=()=>show("graph");
+$("clueBtn").onclick=()=>{$("clue").innerHTML=Q[cur].clue;$("clue").hidden=false};
+function renderSteps(){
+  const st=Q[cur].steps; let h="<b>Step by step</b>";
+  for(let i=0;i<shown;i++)h+=`<div class="step"><span>${i+1}</span><div>${st[i]}</div></div>`;
+  if(shown<st.length)h+=`<button class="btn next" type="button" id="nextBtn">${shown?"Next step →":"First step →"}</button>`;
+  $("steps").innerHTML=h; $("steps").hidden=false;
+  const n=$("nextBtn"); if(n)n.onclick=()=>{shown++;renderSteps()};
+}
+$("howBtn").onclick=()=>{if(!shown)shown=1;renderSteps()};
+
+// calc
+let expr="";
+const K=["7","8","9","÷","C","4","5","6","×","⌫","1","2","3","−","(","0",".","=","+",")"];
+$("keys").innerHTML=K.map(k=>`<button type="button" class="${k==="="?"eq":/[÷×−+C⌫()]/.test(k)?"op":""}">${k}</button>`).join("");
+$("keys").onclick=e=>{
+  const k=e.target.textContent; if(e.target.tagName!=="BUTTON"||!Q[cur].calc)return;
+  if(k==="C")expr=""; else if(k==="⌫")expr=expr.slice(0,-1);
+  else if(k==="="){try{const v=Function("return ("+expr.replace(/×/g,"*").replace(/÷/g,"/").replace(/−/g,"-")+")")();expr=String(Math.round(v*1e8)/1e8)}catch{expr="Error"}}
+  else expr=(expr==="Error"?"":expr)+k;
+  $("screen").textContent=expr||"0";
+};
+$("put").onclick=()=>{if(Q[cur].calc&&expr&&expr!=="Error")$("answer").value=expr};
+show("money");
+</script>
