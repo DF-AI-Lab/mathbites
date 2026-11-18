@@ -333,6 +333,58 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .top{flex-wrap:wrap;row-gap:10px}.chips{margin-left:auto}.brandwrap{flex:none}
 @media (max-width:420px){.brand{font-size:20px}.logo{width:32px;height:32px}.brandwrap{gap:7px}.chip{padding:3px 7px;gap:3px}.dots{width:32px;height:32px}}
 @media (max-width:360px){.brand{font-size:18px}.logo{width:28px;height:28px}.chip svg{width:14px;height:14px}.chips{gap:4px}}
+
+/* ---------- v2: help, graph, calc mix, split screen ---------- */
+.seg3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:3px;flex:none}
+.seg3 button{border:0;background:none;color:var(--ink);font-weight:700;font-size:14px;padding:6px 10px;border-radius:9px}
+.seg3 button[aria-pressed="true"]{background:var(--blue);color:#fff}
+.tag.cok{background:var(--gold);border-color:var(--gold-d);color:#2A1D00}
+.helpbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.hbtn{border:2px solid var(--line);background:var(--card);color:var(--soft);border-radius:12px;padding:8px;font-family:var(--display);font-weight:800;font-size:15px}
+.hbtn.clue{border:2px dashed var(--gold-d);color:var(--gold-d)}
+#helpout{display:grid;gap:8px;margin-top:8px}
+#helpout:empty{display:none}
+.cluebox{background:var(--card);border:2px solid var(--gold);border-radius:14px;padding:10px 12px;font-size:16px;line-height:1.4}
+.cluebox b,.howbox>b{font-family:var(--display)}
+.howbox{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 12px;display:grid;gap:8px;font-size:16px;line-height:1.4}
+.hstep{display:flex;gap:10px;align-items:flex-start}
+.hstep span{flex:none;width:24px;height:24px;border-radius:50%;background:var(--gold);color:#2A1D00;display:grid;place-items:center;font-size:13px;font-weight:700}
+.hnext{justify-self:start;border:0;background:var(--sel);color:var(--blue);border-radius:10px;padding:7px 14px;font-weight:700}
+.howbox small{color:var(--soft);font-size:12px}
+.lgwrap{display:block;margin:8px 0 10px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:6px;font-family:var(--body);font-weight:400}
+.lg{display:block;width:100%;max-width:520px;height:auto;cursor:crosshair;touch-action:manipulation}
+.lghint{display:block;font-size:13px;color:var(--soft);padding:0 4px 2px;line-height:1.35}
+.lgread{color:var(--blue)}
+.wcalc{display:none}
+.wclabel{font-size:12px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.08em;padding:6px 10px 0}
+
+/* split screen: Fold open, tablet, PC */
+.app.split{max-width:1500px;height:100%;padding-block:10px 12px;box-sizing:border-box}
+#play.split{height:100%;display:grid;grid-template-columns:minmax(340px,42%) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);column-gap:18px}
+#play.split .bar{grid-column:1/-1;margin:0 0 10px!important;padding:0!important;background:none!important}
+#play.split #stage{display:contents}
+#play.split .qcol{overflow:auto;min-height:0;padding-right:16px;border-right:2px solid var(--line);padding-bottom:12px}
+#play.split .wcol{min-height:0;min-width:0}
+#play.split .qpanel{position:static;margin:0 0 12px;border:2px solid var(--line);border-bottom-color:var(--gold);border-radius:18px;padding:12px 14px}
+#play.split .q{font-size:calc(22px*var(--ts))}
+#play.split #wslot .work{margin-top:0}
+#play.split .dock{position:static;margin-top:12px;border:2px solid var(--line);border-radius:18px;padding:12px}
+#play.split .dock.good{border-color:var(--good)}#play.split .dock.bad{border-color:var(--bad)}
+#play.split .dock-in{max-width:none}
+#play.split .wgrid{grid-template-columns:repeat(9,minmax(0,52px));justify-content:center}
+#play.split .wcalc{display:block;background:var(--card);border:2px solid var(--line);border-radius:14px}
+#play.split .wcalc .cpad-in{padding:8px;max-width:none}
+#play.split .qcol .wcalc{margin-top:12px}
+#play:not(.split) .qpanel:has(.lg){position:static}
+#play.split .work.withcalc{display:flex;flex-direction:column;gap:10px}
+.wmain{display:flex;flex-direction:column;gap:8px;min-width:0}
+#play:not(.split) .qcol,#play:not(.split) .wcol{display:contents}
+@media (min-width:1150px){
+  #play.split .work.withcalc{flex-direction:row;align-items:flex-start}
+  #play.split .work.withcalc .wmain{flex:1}
+  #play.split .wcalc{width:330px;flex:none}
+  #play.split .wcalc .cgrid button{padding:12px 0;font-size:19px}
+}
 </style>
 
 <div class="app">
@@ -390,8 +442,8 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
   <div class="weak" id="weak"></div>
 
   <div class="toggle">
-    <div><b>Calculator</b><span id="calcSub">Off: no-calculator paper practice</span></div>
-    <button class="switch" id="calc" role="switch" aria-checked="false" aria-label="Calculator allowed"></button>
+    <div><b>Calculator</b><span id="calcSub">Mix: some questions with, some without</span></div>
+    <div class="seg3" id="cmode" role="group" aria-label="Calculator questions"><button type="button" data-v="off">Off</button><button type="button" data-v="mix">Mix</button><button type="button" data-v="on">On</button></div>
   </div>
 
   <p class="label">In the mix so far</p>
@@ -696,6 +748,90 @@ function gSequence(c){
     ...opts(ans,[10*d,d*(10+k),ans+d],num),why:`Put n = 10: ${d} × 10 = ${10*d}${k?` ${k>0?'+':'−'} ${Math.abs(k)}`:''} = ${ans}`};
 }
 const QGENS=[gPercent,gFraction,gRatio,gBidmas,gArea,gPerim,gVolume,gAverage,gSpeed,gConvert,gNegative,gBestBuy,gProb,gTime,gScale,gMedian,gModeRange,gChart,gAngle,gFormula,gSequence];
+
+
+/* ---------- line graph you can tap to read ---------- */
+const hLab=h=>h<12?h+'am':h===12?'12pm':(h-12)+'pm';
+function gLine(c){
+  const kind=R(0,1);let hs,vals,unit,name,ymax,major,minor;
+  if(kind===0){hs=[8,9,10,11,12,13,14,15,16];let v=R(5,10),peak=R(13,15);vals=hs.map(h=>{const x=v;v+=h<peak?R(1,3):-R(1,3);return Math.max(1,x)});unit='°C';name='Temperature on a day out';ymax=25;major=5;minor=1}
+  else{hs=[7,8,9,10,11,12,13,14,15];let v=100;vals=hs.map(()=>{const x=v;v=Math.max(5,v-5*R(1,3));return x});unit='%';name='Phone battery left';ymax=100;major=20;minor=5}
+  const W0=40,W1=330,H0=24,H1=190,X=i=>W0+i*(W1-W0)/(hs.length-1),Y=v=>H1-v/ymax*(H1-H0);
+  let g='';for(let v=0;v<=ymax;v+=minor){const mj=v%major===0;g+=`<line x1="${W0}" x2="${W1}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--${mj?'line':'grid'})"/>`+(mj?`<text x="${W0-6}" y="${Y(v)+4}" font-size="11" text-anchor="end" fill="var(--soft)">${v}</text>`:'')}
+  hs.forEach((h,i)=>{g+=`<line x1="${X(i)}" x2="${X(i)}" y1="${H0}" y2="${H1}" stroke="var(--grid)"/><text x="${X(i)}" y="${H1+15}" font-size="10" text-anchor="middle" fill="var(--soft)">${hLab(h)}</text>`});
+  g+=`<text x="6" y="14" font-size="11" fill="var(--soft)">${unit}</text><polyline fill="none" stroke="var(--blue)" stroke-width="3" stroke-linejoin="round" points="${vals.map((v,i)=>X(i)+','+Y(v)).join(' ')}"/>`;
+  vals.forEach((v,i)=>{g+=`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="var(--blue)"/>`});
+  const data=JSON.stringify({x:hs.map((h,i)=>X(i)),y:vals.map(Y),v:vals,l:hs.map(hLab),u:unit,w0:W0}).replace(/"/g,'&quot;');
+  const svg=`<span class="lgwrap"><svg class="lg" viewBox="0 0 340 215" role="img" aria-label="${name} line graph" data-g="${data}">${g}<g class="lgpick"></g></svg><span class="lghint">Tap a time and it reads the graph for you. <b class="lgread"></b></span></span>`;
+  const f=v=>num(v)+unit;let i=R(1,hs.length-2),j;
+  if(R(0,1)===0)return {topic:'Line graphs',q:`<b>${name}</b>${svg}What was it at <b>${hLab(hs[i])}</b>?`,...opts(vals[i],[vals[i-1],vals[i+1],vals[i]+minor],f),why:`Find ${hLab(hs[i])} on the bottom. Go up to the line, then across to the side. It's ${f(vals[i])}`};
+  do{j=R(0,hs.length-1)}while(j===i||vals[j]===vals[i]);if(vals[i]<vals[j])[i,j]=[j,i];const df=vals[i]-vals[j];
+  return {topic:'Line graphs',q:`<b>${name}</b>${svg}How much ${kind?'more battery was there':'warmer was it'} at <b>${hLab(hs[i])}</b> than at <b>${hLab(hs[j])}</b>?`,...opts(df,[vals[i],vals[j],vals[i]+vals[j]],f),
+    why:`Read ${hLab(hs[i])}: it's ${f(vals[i])}. Read ${hLab(hs[j])}: it's ${f(vals[j])}. Take away: ${vals[i]} − ${vals[j]} = ${f(df)}`};
+}
+QGENS.push(gLine);
+function wireGraph(svg){
+  const d=JSON.parse(svg.dataset.g),pk=svg.querySelector('.lgpick'),rd=svg.parentElement.querySelector('.lgread');let picks=[];
+  svg.addEventListener('click',e=>{e.stopPropagation();const r=svg.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*340;
+    let i=0;d.x.forEach((v,k)=>{if(Math.abs(v-x)<Math.abs(d.x[i]-x))i=k});picks=[...picks.filter(p=>p!==i),i].slice(-2);
+    pk.innerHTML=picks.map(i=>`<line x1="${d.x[i]}" x2="${d.x[i]}" y1="190" y2="${d.y[i]}" stroke="var(--gold-d)" stroke-width="2" stroke-dasharray="5 4"/><line x1="${d.w0}" x2="${d.x[i]}" y1="${d.y[i]}" y2="${d.y[i]}" stroke="var(--gold-d)" stroke-width="2" stroke-dasharray="5 4"/><circle cx="${d.x[i]}" cy="${d.y[i]}" r="6" fill="var(--gold)"/><text x="${d.w0+4}" y="${d.y[i]-5}" font-size="12" font-weight="700" fill="var(--gold-d)">${d.v[i]}${d.u}</text>`).join('');
+    rd.textContent=picks.map(i=>`${d.l[i]} = ${d.v[i]}${d.u}`).join(', ')});
+}
+
+/* ---------- Clue + Show me how ---------- */
+const CLUES={
+ 'Percentages':'Find 10% first (divide by 10), then build up to the % you need.',
+ 'Fractions':'Divide by the bottom number, then times by the top number.',
+ 'Ratio':'Add the ratio numbers to get the total parts. Then work out one part.',
+ 'Order of operations':'BIDMAS: brackets, then powers, then × and ÷, then + and −.',
+ 'Area':'Area is the space inside. Rectangle: length × width. Triangle: half of base × height.',
+ 'Perimeter':'Perimeter is the distance all the way round. Add every side.',
+ 'Volume':'Volume = length × width × height.',
+ 'Averages':'Mean: add up and divide by how many. Median: put in order, take the middle. Range: biggest − smallest.',
+ 'Speed, distance, time':'Draw the triangle: D on top, S and T underneath. Cover what you want.',
+ 'Converting units':'Find the swap rule first (like 100 cm = 1 m), then times or divide.',
+ 'Negative numbers':'Draw a number line and count the steps.',
+ 'Best buy':'Work out the price of ONE of each, then compare.',
+ 'Probability':'Probability = how many you want ÷ how many there are altogether.',
+ 'Probabilities add to 1':'All the chances add up to 1. Take the ones you know away from 1.',
+ 'Time':'Count up to the next full hour first. An hour is 60 minutes, not 100.',
+ 'Scale':'Times the map distance by the scale, then change the units.',
+ 'Charts and tables':'Read each number off carefully first. Write them down, then work it out.',
+ 'Line graphs':'Tap the time on the graph. Go up to the line, then across to read the number.',
+ 'Angles':'Straight line = 180°. Triangle = 180°. All the way round = 360°.',
+ 'Formulae':'Swap each letter for its number, then use BIDMAS.',
+ 'Sequences':'Find what it goes up by each time. That number goes in front of n.',
+ 'Circles':'Circumference = π × diameter. Area = π × r × r. Radius is half the diameter.',
+ 'Cylinders':'Volume = area of the circle (π × r × r) × height.',
+ 'Composite shapes':'Split it into rectangles. Find each area, then add them.',
+ 'Compound interest':'Work it out one year at a time. Each year adds interest to the new total.',
+ 'Simple interest':'Interest is the same every year: find 1 year, then times by the years.',
+ 'Percentage change':'Change ÷ original amount × 100.',
+ 'VAT':'VAT is 20%. Find 10%, double it, then add it on.',
+ 'Fractions, decimals, percentages':'Turn them all into the same kind first, like all percentages.',
+ 'Rounding and estimating':'Look at the next digit along. 5 or more rounds up.',
+ 'Coordinates':'Along the corridor (x) first, then up the stairs (y).',
+ 'Direct proportion':'Find the cost of ONE first, then times up.',
+ 'Inverse proportion':'More people means less time. Find the total work first (people × time).',
+ 'Expected outcomes':'Probability × number of tries.',
+ 'Large numbers':'Split the number into groups of 3 digits from the right.',
+ 'Scatter graphs':'Going up = positive. Going down = negative. No pattern = none.',
+ 'Budgeting':'Add up everything going out, then take it away from what comes in.',
+ 'Plans and elevations':'Plan = from above. Elevation = from the front or side.'
+};
+function showClue(){const it=S.items[S.i];$('helpout').innerHTML=`<div class="cluebox"><b>Where to start:</b> ${CLUES[it.d.topic]||'Underline the numbers and the key words. What is it actually asking for?'}</div>`+($('howbox')?$('howbox').outerHTML:'');if(S.how)renderHow()}
+function howSteps(why){
+  let p=String(why).split(/(?<=[.!])\s+(?=[A-Z0-9£½(])/).map(x=>x.trim()).filter(Boolean);
+  if(p.length===1){const q=p[0].split(/\s=\s/);if(q.length>2)p=q.map((x,i)=>i?'= '+x:x)}
+  return p;
+}
+function renderHow(){
+  const it=S.items[S.i],st2=howSteps(it.d.why),n=Math.min(S.how,st2.length);if(n>=st2.length)S.howAll=true;
+  const cl=$('helpout').querySelector('.cluebox');
+  const box=`<div class="howbox" id="howbox"><b>Step by step</b>${st2.slice(0,n).map((x,k)=>`<div class="hstep"><span>${k+1}</span><div>${x}</div></div>`).join('')}${n<st2.length?`<button type="button" class="hnext" id="hnext">${n===st2.length-1?'Show the last step':'Next step →'}</button><small>Seeing every step gives half XP.</small>`:''}</div>`;
+  $('helpout').innerHTML=(cl?cl.outerHTML:'')+box;
+  const b=$('hnext');if(b)b.onclick=()=>{S.how++;renderHow()};
+}
 
 /* ---------- spot the mistake ---------- */
 function mPercent(){
@@ -1232,8 +1368,8 @@ function renderHome(){
   $('ring').setAttribute('stroke-dashoffset',163.4*(1-g));
   $('goalText').textContent=`${st.xpToday} / 50 XP today`;
   $('goalSub').textContent=g>=1?'Daily goal hit. Anything else is a bonus.':'One round gets you most of the way.';
-  $('calc').setAttribute('aria-checked',st.calc);
-  $('calcSub').textContent=st.calc?'On: bigger numbers, calculator allowed':'Off: no-calculator paper practice';
+  const cm=st.cmode||'mix';$('cmode').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===cm)));
+  $('calcSub').textContent={off:'Off: every question is no-calculator',mix:'Mix: some with, some without, like the exam',on:'On: every question allows a calculator'}[cm];
   const topics=[...new Set(QGENS.map(g=>g(false).topic))];
   $('topics').innerHTML=topics.map(t=>`<span>${t}</span>`).join('');
   renderHello();renderProgress();
@@ -1282,7 +1418,8 @@ function cardQuiz(c){
 /* ---------- a round ---------- */
 let S=null;
 const TYPE_CHANCE=.4;
-function mkQ(g){g=g||P(QGENS);const d=g(st.calc),p=/^Which (of these|pair|one)/i.test(d.q)?null:parseAns(d.answer);return {kind:'q',g,d,typed:!!p&&Math.random()<TYPE_CHANCE,p}}
+const pickCalc=()=>{const m=st.cmode||'mix';return m==='on'?true:m==='off'?false:Math.random()<.5};
+function mkQ(g){g=g||P(QGENS);const c=pickCalc(),d=g(c),p=/^Which (of these|pair|one)/i.test(d.q)?null:parseAns(d.answer);return {kind:'q',g,d,typed:!!p&&Math.random()<TYPE_CHANCE,p,calc:c}}
 function mkM(g){g=g||P(MGENS);return {kind:'m',g,d:g()}}
 const mkC=c=>({kind:'c',d:cardQuiz(c||P(CARDS))});
 
@@ -1295,10 +1432,10 @@ function start(mode){
     items=shuffle(items)}
   else {items=shuffle([...CARDS]).slice(0,8).map(c=>mkC(c))}
   S={mode,items,i:0,first:0,firstRight:0,xp:0,retries:0};
-  show('play');$('calcTag').textContent=st.calc?'Calculator OK':'No calculator';$('calcBtn').hidden=!st.calc;
+  show('play');
   renderItem();
 }
-function show(id){if(id!=='play'){calcOpen(false);restoreCalc();$('play').classList.remove('wm','qp')}['home','play','done'].forEach(s=>$(s).hidden=s!==id);$('dock').hidden=id!=='play';window.scrollTo(0,0)}
+function show(id){if(id!=='play'){calcOpen(false);document.body.appendChild($('dock'));restoreCalc(true);$('play').classList.remove('wm','qp','split');document.querySelector('.app').classList.remove('split')}['home','play','done'].forEach(s=>$(s).hidden=s!==id);$('dock').hidden=id!=='play';window.scrollTo(0,0)}
 
 function setDock(state,fbHtml,btns){
   const d=$('dock');d.className='dock'+(state?' '+state:'');
@@ -1306,23 +1443,35 @@ function setDock(state,fbHtml,btns){
   $('dockBtns').className=btns.length>1?'pair':'';
   btns.forEach(b=>{const el=document.createElement('button');el.className='btn '+(b.cls||'');el.textContent=b.t;el.disabled=!!b.dis;el.id=b.id||'';el.onclick=b.fn;$('dockBtns').appendChild(el)});
   if(state&&!$('cpad').hidden)calcOpen(false);
-  requestAnimationFrame(()=>{if($('cpad').hidden)document.querySelector('.app').style.paddingBottom=($('dock').offsetHeight+30)+'px';fitWork()});
+  if(S&&S.split&&$('dockslot')){$('dockslot').appendChild(d);document.querySelector('.app').style.paddingBottom=''}
+  requestAnimationFrame(()=>{if(!(S&&S.split)&&$('cpad').hidden)document.querySelector('.app').style.paddingBottom=($('dock').offsetHeight+30)+'px';fitWork()});
 }
 function hookInput(){const i=$('typeIn');if(!i)return;i.oninput=()=>{const b=$('checkBtn');if(b)b.disabled=!i.value.trim()};}
 
+const WIDE=()=>innerWidth>=760&&innerHeight>=480;
+function placeWcalc(){const wc=$('wcalc');if(!wc)return;const side=innerWidth>=1150;if(side&&wc.parentElement!==$('work'))$('work').appendChild(wc);else if(!side&&wc.parentElement!==$('qcol'))$('qcol').appendChild(wc)}
 function renderItem(){
-  const it=S.items[S.i];S.sel=null;S.locked=false;S.fixing=false;S.goes=2;S.fixGoes=2;
-  restoreCalc();$('play').classList.toggle('qp',it.kind==='q');$('play').classList.toggle('wm',it.kind==='q'&&it.typed);$('play').classList.remove('wo');
+  const it=S.items[S.i];S.sel=null;S.locked=false;S.fixing=false;S.goes=2;S.fixGoes=2;S.how=0;S.howAll=false;
+  document.body.appendChild($('dock'));restoreCalc(true);
+  const split=it.kind==='q'&&WIDE();S.split=split;
+  $('play').classList.toggle('split',split);document.querySelector('.app').classList.toggle('split',split);
+  const cq=it.kind==='q'&&it.calc;
+  $('calcTag').hidden=it.kind!=='q';$('calcTag').textContent=cq?'🧮 Calculator OK':'No calculator';$('calcTag').classList.toggle('cok',cq);
+  $('calcBtn').hidden=!cq||split;$('play').classList.toggle('qp',it.kind==='q');$('play').classList.toggle('wm',it.kind==='q'&&it.typed);$('play').classList.remove('wo');
   $('fill').style.width=(S.i/S.items.length*100)+'%';
   const stg=$('stage');
   if(it.kind==='q'){
     const head=`<div class="qpanel" id="qpanel"><div class="eyebrow">${it.d.topic}${it.typed?' · type it in':''}</div><div class="q">${it.d.q}</div></div>`;
-    if(it.typed){stg.innerHTML=head+workHTML(st.calc);wireWork(st.calc);askDock(it);return}
-    const short=it.d.options.every(o=>String(o).replace(/<[^>]*>/g,'').length<=12);
-    stg.innerHTML=head+`<div class="opts${short?' two':''}">${it.d.options.map((o,k)=>`<button class="opt" data-k="${k}" aria-pressed="false">${o}</button>`).join('')}</div><div id="wslot">${workHTML(st.calc)}</div>`;
+    const help=`<div class="helpbar"><button type="button" class="hbtn clue" id="clueBtn">🔎 Clue</button><button type="button" class="hbtn" id="howBtn">Show me how</button></div><div id="helpout"></div>`;
+    const short=!it.typed&&it.d.options.every(o=>String(o).replace(/<[^>]*>/g,'').length<=12);
+    const optsH=it.typed?'':`<div class="opts${short?' two':''}">${it.d.options.map((o,k)=>`<button class="opt" data-k="${k}" aria-pressed="false">${o}</button>`).join('')}</div>`;
+    stg.innerHTML=`<div class="qcol" id="qcol">${head}${optsH}${help}<div id="dockslot"></div></div><div class="wcol" id="wslot">${workHTML(cq,split)}</div>`;
     stg.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(b,'.opt'));
-    $('play').classList.add('wo');wireWork(st.calc);
-    setDock('','',[{t:'Check',dis:true,id:'checkBtn',fn:check}]);
+    stg.querySelectorAll('svg.lg').forEach(wireGraph);
+    $('clueBtn').onclick=showClue;$('howBtn').onclick=()=>{if(!S.how)S.how=1;renderHow()};
+    if(!it.typed)$('play').classList.add('wo');
+    wireWork(cq,split);placeWcalc();
+    if(it.typed)askDock(it);else setDock('','',[{t:'Check',dis:true,id:'checkBtn',fn:check}]);
   } else if(it.kind==='m'){
     stg.innerHTML=`<div class="eyebrow">Spot the mistake · ${it.d.topic}</div><div class="q">${it.d.title}<span class="hint">Tap the line that's wrong</span></div><div class="steps">${it.d.steps.map((s,k)=>`<button class="step" data-k="${k}" aria-pressed="false"><em>${k+1}</em><span>${s}</span></button>`).join('')}</div><div id="fixArea"></div>`;
     stg.querySelectorAll('.step').forEach(b=>b.onclick=()=>pick(b,'.step'));
@@ -1356,7 +1505,7 @@ function check(){
     const ok=same(v,it.p.val);
     if(!ok&&S.goes>1){S.goes--;askDock(it,'Not quite. Check your working and have another go 💪',raw);return}
     S.locked=true;const firstTry=S.goes===2;
-    const again=score(it,ok,ok&&!firstTry?5:10,ok&&firstTry);
+    const again=score(it,ok,ok&&(!firstTry||S.howAll)?5:10,ok&&firstTry&&!S.howAll);
     return setDock(ok?'good':'bad',`<h3>${ok?(firstTry?PRAISE():'Got it on your second go! +5 XP'):`Not quite. It's ${it.d.answer}`}</h3>${ok?'':`<p class="you">You put ${esc(raw)}</p>`}<p>${it.d.why}</p>${ok?'':ruleBox(cardFor(it.d))}${again}`,[{t:'Continue',cls:ok?'good':'bad',fn:next}]);}
   if(S.sel==null||S.locked)return;
   if(it.kind==='q'&&it.d.options[S.sel]!==it.d.answer&&S.goes>1){
@@ -1366,7 +1515,7 @@ function check(){
   if(it.kind==='q'){
     const ok=it.d.options[S.sel]===it.d.answer,firstTry=S.goes===2;
     $('stage').querySelectorAll('.opt').forEach(b=>{const o=it.d.options[+b.dataset.k];if(o===it.d.answer)b.classList.add('right');else if(+b.dataset.k===S.sel)b.classList.add('wrong')});
-    const again=score(it,ok,ok&&!firstTry?5:10,ok&&firstTry);
+    const again=score(it,ok,ok&&(!firstTry||S.howAll)?5:10,ok&&firstTry&&!S.howAll);
     return setDock(ok?'good':'bad',`<h3>${ok?(firstTry?PRAISE():'Got it on your second go! +5 XP'):`Not quite. It's ${it.d.answer}`}</h3><p>${it.d.why}</p>${ok?'':ruleBox(cardFor(it.d))}${again}`,[{t:'Continue',cls:ok?'good':'bad',fn:next}]);
   }
   if(it.kind==='c'){
@@ -1438,18 +1587,18 @@ function keysHTML(t){
 const wcv=document.createElement('canvas'),wcx=wcv.getContext('2d');
 const wmore=document.createElement('button');wmore.type='button';wmore.className='wchip wmore';wmore.textContent='＋ More paper';
 wmore.onclick=()=>{W.extra+=300;sizeCv();$('wpaper').scrollTop=1e5};
-function workHTML(calcQ){
-  return `<div class="work" id="work"><div class="wtabs" role="tablist" id="wtabs"><button type="button" role="tab" data-t="1">📝 Jotter</button><button type="button" role="tab" data-t="2">▦ Squares</button><button type="button" role="tab" data-t="0">✏️ Scribble</button>${calcQ?'<button type="button" role="tab" data-t="3" class="ctab">🧮 Calc</button>':''}</div>
+function workHTML(calcQ,split){
+  return `<div class="work${split&&calcQ?' withcalc':''}" id="work"><div class="wmain"><div class="wtabs" role="tablist" id="wtabs"><button type="button" role="tab" data-t="1">📝 Jotter</button><button type="button" role="tab" data-t="2">▦ Squares</button><button type="button" role="tab" data-t="0">✏️ Scribble</button>${calcQ&&!split?'<button type="button" role="tab" data-t="3" class="ctab">🧮 Calc</button>':''}</div>
 <div class="wpaper" id="wpaper"></div>
 <div class="wtools" id="wtools"><button type="button" class="wchip on" data-m="pen">✏️ Pen</button><button type="button" class="wchip" data-m="rub">🧽 Rubber</button><button type="button" class="wchip" data-m="move">✋ Scroll</button><button type="button" class="wchip" data-a="undo">↶ Undo</button><button type="button" class="wchip" data-a="clr">Clear</button></div>
-<div class="wkeys" id="wkeys" hidden></div></div>`}
+<div class="wkeys" id="wkeys" hidden></div></div>${split&&calcQ?'<div class="wcalc" id="wcalc"><div class="wclabel">🧮 Calculator</div></div>':''}</div>`}
 function wrapNums(el){
   const tw=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest('svg,button')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
   const nodes=[];while(tw.nextNode())nodes.push(tw.currentNode);
   nodes.forEach(n=>{if(!/\d/.test(n.nodeValue))return;const f=document.createElement('span');
     f.innerHTML=esc(n.nodeValue).replace(/\d[\d,]*(?:\.\d+)?/g,m=>`<span class="tn" data-n="${m.replace(/,/g,'')}">${m}</span>`);n.replaceWith(...f.childNodes)});
 }
-function wireWork(calcQ){
+function wireWork(calcQ,split){
   Object.assign(W,{strokes:[],cur:null,mode:'pen',extra:0,jl:[''],cells:Array.from({length:WC*WR},()=>({v:'',c:''})),lines:[],signs:{},carry:false,free:false,sel:WC-1});wcv.classList.remove('move');
   const qp=$('qpanel');if(!qp.querySelector('.tn'))wrapNums(qp.querySelector('.q'));
   qp.onclick=e=>{const t=e.target.closest('.tn');if(t&&W.tab===1)jot(' '+t.dataset.n+' ')};
@@ -1458,9 +1607,9 @@ function wireWork(calcQ){
     if(b.dataset.m){W.mode=b.dataset.m;$('wtools').querySelectorAll('[data-m]').forEach(x=>x.classList.toggle('on',x===b));wcv.classList.toggle('move',W.mode==='move');$('wpaper').classList.toggle('locked',W.mode!=='move')}
     else if(b.dataset.a==='undo'){W.strokes.pop();redrawCv()}else{W.strokes=[];W.extra=0;sizeCv()}};
   $('wkeys').onclick=e=>{const b=e.target.closest('button');if(b)(W.tab===1?jot:sqKey)(b.dataset.k)};
-  wtab(calcQ?3:1);
+  wtab(split?2:calcQ?3:1);
 }
-function restoreCalc(){const ci=document.querySelector('.cpad-in');if(ci&&ci.parentElement!==$('cpad'))$('cpad').appendChild(ci)}
+function restoreCalc(force){const ci=document.querySelector('.cpad-in'),home=(!force&&$('wcalc'))||$('cpad');if(ci&&ci.parentElement!==home)home.appendChild(ci);if(home!==$('cpad'))cshow()}
 function wtab(t){W.tab=t;const p=$('wpaper');
   $('wtabs').querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',+b.dataset.t===t));
   $('wtools').hidden=t!==0;$('wkeys').hidden=!(t===1||t===2);if(t===1||t===2)$('wkeys').innerHTML=keysHTML(t);$('qpanel').classList.toggle('tap',t===1);
@@ -1469,6 +1618,9 @@ function wtab(t){W.tab=t;const p=$('wpaper');
   else if(t===2){p.innerHTML='<p class="sqhint">Type a number, then <b>+ − × ÷</b> starts the next row. <b>=</b> draws the answer line.</p><div class="wgrid" id="wgrid"></div>';drawSq()}else{p.appendChild(document.querySelector('.cpad-in'));cshow()}
   fitWork()}
 function fitWork(){const p=$('wpaper');if(!p||$('play').hidden)return;
+  if(S&&S.split){const wc=$('wcalc'),below=wc&&$('work').contains(wc)&&getComputedStyle($('work')).flexDirection==='column'?wc.offsetHeight+10:0;
+    let h=innerHeight-p.getBoundingClientRect().top-16-below;['wtools','wkeys'].forEach(id=>{const e=$(id);if(e&&!e.hidden)h-=e.offsetHeight+8});
+    p.style.height=Math.max(200,Math.floor(h))+'px';if(W.tab===0)sizeCv();return}
   if(!$('play').classList.contains('wm')){const h=window.innerHeight-(p.getBoundingClientRect().top+window.scrollY)-12-($('wtools').hidden?0:$('wtools').offsetHeight+8)-($('wkeys').hidden?0:$('wkeys').offsetHeight+8)-$('dock').offsetHeight;
     p.style.height=Math.max(W.tab===3?290:200,Math.floor(h))+'px';if(W.tab===0)sizeCv();return}
   let below=12;['wtools','wkeys'].forEach(id=>{const e=$(id);if(e&&!e.hidden)below+=e.offsetHeight+8});
@@ -1565,11 +1717,11 @@ function askDock(it,msg,keep){const g=S.goes;
   $('dock').classList.add('ask');const ab=$('fb').querySelector('.ans');if(ab){$('dockBtns').prepend(ab);$('dockBtns').className='inline'}
   hookInput();if(keep!=null){const i=$('typeIn');i.value=keep;shake(i.parentElement);try{i.focus({preventScroll:true});i.select()}catch(_){}}
   if(W.tab===3)cshow()}
-addEventListener('resize',()=>fitWork());
+addEventListener('resize',()=>{if(S&&!$('play').hidden&&!S.locked&&S.goes===2&&S.items[S.i].kind==='q'&&WIDE()!==S.split){const h=S.how;renderItem();if(h){S.how=h;renderHow()}}else{if(S&&S.split)placeWcalc();fitWork()}});
 if(document.fonts)document.fonts.ready.then(()=>fitWork());
 
 /* ---------- settings ---------- */
-const VERSION='1.10.0',VDATE='14 Nov 2026';
+const VERSION='2.0.0',VDATE='18 Nov 2026';
 function autoTs(){const w=innerWidth,h=innerHeight;return h<640||w<360?.78:h<760||w<400?.85:.92}
 function applyTs(){const f={small:.85,normal:1,large:1.15}[st.ts]||autoTs();document.documentElement.style.setProperty('--ts',f);if($('play')&&!$('play').hidden)requestAnimationFrame(fitWork)}
 function openSettings(){
@@ -1587,8 +1739,8 @@ addEventListener('resize',applyTs);applyTs();$('vtag').textContent='v'+VERSION;
 $('goQuick').onclick=()=>start('quick');
 $('goMistake').onclick=()=>start('mistake');
 $('goCards').onclick=()=>start('cards');
-$('reset').onclick=()=>{if(!confirm('Reset all your progress on this phone? Your name stays.'))return;st=Object.assign({calc:st.calc,name:st.name},{streak:0,lastDay:null,xpDay:null,xpToday:0,totalXp:0,bestStreak:0,run:0,bestRun:0,days:{},topics:{}});save();closeSettings();renderHome()};
-$('calc').onclick=()=>{st.calc=!st.calc;save();renderHome()};
+$('reset').onclick=()=>{if(!confirm('Reset all your progress on this phone? Your name stays.'))return;st=Object.assign({calc:st.calc,cmode:st.cmode,name:st.name},{streak:0,lastDay:null,xpDay:null,xpToday:0,totalXp:0,bestStreak:0,run:0,bestRun:0,days:{},topics:{}});save();closeSettings();renderHome()};
+$('cmode').onclick=e=>{const b=e.target.closest('button');if(!b)return;st.cmode=b.dataset.v;save();renderHome()};
 const goHome=()=>{show('home');renderHome()};
 $('quit').onclick=()=>{if(S&&(S.i>0||S.first>0||S.locked)){const d=$('leave');if(d.showModal)d.showModal();else if(confirm('Leave this round? You will lose your progress in this round.'))goHome()}else goHome()};
 $('leaveYes').onclick=()=>{$('leave').close();goHome()};
@@ -1617,7 +1769,7 @@ function calcOpen(o){const c=$('cpad');c.hidden=!o;document.body.classList.toggl
 $('calcBtn').onclick=()=>calcOpen($('cpad').hidden);
 document.addEventListener('keydown',e=>{
   const inInput=document.activeElement&&document.activeElement.tagName==='INPUT';
-  if((!$('cpad').hidden||($('wpaper')&&W.tab===3))&&!inInput){const m={'*':'×','x':'×','/':'÷','-':'−','Enter':'=','=':'=','Backspace':'⌫','Escape':'C','Delete':'C'};
+  if((!$('cpad').hidden||($('wpaper')&&W.tab===3)||$('wcalc'))&&!inInput){const m={'*':'×','x':'×','/':'÷','-':'−','Enter':'=','=':'=','Backspace':'⌫','Escape':'C','Delete':'C'};
     const k=m[e.key]||(/^[0-9.+%()]$/.test(e.key)?e.key:null);
     if(k){e.preventDefault();cpress(k);return}}
   if($('play').hidden)return;

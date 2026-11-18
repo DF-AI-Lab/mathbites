@@ -2,6 +2,15 @@
 
 Bite-size maths practice for **Functional Skills Maths Level 2**. Do 3–15 minutes a day, with a streak and XP.
 
+## New in v2.0
+
+- **Split screen** on a Fold (open), tablet or PC: question on the left, big working area on the right
+- **🔎 Clue**: tells you where to start, nothing more
+- **Show me how**: the working one step at a time (seeing every step gives half XP)
+- **Calculator: Off / Mix / On**. Mix gives some calculator and some non-calculator questions, like the exam
+- On a big screen the calculator sits next to your working, with "Put in answer"
+- **Line graphs**: tap a time on the graph and it draws the lines and reads the number for you
+
 ## What's in it
 
 - **Give me 5**: mixed questions, one mistake to spot and fix, and one formula card
