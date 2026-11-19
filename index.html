@@ -203,6 +203,13 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .wtabs .ctab[aria-selected="true"]{background:var(--gold);color:#2A1D00}
 .wpaper{background:var(--card);border:2px solid var(--line);border-radius:14px;overflow:auto;position:relative;min-height:120px;box-sizing:border-box}
 .wpaper.locked{overflow:hidden}
+.wbox{display:flex;gap:6px;min-width:0}
+.wbox .wpaper{flex:1;min-width:0}
+/* Scribble: drag this strip to scroll without leaving Pen */
+.wscroll{flex:none;width:30px;position:relative;background:var(--card);border:2px solid var(--line);border-radius:14px;touch-action:none;cursor:ns-resize;box-sizing:border-box}
+.wscroll[hidden]{display:none}
+.wthumb{position:absolute;left:3px;right:3px;top:3px;min-height:40px;background:var(--blue);border-radius:10px;opacity:.85}
+.wthumb::after{content:"⇕";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700}
 .wpaper canvas{display:block;width:100%;touch-action:none;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
 .wpaper canvas.move{touch-action:pan-y}
 .wmore{display:block;margin:6px auto 10px}
@@ -1466,7 +1473,7 @@ wmore.onclick=()=>{W.extra+=300;sizeCv();$('wpaper').scrollTop=1e5};
 function workHTML(calcQ,pad){
   const tabs=`<div class="wtabs" role="tablist" id="wtabs"><button type="button" role="tab" data-t="1">${pad?'':'📝 '}Jotter</button><button type="button" role="tab" data-t="2">${pad?'':'▦ '}Squares</button><button type="button" role="tab" data-t="0">${pad?'':'✏️ '}Scribble</button>${calcQ?`<button type="button" role="tab" data-t="3" class="ctab">${pad?'':'🧮 '}Calc</button>`:''}</div>`;
   return `<div class="work" id="work">${pad?`<div class="padbar"><button class="homebtn" id="padHome" aria-label="Back to home"><img src="icons/icon.svg" alt="" width="30" height="30"></button>${tabs}</div>`:tabs}
-<div class="wpaper" id="wpaper"></div>
+<div class="wbox"><div class="wpaper" id="wpaper"></div><div class="wscroll" id="wscroll" hidden role="scrollbar" aria-label="Scroll the paper" aria-orientation="vertical"><div class="wthumb" id="wthumb"></div></div></div>
 <div class="wtools" id="wtools"><button type="button" class="wchip on" data-m="pen">✏️ Pen</button><button type="button" class="wchip" data-m="rub">🧽 Rubber</button><button type="button" class="wchip" data-m="move">✋ Scroll</button><button type="button" class="wchip" data-a="undo">↶ Undo</button><button type="button" class="wchip" data-a="clr">Clear</button></div>
 <div class="wkeys" id="wkeys" hidden></div></div>`}
 function wrapNums(el){
@@ -1484,6 +1491,7 @@ function wireWork(calcQ){
     if(b.dataset.m){W.mode=b.dataset.m;$('wtools').querySelectorAll('[data-m]').forEach(x=>x.classList.toggle('on',x===b));wcv.classList.toggle('move',W.mode==='move');$('wpaper').classList.toggle('locked',W.mode!=='move')}
     else if(b.dataset.a==='undo'){W.strokes.pop();redrawCv()}else{W.strokes=[];W.extra=0;sizeCv()}};
   $('wkeys').onclick=e=>{const b=e.target.closest('button');if(b)(W.tab===1?jot:sqKey)(b.dataset.k)};
+  wireScroll();
   wtab(calcQ?3:1);
 }
 /* Scrap paper page: same tools, no question. Working is kept until you clear it. */
@@ -1500,7 +1508,7 @@ function openPad(){
 function restoreCalc(){const ci=document.querySelector('.cpad-in');if(ci&&ci.parentElement!==$('cpad'))$('cpad').appendChild(ci)}
 function wtab(t){W.tab=t;const p=$('wpaper');
   $('wtabs').querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',+b.dataset.t===t));
-  $('wtools').hidden=t!==0;$('wkeys').hidden=!(t===1||t===2);if(t===1||t===2)$('wkeys').innerHTML=keysHTML(t);if($('qpanel'))$('qpanel').classList.toggle('tap',t===1);
+  $('wtools').hidden=t!==0;$('wscroll').hidden=t!==0;$('wkeys').hidden=!(t===1||t===2);if(t===1||t===2)$('wkeys').innerHTML=keysHTML(t);if($('qpanel'))$('qpanel').classList.toggle('tap',t===1);
   p.classList.toggle('locked',t===0&&W.mode!=='move');restoreCalc();p.innerHTML='';p.scrollTop=0;
   if(t===0){p.append(wcv,wmore)}else if(t===1){p.innerHTML='<div class="wlines" id="wlines"></div>';drawJ()}
   else if(t===2){p.innerHTML='<p class="sqhint">Type a number, then <b>+ − × ÷</b> starts the next row. <b>=</b> draws the answer line.</p><div class="wgrid" id="wgrid"></div>';drawSq()}else{p.appendChild(document.querySelector('.cpad-in'));cshow()}
@@ -1515,8 +1523,20 @@ function fitWork(){const p=$('wpaper');if(!p)return;
   const dock=$('dock').hidden?0:$('dock').offsetHeight;
   const h=window.innerHeight-(p.getBoundingClientRect().top+window.scrollY)-below-dock;
   p.style.height=Math.max(W.tab===3?250:120,Math.floor(h))+'px';if(W.tab===0)sizeCv()}
+function wthumb(){const p=$('wpaper'),s=$('wscroll'),th=$('wthumb');if(!p||!s||s.hidden)return;
+  const H=s.clientHeight-6,max=p.scrollHeight-p.clientHeight,h=Math.max(40,max>0?H*p.clientHeight/p.scrollHeight:H);
+  th.style.height=h+'px';th.style.top=(3+(max>0?(H-h)*p.scrollTop/max:0))+'px'}
+function wireScroll(){const p=$('wpaper'),s=$('wscroll');let off=null;
+  const go=e=>{const r=s.getBoundingClientRect(),h=$('wthumb').offsetHeight,H=r.height-6-h,max=p.scrollHeight-p.clientHeight;
+    if(H>0&&max>0)p.scrollTop=Math.min(1,Math.max(0,(e.clientY-r.top-3-off)/H))*max};
+  s.onpointerdown=e=>{s.setPointerCapture(e.pointerId);const t=$('wthumb').getBoundingClientRect();
+    off=e.clientY>=t.top&&e.clientY<=t.bottom?e.clientY-t.top:t.height/2;go(e)};
+  s.onpointermove=e=>{if(off!=null)go(e)};
+  s.onpointerup=s.onpointercancel=()=>{off=null};
+  p.onscroll=wthumb;
+  p.addEventListener('wheel',e=>{if(W.tab===0&&p.classList.contains('locked')){p.scrollTop+=e.deltaY;e.preventDefault()}},{passive:false})}
 function sizeCv(){const p=$('wpaper');if(!p||W.tab!==0)return;const w=p.clientWidth,h=Math.max(p.clientHeight-48,120)+W.extra,d=window.devicePixelRatio||1;if(!w)return;
-  wcv.style.height=h+'px';wcv.width=w*d;wcv.height=h*d;wcx.setTransform(d,0,0,d,0,0);redrawCv()}
+  wcv.style.height=h+'px';wcv.width=w*d;wcv.height=h*d;wcx.setTransform(d,0,0,d,0,0);redrawCv();wthumb()}
 function redrawCv(){const css=getComputedStyle(document.documentElement);wcx.clearRect(0,0,wcv.width,wcv.height);
   if(!W.strokes.length&&!W.cur){wcx.fillStyle=css.getPropertyValue('--soft');wcx.font='600 26px Caveat, cursive';wcx.fillText('Draw your working here…',16,40);return}
   const ink=css.getPropertyValue('--ink');
@@ -1609,7 +1629,7 @@ addEventListener('resize',()=>fitWork());
 if(document.fonts)document.fonts.ready.then(()=>fitWork());
 
 /* ---------- settings ---------- */
-const VERSION='1.11.0',VDATE='19 Nov 2026';
+const VERSION='1.12.0',VDATE='19 Nov 2026';
 function autoTs(){const w=innerWidth,h=innerHeight;return h<640||w<360?.78:h<760||w<400?.85:.92}
 function applyTs(){const f={small:.85,normal:1,large:1.15}[st.ts]||autoTs();document.documentElement.style.setProperty('--ts',f);if($('play')&&!$('play').hidden)requestAnimationFrame(fitWork)}
 function openSettings(){
