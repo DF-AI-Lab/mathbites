@@ -238,6 +238,21 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .sqhint{margin:0;padding:6px 8px 0;font-size:12px;color:var(--soft)}
 .wpaper .cpad-in{padding:8px;max-width:none}
 .wpaper .cgrid button{padding:5px 0}
+/* scrap paper page: the paper fills the screen */
+.padbar{display:flex;gap:8px;align-items:center}
+.padbar .wtabs{flex:1}
+#pad .wtabs button{font-size:14px}
+#pad .work{gap:6px}
+#pad .wuse,#pad .sqhint,#pad .cuse{display:none!important}
+#pad .wcell.suse{visibility:hidden}
+#pad .wpaper .cpad-in{height:100%;box-sizing:border-box;grid-template-rows:auto 1fr}
+#pad .cdisp{font-size:34px;padding:10px 14px}
+#pad .cgrid{grid-auto-rows:1fr}
+#pad .cgrid button{font-size:28px;border-radius:14px}
+.mode.wide{grid-column:1/-1;flex-direction:row;align-items:center;gap:12px;border-color:var(--blue)}
+.mode.wide svg{width:34px;height:34px;flex:none}
+.mode.wide div{display:flex;flex-direction:column;gap:2px}
+body.padon .app{padding-block:8px}
 #play.wm .qpanel{position:sticky;top:0;z-index:5}
 .brow{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .blabel{font-size:12px;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--blue)}
@@ -371,6 +386,10 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
       <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.4" stroke-linejoin="round"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/></svg>
       <b>Formula cards</b><span>Pick the right rule from 5</span>
     </button>
+    <button class="mode wide" id="goPad">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
+      <div><b>Scrap paper</b><span>Jotter, Squares, Scribble and Calc</span></div>
+    </button>
   </div>
 
   <p class="label">Your progress</p>
@@ -412,6 +431,8 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
   </div></div>
   <div id="stage"></div>
 </section>
+
+<section id="pad" hidden></section>
 
 <section id="done" hidden>
   <div class="done">
@@ -1298,7 +1319,11 @@ function start(mode){
   show('play');$('calcTag').textContent=st.calc?'Calculator OK':'No calculator';$('calcBtn').hidden=!st.calc;
   renderItem();
 }
-function show(id){if(id!=='play'){calcOpen(false);restoreCalc();$('play').classList.remove('wm','qp')}['home','play','done'].forEach(s=>$(s).hidden=s!==id);$('dock').hidden=id!=='play';window.scrollTo(0,0)}
+function show(id){if(id!=='play'){calcOpen(false);restoreCalc();$('play').classList.remove('wm','qp')}
+  if(!$('pad').hidden&&id!=='pad'){padSave();$('pad').innerHTML=''}
+  if(id==='pad')$('stage').innerHTML='';
+  document.body.classList.toggle('padon',id==='pad');
+  ['home','play','pad','done'].forEach(s=>$(s).hidden=s!==id);$('dock').hidden=id!=='play';window.scrollTo(0,0)}
 
 function setDock(state,fbHtml,btns){
   const d=$('dock');d.className='dock'+(state?' '+state:'');
@@ -1438,8 +1463,9 @@ function keysHTML(t){
 const wcv=document.createElement('canvas'),wcx=wcv.getContext('2d');
 const wmore=document.createElement('button');wmore.type='button';wmore.className='wchip wmore';wmore.textContent='＋ More paper';
 wmore.onclick=()=>{W.extra+=300;sizeCv();$('wpaper').scrollTop=1e5};
-function workHTML(calcQ){
-  return `<div class="work" id="work"><div class="wtabs" role="tablist" id="wtabs"><button type="button" role="tab" data-t="1">📝 Jotter</button><button type="button" role="tab" data-t="2">▦ Squares</button><button type="button" role="tab" data-t="0">✏️ Scribble</button>${calcQ?'<button type="button" role="tab" data-t="3" class="ctab">🧮 Calc</button>':''}</div>
+function workHTML(calcQ,pad){
+  const tabs=`<div class="wtabs" role="tablist" id="wtabs"><button type="button" role="tab" data-t="1">${pad?'':'📝 '}Jotter</button><button type="button" role="tab" data-t="2">${pad?'':'▦ '}Squares</button><button type="button" role="tab" data-t="0">${pad?'':'✏️ '}Scribble</button>${calcQ?`<button type="button" role="tab" data-t="3" class="ctab">${pad?'':'🧮 '}Calc</button>`:''}</div>`;
+  return `<div class="work" id="work">${pad?`<div class="padbar"><button class="homebtn" id="padHome" aria-label="Back to home"><img src="icons/icon.svg" alt="" width="30" height="30"></button>${tabs}</div>`:tabs}
 <div class="wpaper" id="wpaper"></div>
 <div class="wtools" id="wtools"><button type="button" class="wchip on" data-m="pen">✏️ Pen</button><button type="button" class="wchip" data-m="rub">🧽 Rubber</button><button type="button" class="wchip" data-m="move">✋ Scroll</button><button type="button" class="wchip" data-a="undo">↶ Undo</button><button type="button" class="wchip" data-a="clr">Clear</button></div>
 <div class="wkeys" id="wkeys" hidden></div></div>`}
@@ -1451,8 +1477,8 @@ function wrapNums(el){
 }
 function wireWork(calcQ){
   Object.assign(W,{strokes:[],cur:null,mode:'pen',extra:0,jl:[''],cells:Array.from({length:WC*WR},()=>({v:'',c:''})),lines:[],signs:{},carry:false,free:false,sel:WC-1});wcv.classList.remove('move');
-  const qp=$('qpanel');if(!qp.querySelector('.tn'))wrapNums(qp.querySelector('.q'));
-  qp.onclick=e=>{const t=e.target.closest('.tn');if(t&&W.tab===1)jot(' '+t.dataset.n+' ')};
+  const qp=$('qpanel');if(qp){if(!qp.querySelector('.tn'))wrapNums(qp.querySelector('.q'));
+  qp.onclick=e=>{const t=e.target.closest('.tn');if(t&&W.tab===1)jot(' '+t.dataset.n+' ')}}
   $('wtabs').onclick=e=>{const b=e.target.closest('button');if(b)wtab(+b.dataset.t)};
   $('wtools').onclick=e=>{const b=e.target.closest('button');if(!b)return;
     if(b.dataset.m){W.mode=b.dataset.m;$('wtools').querySelectorAll('[data-m]').forEach(x=>x.classList.toggle('on',x===b));wcv.classList.toggle('move',W.mode==='move');$('wpaper').classList.toggle('locked',W.mode!=='move')}
@@ -1460,15 +1486,29 @@ function wireWork(calcQ){
   $('wkeys').onclick=e=>{const b=e.target.closest('button');if(b)(W.tab===1?jot:sqKey)(b.dataset.k)};
   wtab(calcQ?3:1);
 }
+/* Scrap paper page: same tools, no question. Working is kept until you clear it. */
+let PADW=null;
+const PADK=['strokes','extra','jl','cells','lines','signs','sel','tab'];
+function padSave(){PADW={};PADK.forEach(k=>PADW[k]=W[k])}
+function openPad(){
+  show('pad');$('pad').innerHTML=workHTML(true,true);
+  wireWork(true);
+  if(PADW)PADK.forEach(k=>W[k]=PADW[k]);
+  $('padHome').onclick=goHome;
+  wtab(PADW?PADW.tab:1);
+}
 function restoreCalc(){const ci=document.querySelector('.cpad-in');if(ci&&ci.parentElement!==$('cpad'))$('cpad').appendChild(ci)}
 function wtab(t){W.tab=t;const p=$('wpaper');
   $('wtabs').querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',+b.dataset.t===t));
-  $('wtools').hidden=t!==0;$('wkeys').hidden=!(t===1||t===2);if(t===1||t===2)$('wkeys').innerHTML=keysHTML(t);$('qpanel').classList.toggle('tap',t===1);
+  $('wtools').hidden=t!==0;$('wkeys').hidden=!(t===1||t===2);if(t===1||t===2)$('wkeys').innerHTML=keysHTML(t);if($('qpanel'))$('qpanel').classList.toggle('tap',t===1);
   p.classList.toggle('locked',t===0&&W.mode!=='move');restoreCalc();p.innerHTML='';p.scrollTop=0;
   if(t===0){p.append(wcv,wmore)}else if(t===1){p.innerHTML='<div class="wlines" id="wlines"></div>';drawJ()}
   else if(t===2){p.innerHTML='<p class="sqhint">Type a number, then <b>+ − × ÷</b> starts the next row. <b>=</b> draws the answer line.</p><div class="wgrid" id="wgrid"></div>';drawSq()}else{p.appendChild(document.querySelector('.cpad-in'));cshow()}
   fitWork()}
-function fitWork(){const p=$('wpaper');if(!p||$('play').hidden)return;
+function fitWork(){const p=$('wpaper');if(!p)return;
+  if(!$('pad').hidden){let below=8;['wtools','wkeys'].forEach(id=>{const e=$(id);if(e&&!e.hidden)below+=e.offsetHeight+6});
+    p.style.height=Math.max(W.tab===3?300:160,Math.floor(window.innerHeight-p.getBoundingClientRect().top-below))+'px';if(W.tab===0)sizeCv();return}
+  if($('play').hidden)return;
   if(!$('play').classList.contains('wm')){const h=window.innerHeight-(p.getBoundingClientRect().top+window.scrollY)-12-($('wtools').hidden?0:$('wtools').offsetHeight+8)-($('wkeys').hidden?0:$('wkeys').offsetHeight+8)-$('dock').offsetHeight;
     p.style.height=Math.max(W.tab===3?290:200,Math.floor(h))+'px';if(W.tab===0)sizeCv();return}
   let below=12;['wtools','wkeys'].forEach(id=>{const e=$(id);if(e&&!e.hidden)below+=e.offsetHeight+8});
@@ -1569,7 +1609,7 @@ addEventListener('resize',()=>fitWork());
 if(document.fonts)document.fonts.ready.then(()=>fitWork());
 
 /* ---------- settings ---------- */
-const VERSION='1.10.0',VDATE='14 Nov 2026';
+const VERSION='1.11.0',VDATE='19 Nov 2026';
 function autoTs(){const w=innerWidth,h=innerHeight;return h<640||w<360?.78:h<760||w<400?.85:.92}
 function applyTs(){const f={small:.85,normal:1,large:1.15}[st.ts]||autoTs();document.documentElement.style.setProperty('--ts',f);if($('play')&&!$('play').hidden)requestAnimationFrame(fitWork)}
 function openSettings(){
@@ -1587,6 +1627,7 @@ addEventListener('resize',applyTs);applyTs();$('vtag').textContent='v'+VERSION;
 $('goQuick').onclick=()=>start('quick');
 $('goMistake').onclick=()=>start('mistake');
 $('goCards').onclick=()=>start('cards');
+$('goPad').onclick=openPad;
 $('reset').onclick=()=>{if(!confirm('Reset all your progress on this phone? Your name stays.'))return;st=Object.assign({calc:st.calc,name:st.name},{streak:0,lastDay:null,xpDay:null,xpToday:0,totalXp:0,bestStreak:0,run:0,bestRun:0,days:{},topics:{}});save();closeSettings();renderHome()};
 $('calc').onclick=()=>{st.calc=!st.calc;save();renderHome()};
 const goHome=()=>{show('home');renderHome()};
@@ -1600,7 +1641,7 @@ $('home2').onclick=()=>{show('home');renderHome()};
 let cx='',cjust=false;
 const CK=['7','8','9','⌫','C','4','5','6','×','÷','1','2','3','−','+','0','.','%','(',')','='];
 $('cgrid').innerHTML=CK.map(k=>`<button type="button" data-c="${k}" class="${k==='='?'eq':/[÷×−+%()⌫C]/.test(k)?'op':''}"${k==='='?' style="grid-column:span 5"':''} aria-label="${{'⌫':'Delete','C':'Clear','−':'Minus','×':'Times','÷':'Divide'}[k]||k}">${k}</button>`).join('');
-function cshow(){$('cout').textContent=cx||'0';$('cuse').hidden=!($('typeIn')&&!$('typeIn').disabled&&cx&&/^-?[\d.]+$/.test(cx))}
+function cshow(){$('cout').textContent=cx||'0';$('cuse').hidden=!($('pad').hidden&&$('typeIn')&&!$('typeIn').disabled&&cx&&/^-?[\d.]+$/.test(cx))}
 function cpress(k){
   if(k==='C'){cx='';$('cprev').textContent='';cjust=false}
   else if(k==='⌫'){cx=cx.slice(0,-1);cjust=false}
@@ -1617,7 +1658,15 @@ function calcOpen(o){const c=$('cpad');c.hidden=!o;document.body.classList.toggl
 $('calcBtn').onclick=()=>calcOpen($('cpad').hidden);
 document.addEventListener('keydown',e=>{
   const inInput=document.activeElement&&document.activeElement.tagName==='INPUT';
-  if((!$('cpad').hidden||($('wpaper')&&W.tab===3))&&!inInput){const m={'*':'×','x':'×','/':'÷','-':'−','Enter':'=','=':'=','Backspace':'⌫','Escape':'C','Delete':'C'};
+  const wp=$('wpaper'),workOn=wp&&wp.offsetParent!==null&&!document.querySelector('dialog[open]');
+  /* PC keyboard: number keys type into Jotter and Squares too */
+  if(workOn&&(W.tab===1||W.tab===2)&&!inInput&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+    const m={'*':'×','x':'×','X':'×','/':'÷','-':'−','+':'+','=':'=','Enter':'↵','Backspace':'⌫','Delete':'⌫','.':'.'};
+    if(W.tab===1){m[' ']='space';m.ArrowRight='→'}else{m.c='carry';m.C='carry'}
+    if(!$('play').hidden)delete m.Enter;  /* in a round Enter still means Check / Next */
+    const k=m[e.key]||(/^[0-9]$/.test(e.key)?e.key:null);
+    if(k){e.preventDefault();(W.tab===1?jot:sqKey)(k);return}}
+  if((!$('cpad').hidden||(workOn&&W.tab===3))&&!inInput){const m={'*':'×','x':'×','/':'÷','-':'−','Enter':'=','=':'=','Backspace':'⌫','Escape':'C','Delete':'C'};
     const k=m[e.key]||(/^[0-9.+%()]$/.test(e.key)?e.key:null);
     if(k){e.preventDefault();cpress(k);return}}
   if($('play').hidden)return;

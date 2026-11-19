@@ -23,7 +23,9 @@ Bite-size maths practice for **Functional Skills Maths Level 2**. Do 3–15 minu
 - **Squares = column maths**: numbers line up on the right, = draws a double answer line, answer fills right to left, Carry adds small slanted carry digits in any square you tap; digits in the row under the answer become small carries and the box jumps back up
 - **Squares builds itself**: + − × ÷ starts the next row with the sign next to the number, = draws a line that only covers the columns used, and a "Use answer" button on the left puts the answer in the box (or picks the matching option)
 - **Short pick 'em answers** show 2 × 2
-- **Version** shows under the logo (v1.10.0)
+- **Scrap paper** on home: Jotter, Squares, Scribble and Calc on a full-screen page for any working out. Your working is kept until you clear it
+- **PC keyboard**: number keys and + − × ÷ = type into Jotter, Squares and Calc (Enter = new line, Backspace = delete, C = carry in Squares)
+- **Version** shows under the logo (v1.11.0)
 - **Get it wrong → see the formula**: the formula card for that topic pops up
 - **Calculator mode**: a compact on-screen calculator. Its "Put in answer" button drops the result into the box
 - Every question is random each time, with friendly numbers
