@@ -24,6 +24,15 @@ To grill and plan later.
 
 ---
 
+## 3. Reverse check (double-check answers)
+
+- After answering, the app helps you work it **backwards**
+  - e.g. 2/5 → times both by 12 → 24/60 ✅ matches the question
+- **Sense check** prompt: "Is the top less than half the bottom? Then the answer is under 1/2"
+- **Copy check**: "Did you copy the numbers right?" (e.g. 60 written as 30)
+
+---
+
 ## Parking spot (new ideas go below)
 
 -
