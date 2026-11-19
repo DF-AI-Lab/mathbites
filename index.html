@@ -158,6 +158,10 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .cgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
 .cgrid button{border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:9px;padding:7px 0;font-size:17px;font-weight:700;font-family:var(--body)}
 .cgrid button:active{transform:translateY(2px)}
+.cgrid .fn{background:var(--sel);color:var(--blue)}
+/* keypads: register on touch-down, never wait for a double-tap check */
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.cgrid button.hit,.wkeys button.hit{background:var(--gold);color:#2A1D00;border-color:var(--gold-d)}
 .cgrid .op{color:var(--blue)}
 .cgrid .eq{background:var(--blue);color:#fff;border-color:var(--blue-d)}
 .ans{display:flex;align-items:center;gap:8px;background:var(--card);border:2px solid var(--blue);border-radius:16px;padding:0 16px;font-size:calc(22px*var(--ts));font-weight:700;box-shadow:0 4px 0 var(--blue-d)}
@@ -1457,6 +1461,13 @@ function finish(){
 
 /* ---------- working out: scribble, jotter, squares, calc ---------- */
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* Keypads fire on pointerdown so fast taps on a phone are never lost.
+   Keyboard Enter/Space still works through click (detail 0). */
+function tapKeys(el,fn){
+  el.onpointerdown=e=>{if(e.button>0)return;const b=e.target.closest('button');if(!b||b.disabled)return;e.preventDefault();
+    b.classList.add('hit');setTimeout(()=>b.classList.remove('hit'),120);fn(b)};
+  el.onclick=e=>{if(e.detail!==0)return;const b=e.target.closest('button');if(b)fn(b)};
+}
 const shake=el=>{if(!el)return;el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')};
 const WC=9,WR=14,W={tab:0,strokes:[],cur:null,mode:'pen',extra:0,jl:[''],cells:[],sel:0};
 const WK=['7','8','9','+','−','⌫','4','5','6','×','÷','=','1','2','3','0','.','→'];
@@ -1490,7 +1501,7 @@ function wireWork(calcQ){
   $('wtools').onclick=e=>{const b=e.target.closest('button');if(!b)return;
     if(b.dataset.m){W.mode=b.dataset.m;$('wtools').querySelectorAll('[data-m]').forEach(x=>x.classList.toggle('on',x===b));wcv.classList.toggle('move',W.mode==='move');$('wpaper').classList.toggle('locked',W.mode!=='move')}
     else if(b.dataset.a==='undo'){W.strokes.pop();redrawCv()}else{W.strokes=[];W.extra=0;sizeCv()}};
-  $('wkeys').onclick=e=>{const b=e.target.closest('button');if(b)(W.tab===1?jot:sqKey)(b.dataset.k)};
+  tapKeys($('wkeys'),b=>(W.tab===1?jot:sqKey)(b.dataset.k));
   wireScroll();
   wtab(calcQ?3:1);
 }
@@ -1629,7 +1640,7 @@ addEventListener('resize',()=>fitWork());
 if(document.fonts)document.fonts.ready.then(()=>fitWork());
 
 /* ---------- settings ---------- */
-const VERSION='1.12.0',VDATE='19 Nov 2026';
+const VERSION='1.13.0',VDATE='19 Nov 2026';
 function autoTs(){const w=innerWidth,h=innerHeight;return h<640||w<360?.78:h<760||w<400?.85:.92}
 function applyTs(){const f={small:.85,normal:1,large:1.15}[st.ts]||autoTs();document.documentElement.style.setProperty('--ts',f);if($('play')&&!$('play').hidden)requestAnimationFrame(fitWork)}
 function openSettings(){
@@ -1659,19 +1670,31 @@ $('home2').onclick=()=>{show('home');renderHome()};
 
 /* ---------- calculator (compact, fits a folded phone's front screen) ---------- */
 let cx='',cjust=false;
-const CK=['7','8','9','⌫','C','4','5','6','×','÷','1','2','3','−','+','0','.','%','(',')','='];
-$('cgrid').innerHTML=CK.map(k=>`<button type="button" data-c="${k}" class="${k==='='?'eq':/[÷×−+%()⌫C]/.test(k)?'op':''}"${k==='='?' style="grid-column:span 5"':''} aria-label="${{'⌫':'Delete','C':'Clear','−':'Minus','×':'Times','÷':'Divide'}[k]||k}">${k}</button>`).join('');
+/* what each function key types into the sum */
+const CFN={'π':'π','x²':'²','√':'√','xʸ':'^','(−)':'-'};
+/* turn the typed sum into plain JS maths: 2π → 2*π, √9 → sqrt(9), 5² → 5**2, (−)3 is a minus number */
+function cmath(t){
+  let e=t.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/%/g,'/100');
+  e=e.replace(/([0-9.)π²])(?=[π√(])/g,'$1*').replace(/([π²)])(?=[0-9.])/g,'$1*');
+  e=e.replace(/(^|[(*/+\-^√])-(\d*\.?\d+|π)/g,'$1(-$2)');
+  e=e.replace(/²/g,'^2').replace(/π/g,'P');
+  e=e.replace(/√(\d*\.?\d+|P|\(-[^()]*\))/g,'Q($1)').replace(/√\(/g,'Q(');
+  if(!/^[0-9.+\-*/() ^PQ]+$/.test(e))throw 0;
+  e=e.replace(/\^/g,'**').replace(/P/g,'Math.PI').replace(/Q/g,'Math.sqrt');
+  return Function('"use strict";return ('+e+')')();
+}
+const CK=['π','x²','√','xʸ','(−)','7','8','9','⌫','C','4','5','6','×','÷','1','2','3','−','+','0','.','%','(',')','='];
+$('cgrid').innerHTML=CK.map(k=>`<button type="button" data-c="${k}" class="${k==='='?'eq':CFN[k]?'fn':/[÷×−+%()⌫C]/.test(k)?'op':''}"${k==='='?' style="grid-column:span 5"':''} aria-label="${{'⌫':'Delete','C':'Clear','−':'Minus','×':'Times','÷':'Divide','π':'Pi','x²':'Squared','√':'Square root','xʸ':'To the power of','(−)':'Minus number'}[k]||k}">${k}</button>`).join('');
 function cshow(){$('cout').textContent=cx||'0';$('cuse').hidden=!($('pad').hidden&&$('typeIn')&&!$('typeIn').disabled&&cx&&/^-?[\d.]+$/.test(cx))}
 function cpress(k){
   if(k==='C'){cx='';$('cprev').textContent='';cjust=false}
   else if(k==='⌫'){cx=cx.slice(0,-1);cjust=false}
-  else if(k==='='){try{const e=cx.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/%/g,'/100');
-      if(!/^[0-9.+\-*/() ]+$/.test(e))throw 0;let v=Function('"use strict";return ('+e+')')();if(!isFinite(v))throw 0;
+  else if(k==='='){try{let v=cmath(cx);if(!isFinite(v))throw 0;
       v=+v.toFixed(8);$('cprev').textContent=cx+' =';cx=String(v);cjust=true}catch(_){$('cprev').textContent='Check the sum';}}
-  else{if(cjust&&/[0-9.(]/.test(k)){cx='';$('cprev').textContent=''}cjust=false;cx+=k}
+  else{k=CFN[k]||k;if(cjust&&/[0-9.(π√-]/.test(k)){cx='';$('cprev').textContent=''}cjust=false;cx+=k}
   cshow();
 }
-$('cgrid').onclick=e=>{const b=e.target.closest('button');if(b)cpress(b.dataset.c)};
+tapKeys($('cgrid'),b=>cpress(b.dataset.c));
 $('cuse').onclick=()=>{const i=$('typeIn');if(!i||i.disabled)return;i.value=cx;i.dispatchEvent(new Event('input'))};
 function calcOpen(o){const c=$('cpad');c.hidden=!o;document.body.classList.toggle('calcon',o);$('calcBtn').setAttribute('aria-expanded',o);
   if(o){c.style.bottom=$('dock').offsetHeight+'px';cshow();document.querySelector('.app').style.paddingBottom=(c.offsetHeight+$('dock').offsetHeight+20)+'px'}else document.querySelector('.app').style.paddingBottom=''}
@@ -1686,7 +1709,7 @@ document.addEventListener('keydown',e=>{
     if(!$('play').hidden)delete m.Enter;  /* in a round Enter still means Check / Next */
     const k=m[e.key]||(/^[0-9]$/.test(e.key)?e.key:null);
     if(k){e.preventDefault();(W.tab===1?jot:sqKey)(k);return}}
-  if((!$('cpad').hidden||(workOn&&W.tab===3))&&!inInput){const m={'*':'×','x':'×','/':'÷','-':'−','Enter':'=','=':'=','Backspace':'⌫','Escape':'C','Delete':'C'};
+  if((!$('cpad').hidden||(workOn&&W.tab===3))&&!inInput){const m={'*':'×','x':'×','/':'÷','-':'−','Enter':'=','=':'=','Backspace':'⌫','Escape':'C','Delete':'C','^':'xʸ','p':'π','r':'√','s':'x²','n':'(−)'};
     const k=m[e.key]||(/^[0-9.+%()]$/.test(e.key)?e.key:null);
     if(k){e.preventDefault();cpress(k);return}}
   if($('play').hidden)return;
