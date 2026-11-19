@@ -25,10 +25,11 @@ Bite-size maths practice for **Functional Skills Maths Level 2**. Do 3–15 minu
 - **Short pick 'em answers** show 2 × 2
 - **Scrap paper** on home: Jotter, Squares, Scribble and Calc on a full-screen page for any working out. Your working is kept until you clear it
 - **Scribble scroll strip**: drag the strip on the right to move up and down the paper without leaving Pen (mouse wheel works too)
+- **Faster taps**: keypad buttons register the moment you touch them, so quick taps on a phone are never lost
 - **PC keyboard**: number keys and + − × ÷ = type into Jotter, Squares and Calc (Enter = new line, Backspace = delete, C = carry in Squares)
-- **Version** shows under the logo (v1.12.0)
+- **Version** shows under the logo (v1.13.0)
 - **Get it wrong → see the formula**: the formula card for that topic pops up
-- **Calculator mode**: a compact on-screen calculator. Its "Put in answer" button drops the result into the box
+- **Calculator mode**: a compact on-screen calculator with π, x², √, xʸ and (−) for minus numbers. Its "Put in answer" button drops the result into the box
 - Every question is random each time, with friendly numbers
 
 ## Topics
