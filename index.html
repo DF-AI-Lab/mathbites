@@ -229,6 +229,7 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .wlines{min-height:100%;padding:2px 12px 10px;box-sizing:border-box;background-image:repeating-linear-gradient(transparent 0 37px,var(--line) 37px 38px)}
 .jl{font:600 27px/38px var(--hand);color:var(--ink);display:flex;align-items:center;gap:8px}
 .jl span{flex:1;min-width:0;overflow-wrap:anywhere}
+.jl[data-i]{cursor:text}
 .jl.hint span{color:var(--soft);font-size:22px}
 .jl.cur span::after{content:"";display:inline-block;width:2px;height:24px;background:var(--gold);margin-left:3px;vertical-align:middle;animation:wblink 1s steps(1) infinite}
 @keyframes wblink{50%{opacity:0}}
@@ -1477,7 +1478,7 @@ function tapKeys(el,fn){
   el.onclick=e=>{if(e.detail!==0)return;const b=e.target.closest('button');if(b)fn(b)};
 }
 const shake=el=>{if(!el)return;el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')};
-const WC=9,WR=14,W={tab:0,strokes:[],cur:null,mode:'pen',extra:0,jl:[''],cells:[],sel:0};
+const WC=9,WR=14,W={tab:0,strokes:[],cur:null,mode:'pen',extra:0,jl:[''],jc:0,cells:[],sel:0};
 const WK=['7','8','9','+','−','⌫','4','5','6','×','÷','=','1','2','3','0','.','→'];
 const WKS=['7','8','9','+','−','⌫','4','5','6','×','÷','=','1','2','3','0','.','carry'];
 const KL={'⌫':'Delete','→':'Next square','−':'Minus','×':'Times','÷':'Divide','=':'Draw the answer line','carry':'Carry a number'};
@@ -1502,7 +1503,7 @@ function wrapNums(el){
     f.innerHTML=esc(n.nodeValue).replace(/\d[\d,]*(?:\.\d+)?/g,m=>`<span class="tn" data-n="${m.replace(/,/g,'')}">${m}</span>`);n.replaceWith(...f.childNodes)});
 }
 function wireWork(calcQ){
-  Object.assign(W,{strokes:[],cur:null,mode:'pen',extra:0,jl:[''],cells:Array.from({length:WC*WR},()=>({v:'',c:''})),lines:[],signs:{},carry:false,free:false,sel:WC-1});wcv.classList.remove('move');
+  Object.assign(W,{strokes:[],cur:null,mode:'pen',extra:0,jl:[''],jc:0,cells:Array.from({length:WC*WR},()=>({v:'',c:''})),lines:[],signs:{},carry:false,free:false,sel:WC-1});wcv.classList.remove('move');
   const qp=$('qpanel');if(qp){if(!qp.querySelector('.tn'))wrapNums(qp.querySelector('.q'));
   qp.onclick=e=>{const t=e.target.closest('.tn');if(t&&W.tab===1)jot(' '+t.dataset.n+' ')}}
   $('wtabs').onclick=e=>{const b=e.target.closest('button');if(b)wtab(+b.dataset.t)};
@@ -1515,7 +1516,7 @@ function wireWork(calcQ){
 }
 /* Scrap paper page: same tools, no question. Working is kept until you clear it. */
 let PADW=null;
-const PADK=['strokes','extra','jl','cells','lines','signs','sel','tab'];
+const PADK=['strokes','extra','jl','jc','cells','lines','signs','sel','tab'];
 function padSave(){PADW={};PADK.forEach(k=>PADW[k]=W[k])}
 function openPad(){
   show('pad');$('pad').innerHTML=workHTML(true,true);
@@ -1566,15 +1567,22 @@ wcv.onpointerdown=e=>{if(W.mode==='move')return;wcv.setPointerCapture(e.pointerI
 wcv.onpointermove=e=>{if(W.cur){W.cur.p.push(wpt(e));redrawCv()}};
 wcv.onpointerup=wcv.onpointercancel=()=>{if(W.cur){W.strokes.push(W.cur);W.cur=null;redrawCv()}};
 function putAns(n){const i=$('typeIn');if(!i||i.disabled)return;i.value=n;i.dispatchEvent(new Event('input'))}
-function jot(k){const jl=W.jl,L=jl.length-1;
-  if(k==='↵')jl.push('');else if(k==='⌫'){if(jl[L].length)jl[L]=jl[L].replace(/\s*.\s*$/,'');else if(jl.length>1)jl.pop()}
-  else if(k==='clear')W.jl=[''];else if(k==='space')jl[L]+=' ';
+function jot(k){const jl=W.jl,L=W.jc=Math.min(W.jc||0,jl.length-1);
+  if(k==='↵'){jl.splice(L+1,0,'');W.jc=L+1}
+  else if(k==='⌫'){if(jl[L].length)jl[L]=jl[L].replace(/\s*.\s*$/,'');else if(jl.length>1){jl.splice(L,1);W.jc=Math.max(0,L-1)}}
+  else if(k==='clear'){W.jl=[''];W.jc=0}else if(k==='space')jl[L]+=' ';
   else jl[L]=(jl[L]+(/[0-9.]/.test(k)||k.startsWith(' ')?k:' '+k+' ')).replace(/\s+/g,' ').replace(/^ /,'');
-  drawJ();$('wpaper').scrollTop=1e5}
+  drawJ();jcurView()}
+/* keep the selected line in view; the last line scrolls right to the bottom */
+function jcurView(){const p=$('wpaper'),c=$('wlines')&&$('wlines').querySelector('.jl.cur');if(!p||!c)return;
+  if(W.jc>=W.jl.length-1){p.scrollTop=1e5;return}
+  const pr=p.getBoundingClientRect(),cr=c.getBoundingClientRect();
+  if(cr.top<pr.top)p.scrollTop-=pr.top-cr.top+4;else if(cr.bottom>pr.bottom)p.scrollTop+=cr.bottom-pr.bottom+4}
 const lastNum=s=>{const m=s.match(/-?\d+(\.\d+)?(?!.*\d)/);return m?m[0]:null};
 function drawJ(){const el=$('wlines');if(!el)return;const jl=W.jl;
-  el.innerHTML=(jl.length===1&&!jl[0]?'<div class="jl hint"><span>Tap the numbers above, or use the keys</span></div>':'')+jl.map((l,i)=>{const n=lastNum(l);return `<div class="jl${i===jl.length-1?' cur':''}"><span>${esc(l)||'&nbsp;'}</span>${n?`<button type="button" class="wuse" data-n="${n}">use ${n} ↑</button>`:''}</div>`}).join('');
-  el.onclick=e=>{const b=e.target.closest('.wuse');if(b)putAns(b.dataset.n)}}
+  el.innerHTML=(jl.length===1&&!jl[0]?'<div class="jl hint"><span>Tap the numbers above, or use the keys</span></div>':'')+jl.map((l,i)=>{const n=lastNum(l);return `<div class="jl${i===W.jc?' cur':''}" data-i="${i}"><span>${esc(l)||'&nbsp;'}</span>${n?`<button type="button" class="wuse" data-n="${n}">use ${n} ↑</button>`:''}</div>`}).join('');
+  el.onclick=e=>{const b=e.target.closest('.wuse');if(b){putAns(b.dataset.n);return}
+    const l=e.target.closest('.jl[data-i]');if(l&&+l.dataset.i!==W.jc){W.jc=+l.dataset.i;drawJ()}}}
 /* Squares = column maths: numbers push in from the right so units line up.
    '=' draws a double line under the row; the row below is the answer row,
    filled right to left. Carry puts a small slanted digit in the current square. */
@@ -1648,7 +1656,7 @@ addEventListener('resize',()=>fitWork());
 if(document.fonts)document.fonts.ready.then(()=>fitWork());
 
 /* ---------- settings ---------- */
-const VERSION='1.14.1',VDATE='20 Nov 2026';
+const VERSION='1.14.2',VDATE='20 Nov 2026';
 function autoTs(){const w=innerWidth,h=innerHeight;return h<640||w<360?.78:h<760||w<400?.85:.92}
 function applyTs(){const f={small:.85,normal:1,large:1.15}[st.ts]||autoTs();document.documentElement.style.setProperty('--ts',f);if($('play')&&!$('play').hidden)requestAnimationFrame(fitWork)}
 function openSettings(){
