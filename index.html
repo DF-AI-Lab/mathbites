@@ -157,8 +157,15 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .cline{overflow-x:auto;white-space:nowrap;text-align:right;padding:0 10px;scrollbar-width:none;overscroll-behavior-x:contain;font-variant-numeric:tabular-nums}
 .cline::-webkit-scrollbar{display:none}
 .cprev{font-size:11px;color:var(--soft);font-weight:400;min-height:1.3em}
-.cmem{position:absolute;left:5px;top:3px;z-index:1;font-size:11px;line-height:1.4;font-weight:700;color:var(--good);background:var(--card);border:1px solid var(--good);border-radius:6px;padding:0 5px}
-.cmore{position:absolute;left:0;bottom:0;height:62%;width:30px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--blue);background:linear-gradient(90deg,var(--paper) 45%,transparent);pointer-events:none}
+/* 3 memory boxes along the top of the display: tap one to use it */
+.cmems{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:3px 4px 0}
+.cms{min-width:0;display:flex;gap:4px;align-items:baseline;justify-content:center;border:1.5px dashed var(--line);background:transparent;color:var(--soft);border-radius:7px;padding:2px 4px;font:700 13px/1.3 var(--body);cursor:pointer}
+.cms small{font-size:10px;font-weight:400;opacity:.8}
+.cms span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cms.full{border-style:solid;border-color:var(--good);background:var(--good-bg);color:var(--good)}
+.cms.full small{color:var(--soft)}
+.cms.hit{transform:translateY(1px);background:var(--gold);color:#2A1D00}
+.cmore{position:absolute;left:0;bottom:0;height:34px;width:30px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--blue);background:linear-gradient(90deg,var(--paper) 45%,transparent);pointer-events:none}
 .cuse{border:0;border-radius:10px;background:var(--good);color:#fff;font-weight:700;font-size:13px;line-height:1.2;padding:4px 10px}
 .cgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
 .cgrid .mem{font-size:15px;color:var(--good)}
@@ -266,8 +273,10 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 #pad .wpaper .cpad-in{height:100%;box-sizing:border-box;grid-template-rows:auto 1fr}
 #pad .cdisp{font-size:34px;padding:10px 14px}
 #pad .cgrid{grid-auto-rows:1fr}
-#pad .cmore{font-size:22px;width:42px}
-#pad .cmem{font-size:14px}
+#pad .cmore{font-size:22px;width:42px;height:50px}
+#pad .cms{font-size:16px;padding:4px}
+#pad .cms small{font-size:12px}
+#pad .cmems{padding:0 0 4px}
 #pad .cgrid button{font-size:28px;border-radius:14px}
 .mode.wide{grid-column:1/-1;flex-direction:row;align-items:center;gap:12px;border-color:var(--blue)}
 .mode.wide svg{width:34px;height:34px;flex:none}
@@ -446,7 +455,7 @@ body.padon .app{padding-block:8px}
     <button class="cbtn" id="calcBtn" aria-label="Open calculator" aria-expanded="false" hidden>🧮</button>
   </div>
   <div class="cpad" id="cpad" hidden><div class="cpad-in">
-    <div class="ctop"><div class="cdisp"><span class="cmem" id="cmem" hidden></span><div class="cline cprev" id="cprev"></div><div class="cline" id="cline"><span id="cout">0</span></div><span class="cmore" id="cmore" hidden aria-hidden="true">◀</span></div><button type="button" class="cuse" id="cuse" hidden>Put in<br>answer ↑</button></div>
+    <div class="ctop"><div class="cdisp"><div class="cmems" id="cmems"></div><div class="cline cprev" id="cprev"></div><div class="cline" id="cline"><span id="cout">0</span></div><span class="cmore" id="cmore" hidden aria-hidden="true">◀</span></div><button type="button" class="cuse" id="cuse" hidden>Put in<br>answer ↑</button></div>
     <div class="cgrid" id="cgrid"></div>
   </div></div>
   <div id="stage"></div>
@@ -1656,7 +1665,7 @@ addEventListener('resize',()=>fitWork());
 if(document.fonts)document.fonts.ready.then(()=>fitWork());
 
 /* ---------- settings ---------- */
-const VERSION='1.14.2',VDATE='20 Nov 2026';
+const VERSION='1.14.3',VDATE='20 Nov 2026';
 function autoTs(){const w=innerWidth,h=innerHeight;return h<640||w<360?.78:h<760||w<400?.85:.92}
 function applyTs(){const f={small:.85,normal:1,large:1.15}[st.ts]||autoTs();document.documentElement.style.setProperty('--ts',f);if($('play')&&!$('play').hidden)requestAnimationFrame(fitWork)}
 function openSettings(){
@@ -1699,15 +1708,21 @@ function cmath(t){
   e=e.replace(/\^/g,'**').replace(/P/g,'Math.PI').replace(/Q/g,'Math.sqrt');
   return Function('"use strict";return ('+e+')')();
 }
-const CK=['π','x²','√','xʸ','(−)','7','8','9','⌫','C','4','5','6','×','÷','1','2','3','−','+','0','.','%','(',')','MC','MR','M+','='];
-$('cgrid').innerHTML=CK.map(k=>`<button type="button" data-c="${k}" class="${k==='='?'eq':k[0]==='M'?'mem':CFN[k]?'fn':/[÷×−+%()⌫C]/.test(k)?'op':''}"${k==='='?' style="grid-column:span 2"':''} aria-label="${{'⌫':'Delete','C':'Clear','−':'Minus','×':'Times','÷':'Divide','π':'Pi','x²':'Squared','√':'Square root','xʸ':'To the power of','(−)':'Minus number','M+':'Add to memory','MR':'Memory recall','MC':'Memory clear'}[k]||k}">${k}</button>`).join('');
-/* memory: M+ adds the number on screen, MR puts it into the sum, MC clears it. Kept on this phone */
-let cmem=null;try{const m=localStorage.getItem('mbCalcMem');if(m!==null&&isFinite(+m))cmem=+m}catch(_){}
-function memSave(){try{cmem===null?localStorage.removeItem('mbCalcMem'):localStorage.setItem('mbCalcMem',cmem)}catch(_){}}
+const CK=['π','x²','√','xʸ','(−)','7','8','9','⌫','C','4','5','6','×','÷','1','2','3','−','+','0','.','%','(',')','MC','M+','='];
+$('cgrid').innerHTML=CK.map(k=>`<button type="button" data-c="${k}" class="${k==='='?'eq':k[0]==='M'?'mem':CFN[k]?'fn':/[÷×−+%()⌫C]/.test(k)?'op':''}"${k==='='?' style="grid-column:span 3"':''} aria-label="${{'⌫':'Delete','C':'Clear','−':'Minus','×':'Times','÷':'Divide','π':'Pi','x²':'Squared','√':'Square root','xʸ':'To the power of','(−)':'Minus number','M+':'Save to memory','MC':'Clear all memories'}[k]||k}">${k}</button>`).join('');
+/* memory: 3 boxes. M+ saves the answer into the next empty box (when all 3 are full the oldest drops off).
+   Tap a box to put that number in the sum. MC clears all 3. Kept on this phone */
+let cmem=[null,null,null];
+try{const m=JSON.parse(localStorage.getItem('mbCalcMem3'));if(Array.isArray(m))cmem=[0,1,2].map(i=>m[i]!=null&&isFinite(+m[i])?+m[i]:null);
+  else{const o=localStorage.getItem('mbCalcMem');if(o!==null&&isFinite(+o))cmem[0]=+o}}catch(_){}
+function memSave(){try{localStorage.setItem('mbCalcMem3',JSON.stringify(cmem));localStorage.removeItem('mbCalcMem')}catch(_){}}
+function crecall(i){const v=cmem[i];if(v==null){$('cprev').textContent='M'+(i+1)+' is empty';return}
+  const n=String(v);if(cjust||!cx)cx=n;else if(/[\d.]$/.test(cx))cx=cx.replace(/[\d.]+$/,n);else if(/[)π²]$/.test(cx))cx+='×'+n;else cx+=n;
+  cjust=false;crun();cshow()}
 /* show ◀ when the start of the sum is off the left edge */
 function cmoreArrow(){const b=$('cline');$('cmore').hidden=!(b.scrollWidth>b.clientWidth+2&&b.scrollLeft>2)}
 function cshow(){$('cout').textContent=cx||'0';
-  const m=$('cmem');m.hidden=cmem===null;m.textContent='M '+(cmem===null?'':cmem);
+  $('cmems').innerHTML=cmem.map((v,i)=>`<button type="button" class="cms${v==null?'':' full'}" data-i="${i}" aria-label="${v==null?'Memory '+(i+1)+' empty':'Use memory '+(i+1)+', '+v}"><small>M${i+1}</small><span>${v==null?'empty':v}</span></button>`).join('');
   for(const id of ['cline','cprev']){const b=$(id);b.scrollLeft=b.scrollWidth}cmoreArrow();$('cuse').hidden=!($('pad').hidden&&$('typeIn')&&!$('typeIn').disabled&&cx&&/^-?[\d.]+$/.test(cx))}
 /* answer so far: shown on the top line while you type, e.g. 12+5×3 shows = 27 */
 function crun(){let t=cx.replace(/[+−×÷^(.√-]+$/,'');const open=(t.match(/\(/g)||[]).length-(t.match(/\)/g)||[]).length;
@@ -1717,17 +1732,18 @@ function crun(){let t=cx.replace(/[+−×÷^(.√-]+$/,'');const open=(t.match(/
 function cpress(k){
   if(k==='C'){cx='';$('cprev').textContent='';cjust=false}
   else if(k==='⌫'){cx=cx.slice(0,-1);cjust=false;crun()}
-  else if(k==='M+'){try{const v=cx?cmath(cx):0;if(!isFinite(v))throw 0;cmem=+((cmem||0)+v).toFixed(8);memSave();
-      $('cprev').textContent=(cx||'0')+' → M';cx=String(+(+v).toFixed(8));cjust=true}catch(_){$('cprev').textContent='Check the sum'}}
-  else if(k==='MC'){cmem=null;memSave();$('cprev').textContent='Memory cleared'}
-  else if(k==='MR'){if(cmem===null)$('cprev').textContent='Memory is empty';
-    else{const n=String(cmem);if(cjust||!cx){cx=n;$('cprev').textContent=''}else cx=/[\d.]$/.test(cx)?cx.replace(/[\d.]+$/,n):cx+n;cjust=false;crun()}}
+  else if(k==='M+'){try{let t=cx.replace(/[+−×÷^(.√-]+$/,'');const o=(t.match(/\(/g)||[]).length-(t.match(/\)/g)||[]).length;if(o>0)t+=')'.repeat(o);
+      const v=cmath(t);if(!isFinite(v))throw 0;const n=+(+v).toFixed(8);let i=cmem.indexOf(null);
+      if(i<0){cmem.shift();cmem.push(n);i=2}else cmem[i]=n;memSave();
+      $('cprev').textContent=n+' → M'+(i+1);cx=String(n);cjust=true}catch(_){$('cprev').textContent=cx?'Check the sum':'Nothing to save'}}
+  else if(k==='MC'){cmem=[null,null,null];memSave();$('cprev').textContent='Memories cleared'}
   else if(k==='='){try{let v=cmath(cx);if(!isFinite(v))throw 0;
       v=+v.toFixed(8);$('cprev').textContent=cx+' =';cx=String(v);cjust=true}catch(_){$('cprev').textContent='Check the sum';}}
   else{k=CFN[k]||k;if(cjust&&/[0-9.(π√-]/.test(k)){cx='';$('cprev').textContent=''}cjust=false;cx+=k;crun()}
   cshow();
 }
 tapKeys($('cgrid'),b=>cpress(b.dataset.c));
+tapKeys($('cmems'),b=>crecall(+b.dataset.i));
 $('cline').addEventListener('scroll',cmoreArrow,{passive:true});
 $('cuse').onclick=()=>{const i=$('typeIn');if(!i||i.disabled)return;i.value=cx;i.dispatchEvent(new Event('input'))};
 function calcOpen(o){const c=$('cpad');c.hidden=!o;document.body.classList.toggle('calcon',o);$('calcBtn').setAttribute('aria-expanded',o);
