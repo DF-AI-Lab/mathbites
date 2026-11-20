@@ -29,7 +29,8 @@ Bite-size maths practice for **Functional Skills Maths Level 2**. Do 3–15 minu
 - **PC keyboard**: number keys and + − × ÷ = type into Jotter, Squares and Calc (Enter = new line, Backspace = delete, C = carry in Squares)
 - **Calc display scrolls**: long sums swipe left/right inside the display and the keypad never stretches; ◀ shows when the start is hidden
 - **Calc memory**: M+ adds the number on screen, MR puts it in the sum, MC clears it. The stored number shows as M at the top of the display
-- **Version** shows under the logo (v1.14.0)
+- **Calc answer so far**: while you type, the top of the display shows the answer so far (12+5×3 shows = 27)
+- **Version** shows under the logo (v1.14.1)
 - **Get it wrong → see the formula**: the formula card for that topic pops up
 - **Calculator mode**: a compact on-screen calculator with π, x², √, xʸ and (−) for minus numbers. Its "Put in answer" button drops the result into the box
 - Every question is random each time, with friendly numbers
