@@ -143,11 +143,80 @@ App idea: a **"guess first" box**
 
 ---
 
+## 12. Averages helper (mode, median, mean, range)
+
+Memory hooks:
+
+- **MO**de = **MO**st common 🔁 (spot the repeat, no maths)
+- **MEAN** = the "mean" one 😈 (add up ÷ how many)
+- **MED**ian = **MED**ium, the middle 🛣️ (like the median strip on a road)
+- **Range** = biggest − smallest
+
+The 4-step routine:
+
+1. Sort smallest → biggest
+2. Mode: circle the repeat
+3. Median: cross off from each end
+4. Mean: add up ÷ how many
+
+Spot the word, then pick the right tool. (Real slip: did the mean when asked for the mode)
+
+Also:
+
+- "**More than 2**" means 3 and up, not 2 (real slip: 60% instead of 25%)
+- Test numbers must give **different** answers for mode, median and mean (2, 5, 5, 8 gave 5 for all three ❌)
+
+---
+
+## 13. Median from a frequency table
+
+- **Key idea: position vs answer**
+  - Halving tells you **which spot** to look at, not the answer
+- Fast way, **running total**:
+  1. Add up the frequency column (e.g. 15)
+  2. ÷ 2, round up → spot (8th)
+  3. Add down the column, stop where you reach or pass it
+  4. Read that row → the median
+- Odd total → 1 middle spot. Even total → 2 middle spots, take halfway
+- App idea: "unpack" button that shows the table as a full list (0, 0, 1, 1, 1...)
+
+---
+
+## 14. Grouped mean (midpoint method)
+
+- **Midpoint** = middle of the group label: (1 + 15) ÷ 2 = 8
+  - Fixed for the group. Nothing to do with the people in it
+- **Frequency** = how many people
+- **Midpoint × frequency** = total for that group
+- Add the column ÷ **total people** (not the number of groups!) = mean
+- Why: the real numbers are hidden, so the midpoint stands in for each group's mean
+- Why × frequency: bigger groups get more "votes" 🗳️
+- Weakness: if everyone bunches at one end, it's off. That's why it's an **estimate**
+- Exam answer: "We don't know the exact values, so we use the midpoints"
+- Real slip: divided 50 by 4 (groups) instead of 1,800 by 50 (people)
+
+---
+
 ## ✅ Proof it works
 
 - Before: Measure **Entry 3.8**
 - After one session of circles, units and writing it down: Measure **Level 2.0** 🚀 (22/11/2026, about 11 mins)
 - Only about 2 wrong, both slips (copy slip + missed faces)
+- Statistics: **Level 2.2** after learning averages and the grouped mean in the same session
+
+Progress on 22/11/2026:
+
+| Topic | Level |
+|---|---|
+| Whole Numbers | L2.6 |
+| Shape | L2.6 |
+| Handling Information and Data | L2.6 |
+| Calculations | L2.3 |
+| Statistics | L2.2 |
+| Measure | L2.0 |
+| Fractions, Decimals, % and Ratio | **L1.9 ← next focus** |
+
+App idea: a progress screen like this, with the next topic to work on highlighted
 
 ---
 
