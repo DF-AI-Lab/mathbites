@@ -33,6 +33,52 @@ To grill and plan later.
 
 ---
 
+## 4. "Before you check" list
+
+A quick pop-up before pressing Check:
+
+1. Did I copy the numbers right?
+2. Radius or diameter?
+3. Triangle or semicircle? **Halve it!**
+
+---
+
+## 5. Circles & shapes picture cards
+
+One simple picture per idea, same colours every time:
+
+- 🔴 **Radius**: centre → edge (r = d ÷ 2)
+- 🔵 **Diameter**: all the way across (d = r × 2)
+- 🟡 **Circumference** = the belt 👖: π × **d** (answer in m)
+- 🟢 **Area** = the pizza inside 🍕: π × **r** × **r** (answer in m²)
+- 🌗 **Semicircle**
+  - Area: halve it
+  - Edge: halve the circumference, **then add the flat edge**
+- 🍊 **Surface area** = the peel / whole outside of a 3D shape
+  - Cylinder (tin): 2πr² + 2πrh (lid + base + label)
+  - Sphere (football ⚽): 4 × π × r × r (= 4 flat circles)
+- 🔺 **Triangle** = box ÷ 2 (halve the base, the height, or the answer)
+
+Memory hooks:
+
+- **C**ircumference → **D**iameter (C and D are next to each other)
+- **A**rea → "**r r**" like a growl 🐯
+- See **²** in the answer box? It's an area
+
+First version made as a web page: Circle Picture Guide
+https://claude.ai/artifact/2EfkGMq25zNEfJvvDYvTGU
+
+---
+
+## 6. Mistake tracker
+
+- Log the *type* of slip, not just wrong/right
+  - e.g. forgot to halve, used diameter not radius, copied wrong, halving error
+- Show patterns: "You forget to halve 3 times out of 5"
+- Based on real result: Measure **E3.8**, 83% to Level 1, almost all marks lost to slips
+
+---
+
 ## Parking spot (new ideas go below)
 
 -
